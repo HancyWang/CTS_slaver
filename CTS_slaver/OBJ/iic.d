@@ -1,0 +1,16 @@
+..\obj\iic.o: ..\APP\IIC.c
+..\obj\iic.o: ..\APP\common.h
+..\obj\iic.o: ..\User\stm32f0xx.h
+..\obj\iic.o: ..\CORE\core_cm0.h
+..\obj\iic.o: D:\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
+..\obj\iic.o: ..\CORE\core_cmInstr.h
+..\obj\iic.o: ..\CORE\core_cmFunc.h
+..\obj\iic.o: ..\User\system_stm32f0xx.h
+..\obj\iic.o: ..\User\stm32f0xx_conf.h
+..\obj\iic.o: ..\STM32F03x_FWLib\inc\stm32f0xx_adc.h
+..\obj\iic.o: ..\User\stm32f0xx.h
+..\obj\iic.o: ..\STM32F03x_FWLib\inc\stm32f0xx_gpio.h
+..\obj\iic.o: ..\STM32F03x_FWLib\inc\stm32f0xx_i2c.h
+..\obj\iic.o: ..\STM32F03x_FWLib\inc\stm32f0xx_rcc.h
+..\obj\iic.o: ..\STM32F03x_FWLib\inc\stm32f0xx_usart.h
+..\obj\iic.o: ..\STM32F03x_FWLib\inc\stm32f0xx_misc.h

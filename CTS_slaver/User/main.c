@@ -93,8 +93,9 @@ int main(void)
 {
   delay_init();
 	
-	//Motor_PWM_Init();
 	os_init();
+	//Motor_PWM_Init();
+	
 	
 //	//进入stop模式
 //	EnterStopMode();

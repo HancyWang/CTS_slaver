@@ -60,8 +60,13 @@ typedef enum {
 	BLUE_CHECK
 }KEY_VAL;
 
+
+
 MCU_STATE mcu_state=POWER_OFF;
 //mcu_state=POWER_OFF;
+
+
+//SWITCH_MODE prev_switch_mode=SWITCH_MODE1;
 
 //extern uint8_t OUTPUT_FINISH;
 BOOL b_Is_PCB_PowerOn=FALSE;
@@ -356,66 +361,69 @@ void EnterStopMode()
 //	PWR_EnterSTOPMode(PWR_Regulator_LowPower, PWR_STOPEntry_WFI);
 }
 
+
+
 void key_led_task(void)
 {
-	if(key_state==KEY_STOP_MODE)
-	{
-		EnterStopMode();
-		init_system_afterWakeUp();
-	}
-	
-	//按键被按下，检查电池电压是否大于2.2V
-	if(key_state==KEY_WAKE_UP)
-	{
-		//if(b_Is_PCB_PowerOn)
-		{
-			if(RegularConvData_Tab[0]>=2730)
-			{
-				//开机
-				set_led(LED_GREEN);
-				Motor_PWM_Freq_Dudy_Set(1,100,80);
-				Motor_PWM_Freq_Dudy_Set(2,100,80);
-				Motor_PWM_Freq_Dudy_Set(3,100,80);
-				Delay_ms(500);
-				Motor_PWM_Freq_Dudy_Set(1,100,0);
-				Motor_PWM_Freq_Dudy_Set(2,100,0);
-				Motor_PWM_Freq_Dudy_Set(3,100,0);
-				
-				key_state=KEY_UPING;
-				mcu_state=POWER_ON;
-			}
-			else
-			{
-				//橙色LED闪3s，关机
-				for(int i=0;i<3;i++)
-				{
-					set_led(LED_RED);
-					Delay_ms(500);
-					set_led(LED_CLOSE);
-					Delay_ms(500);
-				}
-				//key_state=KEY_UPING;
-				//key_state=KEY_STOP_MODE;
-				mcu_state=POWER_OFF;
-				
-				//进入stop模式
-				EnterStopMode();
-				//唤醒之后重新初始化
-				init_system_afterWakeUp();
-			}
-		}
-//		else
-//		{
-//			mcu_state=POWER_OFF;
-//			
-//			//进入stop模式
-//			EnterStopMode();
-//			//唤醒之后重新初始化
-//			init_system_afterWakeUp();
-//		}
-		
-	}
 
+	#if 1
+//	if(key_state==KEY_STOP_MODE)
+//	{
+//		EnterStopMode();
+//		init_system_afterWakeUp();
+//	}
+//	
+//	//按键被按下，检查电池电压是否大于2.2V
+//	if(key_state==KEY_WAKE_UP)
+//	{
+//		//if(b_Is_PCB_PowerOn)
+//		{
+//			if(RegularConvData_Tab[0]>=2730)
+//			{
+//				//开机
+//				set_led(LED_GREEN);
+//				Motor_PWM_Freq_Dudy_Set(1,100,80);
+//				Motor_PWM_Freq_Dudy_Set(2,100,80);
+//				Motor_PWM_Freq_Dudy_Set(3,100,80);
+//				Delay_ms(500);
+//				Motor_PWM_Freq_Dudy_Set(1,100,0);
+//				Motor_PWM_Freq_Dudy_Set(2,100,0);
+//				Motor_PWM_Freq_Dudy_Set(3,100,0);
+//				
+//				key_state=KEY_UPING;
+//				mcu_state=POWER_ON;
+//			}
+//			else
+//			{
+//				//橙色LED闪3s，关机
+//				for(int i=0;i<3;i++)
+//				{
+//					set_led(LED_RED);
+//					Delay_ms(500);
+//					set_led(LED_CLOSE);
+//					Delay_ms(500);
+//				}
+//				//key_state=KEY_UPING;
+//				//key_state=KEY_STOP_MODE;
+//				mcu_state=POWER_OFF;
+//				
+//				//进入stop模式
+//				EnterStopMode();
+//				//唤醒之后重新初始化
+//				init_system_afterWakeUp();
+//			}
+//		}
+////		else
+////		{
+////			mcu_state=POWER_OFF;
+////			
+////			//进入stop模式
+////			EnterStopMode();
+////			//唤醒之后重新初始化
+////			init_system_afterWakeUp();
+////		}
+//	}
+#endif
 
 	os_delay_ms(KEY_LED_TASK_ID, KEY_LED_PERIOD);
 }

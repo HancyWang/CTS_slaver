@@ -159,6 +159,17 @@ void Valve_Init()
 	GPIO_Init(GPIOB, &GPIO_InitStructure);
 }
 
+void Switch_Mode_Init()
+{
+	GPIO_InitTypeDef  GPIO_InitStructure;
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_15;
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN;
+	//GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+	//GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
+	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
+	//GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+	GPIO_Init(GPIOB, &GPIO_InitStructure);
+}
 /**************************************************************
 * 初始化硬件管脚
 **************************************************************/
@@ -202,6 +213,9 @@ void init_hardware()
 	
 	//初始化电磁阀控制管脚PB10,PB11
 	Valve_Init();
+	
+	//初始化按键PB15,MODE选择，之前的EAR项目用的是PA4,PA4可以不需要了
+	Switch_Mode_Init();
 	
 	//初始化ADC
 	ADC1_Init();

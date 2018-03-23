@@ -19,7 +19,7 @@
 *宏定义
 ***********************************/
 #define SEND_DATA_BUF_LENGTH        300  // 波特率 115200
-#define CMD_BUFFER_LENGTH         300  //宏定义命令数据包的长度
+#define CMD_BUFFER_LENGTH         350  //宏定义命令数据包的长度
 
 #define		PACK_HEAD_BYTE				 0xFF //头文件标志
 #define   MODULE_CMD_TYPE					0

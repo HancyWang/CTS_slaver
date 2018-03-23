@@ -37,6 +37,14 @@ extern const uint8_t default_parameter_buf[PARAMETER_BUF_LEN];
 
 extern uint16_t RegularConvData_Tab[2];
 
+//typedef enum
+//{
+//	SWITCH_MODE1=1,
+//	SWITCH_MODE2,
+//	SWITCH_MODE3
+//}SWITCH_MODE;
+//SWITCH_MODE switch_mode=SWITCH_MODE1;
+uint8_t mode=1;
 //uint16_t prev_cnt;
 //uint16_t cnt;
 
@@ -100,7 +108,7 @@ uint8_t PWM3_serial_cnt=0;
 
 //volatile CHCKMODE_OUTPUT_PWM state=LOAD_PARA;
 CHCKMODE_OUTPUT_PWM state=LOAD_PARA;
-uint16_t mode;                      
+//uint16_t mode;                      
 
 //uint8_t pwm_buffer[144]={0};
 //uint16_t	mode;
@@ -639,6 +647,57 @@ void FillUpPWMbuffer(uint8_t* dest,uint8_t* src,uint8_t PWMX)
 	dest[0]=serial_cnt;
 }
 
+/*******************************************************************************
+** 函数名称: get_switch_mode
+** 功能描述: 获取按键所对应的模式
+** 输　  入: 无
+** 输　  出: 无
+** 全局变量: 无
+** 调用模块: 无
+*******************************************************************************/
+void get_switch_mode()
+{
+	static uint8_t switch_mode_cnt=0;
+	if(GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_15)==0)
+	{
+		if(switch_mode_cnt==5)
+		{
+			switch_mode_cnt=0;
+			//切换按键模式
+			if(mode==1)
+			{
+				mode=2;
+			}
+			else if(mode==2)
+			{
+				mode=3;
+			}
+			else if(mode==3)
+			{
+				mode=1;
+			}
+			else
+			{
+				//do nothing
+			}
+			init_PWMState();
+			state=LOAD_PARA;
+			Motor_PWM_Freq_Dudy_Set(1,100,0);
+			Motor_PWM_Freq_Dudy_Set(2,100,0);
+			Motor_PWM_Freq_Dudy_Set(3,100,0);
+			//Motor_PWM_Freq_Dudy_Set(4,100,0);
+		}
+		else
+		{
+			switch_mode_cnt++;
+		}
+	}
+	else
+	{
+		switch_mode_cnt=0;
+	}
+	os_delay_ms(TASK_GET_SWITCH_MODE, 20);
+}
 
 /*******************************************************************************
 ** 函数名称: check_selectedMode_ouputPWM
@@ -693,7 +752,7 @@ void check_selectedMode_ouputPWM()
 			//2.获得开关对应的模式
 			if(state==GET_MODE)    //flash参数加载内存之后，获取开关对应的模式
 			{
-				mode=GetModeSelected();  //得到模式
+				//mode=GetModeSelected();  //得到模式
 				state=CPY_PARA_TO_BUFFER;
 			}
 			//3.根据选择的模式将数据拷贝到pwm_buffer

@@ -8,7 +8,7 @@
 *宏定义
 ***********************************/
 #define KEY_LED_PERIOD  20
-#define CHECK_MODE_OUTPUT_PWM 50
+#define CHECK_MODE_OUTPUT_PWM 10
 #define ONE_SEC_KEY_TIME   1000/KEY_LED_PERIOD
 /***********************************
 * 全局变量

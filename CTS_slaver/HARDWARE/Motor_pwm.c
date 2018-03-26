@@ -188,13 +188,13 @@ void Motor_PWM_Init(void)
 	Motor_PWM_Freq_Dudy_Set(2,100,50);
 	Motor_PWM_Freq_Dudy_Set(3,100,50);	
 	Motor_PWM_Freq_Dudy_Set(4,100,50);  //inflate_pwm2
-	Motor_PWM_Freq_Dudy_Set(5,100,50);
+	Motor_PWM_Freq_Dudy_Set(5,4000,50);
 	delay_ms(500);
 	Motor_PWM_Freq_Dudy_Set(1,100,0);
 	Motor_PWM_Freq_Dudy_Set(2,100,0);
 	Motor_PWM_Freq_Dudy_Set(3,100,0);
 	Motor_PWM_Freq_Dudy_Set(4,100,0);
-	Motor_PWM_Freq_Dudy_Set(5,100,0);
+	Motor_PWM_Freq_Dudy_Set(5,4000,0);
 }
 
 void Motor_PWM_Freq_Dudy_Set(UINT8 PWM_NUMBER, UINT16 Freq,UINT16 Duty)			//PWM1-2-3,FREQ,DUFY
@@ -204,11 +204,12 @@ void Motor_PWM_Freq_Dudy_Set(UINT8 PWM_NUMBER, UINT16 Freq,UINT16 Duty)			//PWM1
 	
 	UINT32 i;	
 	
-	if((Freq >=1) && (Freq <=3000)// Frequency  1 - 255Hz
+	if((Freq >=1) && (Freq <=48000)// Frequency  1 - 255Hz
 		&& (Duty <= 100))//Duty cycle 10 - 90
 	{
 		TIM_TimeBaseStructure.TIM_Period = 48000/Freq - 1;       //
 		TIM_TimeBaseStructure.TIM_Prescaler = 1000-1;	    //1000预分频
+		//TIM_TimeBaseStructure.TIM_Prescaler = 48-1;	    //1000预分频
 		TIM_TimeBaseStructure.TIM_ClockDivision = TIM_CKD_DIV1 ;	//设置时钟分频系数：不分频(这里用不到)
 		TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;  //向上计数模式
 		//TIM_TimeBaseInit(TIM3, &TIM_TimeBaseStructure);	

@@ -37,6 +37,25 @@ extern const uint8_t default_parameter_buf[PARAMETER_BUF_LEN];
 
 extern uint16_t RegularConvData_Tab[2];
 
+extern uint32_t os_ticks;
+
+static BOOL PWM1_timing_flag=TRUE;
+static BOOL PWM2_timing_flag=TRUE; 
+static BOOL PWM3_timing_flag=TRUE;
+static BOOL PWM4_timing_flag=TRUE;
+static BOOL PWM5_timing_flag=TRUE;
+static BOOL waitBeforeStart_timing_flag=TRUE;
+//static BOOL switch_bnt_timing_flag=TRUE;
+static BOOL* b_timing_flag;
+
+//uint32_t prev_switchBtn_os_tick;
+uint32_t prev_WaitBeforeStart_os_tick;
+uint32_t prev_PWM1_os_tick;
+uint32_t prev_PWM2_os_tick;
+uint32_t prev_PWM3_os_tick;
+uint32_t prev_PWM4_os_tick;
+uint32_t prev_PWM5_os_tick;
+uint32_t* p_prev_os_tick;
 //typedef enum
 //{
 //	SWITCH_MODE1=1,
@@ -79,8 +98,8 @@ PWM_STATE pwm3_state=PWM_START;
 //static uint16_t* p_PWM3_threshold; //只有PWM3才有threshold
 static PWM_STATE* p_pwm_state;
 static uint16_t* p_PWM_period_cnt;
-static uint16_t* p_PWM_waitBetween_cnt;
-static uint16_t* p_PWM_waitAfter_cnt;
+//static uint16_t* p_PWM_waitBetween_cnt;
+//static uint16_t* p_PWM_waitAfter_cnt;
 static uint8_t* p_PWM_numOfCycle;
 static uint8_t* p_PWM_serial_cnt;
 
@@ -128,6 +147,12 @@ static UINT8 CheckCheckSum(UINT8* pData, UINT8 nLen);
 
 void init_PWMState(void)
 {
+	PWM1_timing_flag=TRUE;
+	PWM2_timing_flag=TRUE; 
+	PWM3_timing_flag=TRUE;
+	waitBeforeStart_timing_flag=TRUE;
+	//switch_bnt_timing_flag=TRUE;
+	
 	pwm1_state=PWM_START;
 	pwm2_state=PWM_START;
 	pwm3_state=PWM_START;
@@ -358,6 +383,67 @@ void ReleaseGas(uint8_t second)
 	GPIO_ResetBits(GPIOB,GPIO_Pin_11);
 }
 
+//定时x毫秒,n_ms最大就255s，255000
+BOOL Is_timing_Xmillisec(uint32_t n_ms,uint8_t num)
+{
+	switch(num)
+	{
+		case 1:      //PWM1
+			b_timing_flag=&PWM1_timing_flag;
+			p_prev_os_tick=&prev_PWM1_os_tick;
+			break;
+		case 2:     //PWM2
+			b_timing_flag=&PWM2_timing_flag;
+			p_prev_os_tick=&prev_PWM2_os_tick;
+			break;
+		case 3:    //PWM3
+			b_timing_flag=&PWM3_timing_flag;
+			p_prev_os_tick=&prev_PWM3_os_tick;
+			break;
+		case 4:    //PWM4
+			b_timing_flag=&PWM4_timing_flag;
+			p_prev_os_tick=&prev_PWM4_os_tick;
+			break;
+		case 5:   //PWM5
+			b_timing_flag=&PWM5_timing_flag;
+			p_prev_os_tick=&prev_PWM5_os_tick;
+			break;
+		case 6:   //wait before start
+			b_timing_flag=&waitBeforeStart_timing_flag;
+			p_prev_os_tick=&prev_WaitBeforeStart_os_tick;
+			break;
+//		case 7:   //模式开关的按键时间 ,不适合用这个代码
+//			b_timing_flag=&switch_bnt_timing_flag;
+//			p_prev_os_tick=&prev_switchBtn_os_tick;
+//			break;
+		default:
+			break;
+	}
+	if(*b_timing_flag==TRUE)
+	{
+		*p_prev_os_tick=os_ticks;
+		*b_timing_flag=FALSE;
+	}
+	if(os_ticks+n_ms<os_ticks) //如果os_ticks+n_ms溢出了，那么os_ticks+n_ms必然小于os_ticks
+	{
+		//*p_prev_os_tick=os_ticks;
+		if(os_ticks==os_ticks+n_ms)
+		{
+			*b_timing_flag=TRUE;
+			return TRUE;
+		}
+	}
+	else
+	{
+		if(os_ticks-*p_prev_os_tick>=n_ms)
+		{
+			*b_timing_flag=TRUE;
+			return TRUE;
+		}
+	}
+	
+	return FALSE;
+}
 
 /*******************************************************************************
 * 函数名称 : PaintPWM
@@ -383,16 +469,16 @@ void PaintPWM(unsigned char num,unsigned char* buffer)
 		case 1:
 			p_pwm_state=&pwm1_state;
 			p_PWM_period_cnt=&PWM1_period_cnt;
-			p_PWM_waitBetween_cnt=&PWM1_waitBetween_cnt;
-			p_PWM_waitAfter_cnt=&PWM1_waitAfter_cnt;
+//			p_PWM_waitBetween_cnt=&PWM1_waitBetween_cnt;
+//			p_PWM_waitAfter_cnt=&PWM1_waitAfter_cnt;
 			p_PWM_numOfCycle=&PWM1_numOfCycle;
 			p_PWM_serial_cnt=&PWM1_serial_cnt;
 			break;
 		case 2:
 			p_pwm_state=&pwm2_state;
 			p_PWM_period_cnt=&PWM2_period_cnt;
-			p_PWM_waitBetween_cnt=&PWM2_waitBetween_cnt;
-			p_PWM_waitAfter_cnt=&PWM2_waitAfter_cnt;
+//			p_PWM_waitBetween_cnt=&PWM2_waitBetween_cnt;
+//			p_PWM_waitAfter_cnt=&PWM2_waitAfter_cnt;
 			p_PWM_numOfCycle=&PWM2_numOfCycle;
 			p_PWM_serial_cnt=&PWM2_serial_cnt;
 			break;
@@ -407,8 +493,8 @@ void PaintPWM(unsigned char num,unsigned char* buffer)
 			WAIT_AFTER=8;
 			p_pwm_state=&pwm3_state;
 			p_PWM_period_cnt=&PWM3_period_cnt;
-			p_PWM_waitBetween_cnt=&PWM3_waitBetween_cnt;
-			p_PWM_waitAfter_cnt=&PWM3_waitAfter_cnt;
+//			p_PWM_waitBetween_cnt=&PWM3_waitBetween_cnt;
+//			p_PWM_waitAfter_cnt=&PWM3_waitAfter_cnt;
 			p_PWM_numOfCycle=&PWM3_numOfCycle;
 			p_PWM_serial_cnt=&PWM3_serial_cnt;
 			break;
@@ -485,7 +571,19 @@ void PaintPWM(unsigned char num,unsigned char* buffer)
 		
 		if(*p_pwm_state==PWM_PERIOD)
 		{
-			if((*p_PWM_period_cnt)*CHECK_MODE_OUTPUT_PWM==buffer[1+ELEMENTS_CNT*(*p_PWM_serial_cnt)+PERIOD]*1000)
+//			if((*p_PWM_period_cnt)*CHECK_MODE_OUTPUT_PWM==buffer[1+ELEMENTS_CNT*(*p_PWM_serial_cnt)+PERIOD]*1000)
+//			{
+//				++(*p_PWM_numOfCycle);
+//				*p_PWM_period_cnt=0;
+//				*p_pwm_state=PWM_WAIT_BETWEEN;
+//				Motor_PWM_Freq_Dudy_Set(num,buffer[1+ELEMENTS_CNT*(*p_PWM_serial_cnt)+FREQ],0);
+//			}
+//			else
+//			{
+//				++(*p_PWM_period_cnt);
+//			}
+			
+			if(Is_timing_Xmillisec(buffer[1+ELEMENTS_CNT*(*p_PWM_serial_cnt)+PERIOD]*1000,num))
 			{
 				++(*p_PWM_numOfCycle);
 				*p_PWM_period_cnt=0;
@@ -507,32 +605,49 @@ void PaintPWM(unsigned char num,unsigned char* buffer)
 			}
 			else
 			{
-				if((*p_PWM_waitBetween_cnt)*CHECK_MODE_OUTPUT_PWM==buffer[1+ELEMENTS_CNT*(*p_PWM_serial_cnt)+WAIT_BETWEEN]*1000)
-				{ 
-					Motor_PWM_Freq_Dudy_Set(num,buffer[1+ELEMENTS_CNT*(*p_PWM_serial_cnt)+FREQ],buffer[1+ELEMENTS_CNT*(*p_PWM_serial_cnt)+DUTY_CYCLE]); 
-					*p_PWM_waitBetween_cnt=0;
-					*p_pwm_state=PWM_PERIOD;
-				}
-				else
+//				if((*p_PWM_waitBetween_cnt)*CHECK_MODE_OUTPUT_PWM==buffer[1+ELEMENTS_CNT*(*p_PWM_serial_cnt)+WAIT_BETWEEN]*1000)
+//				{ 
+//					Motor_PWM_Freq_Dudy_Set(num,buffer[1+ELEMENTS_CNT*(*p_PWM_serial_cnt)+FREQ],buffer[1+ELEMENTS_CNT*(*p_PWM_serial_cnt)+DUTY_CYCLE]); 
+//					*p_PWM_waitBetween_cnt=0;
+//					*p_pwm_state=PWM_PERIOD;
+//				}
+//				else
+//				{
+//					++(*p_PWM_waitBetween_cnt);
+//				}
+				
+				if(Is_timing_Xmillisec(buffer[1+ELEMENTS_CNT*(*p_PWM_serial_cnt)+WAIT_BETWEEN]*1000,num))
 				{
-					++(*p_PWM_waitBetween_cnt);
+					Motor_PWM_Freq_Dudy_Set(num,buffer[1+ELEMENTS_CNT*(*p_PWM_serial_cnt)+FREQ],buffer[1+ELEMENTS_CNT*(*p_PWM_serial_cnt)+DUTY_CYCLE]); 
+					//*p_PWM_waitBetween_cnt=0;
+					*p_pwm_state=PWM_PERIOD;
 				}
 			}
 		}
 		
 		if(*p_pwm_state==PWM_WAIT_AFTER)
 		{
-			if((*p_PWM_waitAfter_cnt)*CHECK_MODE_OUTPUT_PWM==buffer[1+ELEMENTS_CNT*(*p_PWM_serial_cnt)+WAIT_AFTER]*1000)
+//			if((*p_PWM_waitAfter_cnt)*CHECK_MODE_OUTPUT_PWM==buffer[1+ELEMENTS_CNT*(*p_PWM_serial_cnt)+WAIT_AFTER]*1000)
+//			{
+//				*p_PWM_numOfCycle=0;
+//				Motor_PWM_Freq_Dudy_Set(num,buffer[1+ELEMENTS_CNT*(*p_PWM_serial_cnt)+FREQ],0);
+//				++(*p_PWM_serial_cnt);
+//				*p_pwm_state=PWM_START;
+//				*p_PWM_waitAfter_cnt=0;
+//			}
+//			else	
+//			{
+//				++(*p_PWM_waitAfter_cnt);
+//			}
+			
+			if(Is_timing_Xmillisec(buffer[1+ELEMENTS_CNT*(*p_PWM_serial_cnt)+WAIT_AFTER]*1000,num))
 			{
+				state=OUTPUT_PWM;
 				*p_PWM_numOfCycle=0;
 				Motor_PWM_Freq_Dudy_Set(num,buffer[1+ELEMENTS_CNT*(*p_PWM_serial_cnt)+FREQ],0);
 				++(*p_PWM_serial_cnt);
 				*p_pwm_state=PWM_START;
-				*p_PWM_waitAfter_cnt=0;
-			}
-			else	
-			{
-				++(*p_PWM_waitAfter_cnt);
+				//*p_PWM_waitAfter_cnt=0;
 			}
 		}
 	}
@@ -647,6 +762,8 @@ void FillUpPWMbuffer(uint8_t* dest,uint8_t* src,uint8_t PWMX)
 	dest[0]=serial_cnt;
 }
 
+
+
 /*******************************************************************************
 ** 函数名称: get_switch_mode
 ** 功能描述: 获取按键所对应的模式
@@ -696,6 +813,34 @@ void get_switch_mode()
 	{
 		switch_mode_cnt=0;
 	}
+	
+//	if(GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_15)==0)
+//	{
+//		if(Is_timing_Xmillisec(1000,7))
+//		{
+//			if(mode==1)
+//			{
+//				mode=2;
+//			}
+//			else if(mode==2)
+//			{
+//				mode=3;
+//			}
+//			else if(mode==3)
+//			{
+//				mode=1;
+//			}
+//			else
+//			{
+//				//do nothing
+//			}
+//			init_PWMState();
+//			state=LOAD_PARA;
+//			Motor_PWM_Freq_Dudy_Set(1,100,0);
+//			Motor_PWM_Freq_Dudy_Set(2,100,0);
+//			Motor_PWM_Freq_Dudy_Set(3,100,0);
+//		}
+//	}
 	os_delay_ms(TASK_GET_SWITCH_MODE, 20);
 }
 
@@ -814,14 +959,20 @@ void check_selectedMode_ouputPWM()
 	//			}
 	//			else
 				{
-					if((PWM_waitBeforeStart_cnt)*CHECK_MODE_OUTPUT_PWM==buffer[1]*1000)
+//					if((PWM_waitBeforeStart_cnt)*CHECK_MODE_OUTPUT_PWM==buffer[1]*1000)
+//					{
+//						PWM_waitBeforeStart_cnt=0;
+//						state=OUTPUT_PWM;
+//					}
+//					else
+//					{
+//						PWM_waitBeforeStart_cnt++;					
+//					}
+					
+					
+					if(Is_timing_Xmillisec(buffer[1]*1000,6))
 					{
-						PWM_waitBeforeStart_cnt=0;
 						state=OUTPUT_PWM;
-					}
-					else
-					{
-						PWM_waitBeforeStart_cnt++;					
 					}
 				}  
 			}

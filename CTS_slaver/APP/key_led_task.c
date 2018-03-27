@@ -54,6 +54,9 @@ extern CHCKMODE_OUTPUT_PWM state;
 extern PWM_STATE pwm1_state;
 extern PWM_STATE pwm2_state;
 extern PWM_STATE pwm3_state;
+
+extern uint8_t mode;
+extern BOOL b_switch_mode_changed;
 //KEY值，这里点按为确认蓝牙连接
 typedef enum {
 	NO_KEY,
@@ -248,9 +251,9 @@ void init_system_afterWakeUp()
 //	set_led(LED_CLOSE);
 //	
 //	//初始化ADC
-//	ADC1_Init();
+//	Init_ADC1();
 //	//初始化ADS115,I2C
-//	ADS115_Init();
+//	Init_ADS115();
 //	
 //	Motor_PWM_Init();
 	
@@ -361,11 +364,32 @@ void EnterStopMode()
 //	PWR_EnterSTOPMode(PWR_Regulator_LowPower, PWR_STOPEntry_WFI);
 }
 
-
-
 void key_led_task(void)
 {
-
+	if(b_switch_mode_changed==TRUE)
+	{
+		b_switch_mode_changed=FALSE;
+		if(mode==1)
+		{
+			set_led(LED_ID_MODE3,FALSE);  //关掉LED3，打开LED1
+			set_led(LED_ID_MODE1,TRUE);
+		}
+		else if(mode==2)
+		{
+			set_led(LED_ID_MODE1,FALSE); //关掉LED1，打开LED2
+			set_led(LED_ID_MODE2,TRUE);
+		}
+		else if(mode==3)
+		{
+			set_led(LED_ID_MODE2,FALSE);   //关掉LED2，打开LED3
+			set_led(LED_ID_MODE3,TRUE);
+		}
+		else
+		{
+			//do nothing
+		}
+	}
+	
 	#if 1
 //	if(key_state==KEY_STOP_MODE)
 //	{

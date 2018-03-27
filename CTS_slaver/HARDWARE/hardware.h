@@ -20,22 +20,33 @@
 *宏定义
 ***********************************/
 //呼吸检测
-#define EXP_DETECT_PIN    GPIO_Pin_9
-#define EXP_DETECT_PORT   GPIOA
-//LED 绿色    
-#define GREEN_LED_PIN    GPIO_Pin_1
-#define GREEN_LED_PORT   GPIOF
-//LED 红色    
-#define RED_LED_PIN    GPIO_Pin_0
-#define RED_LED_PORT   GPIOF
+//#define EXP_DETECT_PIN    GPIO_Pin_9
+//#define EXP_DETECT_PORT   GPIOA
+////LED 绿色    
+//#define GREEN_LED_PIN    GPIO_Pin_1
+//#define GREEN_LED_PORT   GPIOF
+////LED 红色    
+//#define RED_LED_PIN    GPIO_Pin_0
+//#define RED_LED_PORT   GPIOF
 ////LED 蓝色    
 //#define BLUE_LED_PIN    GPIO_Pin_1
 //#define BLUE_LED_PORT   GPIOB
+
+//CTS重新定义LED,上面的LED定义可以等修改完代码之后删除掉
+#define LED_PORT GPIOB   //所有的LED灯都是GPIOB
+
+#define LED_GREEN_PWR_PIN  GPIO_Pin_2   //PB2 ,LED1,绿灯
+#define LED_YELLOW_PWR_PIN GPIO_Pin_3  //PB3,LED2,黄灯
+#define LED_MODE1_PIN      GPIO_Pin_6   //MODE1,PB6
+#define LED_MODE2_PIN			 GPIO_Pin_4   //MODE2,PB4
+#define LED_MODE3_PIN			 GPIO_Pin_5   //MODE3,PB5
+
 //按键
 #define KEY_DETECT_PIN    GPIO_Pin_0
 #define KEY_DETECT_PORT   GPIOA
 //PWR_SAVE
-#define KEY_PWR_SAVE_PIN  GPIO_Pin_5
+//#define KEY_PWR_SAVE_PIN  GPIO_Pin_5
+#define KEY_PWR_SAVE_PIN  GPIO_Pin_12
 #define KEY_PWR_SAVE_PORT   GPIOA
 
 
@@ -67,6 +78,17 @@ typedef struct
 	uint8_t min;
 	uint8_t sec;			 
 }_calendar_obj;
+
+
+typedef enum
+{
+	LED_ID_GREEN,
+	LED_ID_YELLOW,
+	LED_ID_MODE1,
+	LED_ID_MODE2,
+	LED_ID_MODE3
+}LED_ID;
+
 /***********************************
 * 外部函数
 ***********************************/
@@ -76,7 +98,8 @@ void init_rtc(void);
 void init_tim(void);
 void convert_rtc(_calendar_obj* calendar, uint32_t rtc);
 void set_rtc(uint32_t rtc);
-void set_led(LED_COLOR color);
+//void set_led(LED_COLOR color);
+void set_led(LED_ID id,BOOL ON_OFF);
 uint32_t get_rtc(void);
 BOOL get_exp_status(void);
 BOOL get_key_status(void);
@@ -100,9 +123,9 @@ void Key_WakeUp_Init(void);
 //void Init_parameter_in_Flash(void);
 
 //ADC
-void ADC1_Init(void);
+void Init_ADC1(void);
 //uint16_t Adc_Switch(uint32_t ADC_Channel);
 
 //I2C
-void ADS115_Init(void);
+void Init_ADS115(void);
 #endif

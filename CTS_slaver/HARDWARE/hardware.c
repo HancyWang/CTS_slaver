@@ -117,6 +117,74 @@ void init_tim(void)
   TIM_Cmd(TIM16, ENABLE);
 }
 
+
+/*******************************************************************************
+** 函数名称: Set_Led
+** 功能描述: 获取按键所对应的模式
+** 输　  入: num-LED编号，ON_OFF-打开或关闭
+** 输　  出: 无
+** 全局变量: 无
+** 调用模块: 无
+*******************************************************************************/
+void set_led(LED_ID id,BOOL ON_OFF)
+{
+	switch(id)
+	{
+		case LED_ID_GREEN:       //power green
+			if(ON_OFF==TRUE)
+			{
+				GPIO_ResetBits(LED_PORT,LED_GREEN_PWR_PIN);
+			}
+			else
+			{
+				GPIO_SetBits(LED_PORT,LED_GREEN_PWR_PIN);
+			}
+			break;
+		case LED_ID_YELLOW:     //power yellow
+			if(ON_OFF==TRUE)
+			{
+				GPIO_ResetBits(LED_PORT,LED_YELLOW_PWR_PIN);
+			}
+			else
+			{
+				GPIO_SetBits(LED_PORT,LED_YELLOW_PWR_PIN);
+			}
+			break;
+		case LED_ID_MODE1:         //MODE1
+			if(ON_OFF==TRUE)
+			{
+				GPIO_ResetBits(LED_PORT,LED_MODE1_PIN);
+			}
+			else
+			{
+				GPIO_SetBits(LED_PORT,LED_MODE1_PIN);
+			}
+			break;
+		case LED_ID_MODE2:   //MODE2
+			if(ON_OFF==TRUE)
+			{
+				GPIO_ResetBits(LED_PORT,LED_MODE2_PIN);
+			}
+			else
+			{
+				GPIO_SetBits(LED_PORT,LED_MODE2_PIN);
+			}
+			break;
+		case LED_ID_MODE3:  //MODE3
+			if(ON_OFF==TRUE)
+			{
+				GPIO_ResetBits(LED_PORT,LED_MODE3_PIN);
+			}
+			else
+			{
+				GPIO_SetBits(LED_PORT,LED_MODE3_PIN);
+			}
+			break;
+		default:
+			break;
+	}
+}
+
 /**************************************************************
 * 初始LED管脚
 **************************************************************/
@@ -124,15 +192,20 @@ void Init_LED(void)
 {
 	GPIO_InitTypeDef  GPIO_InitStructure;
 	//推挽输出
-	GPIO_InitStructure.GPIO_Pin = GREEN_LED_PIN;
+	GPIO_InitStructure.GPIO_Pin = LED_GREEN_PWR_PIN|LED_YELLOW_PWR_PIN|LED_MODE1_PIN|LED_MODE2_PIN|LED_MODE2_PIN|LED_MODE3_PIN;
   GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
   GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
   GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
   GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-  GPIO_Init(GREEN_LED_PORT, &GPIO_InitStructure);
+  GPIO_Init(LED_PORT, &GPIO_InitStructure);
 	
-	GPIO_InitStructure.GPIO_Pin = RED_LED_PIN;
-  GPIO_Init(RED_LED_PORT, &GPIO_InitStructure);
+	GPIO_SetBits(LED_PORT,LED_GREEN_PWR_PIN);
+	GPIO_SetBits(LED_PORT,LED_YELLOW_PWR_PIN);
+	GPIO_SetBits(LED_PORT,LED_MODE1_PIN);
+	GPIO_SetBits(LED_PORT,LED_MODE2_PIN);
+	GPIO_SetBits(LED_PORT,LED_MODE3_PIN);
+	
+	set_led(LED_ID_MODE1,TRUE);
 }
 
 void Init_PWRSAVE(void)
@@ -148,7 +221,7 @@ void Init_PWRSAVE(void)
 	GPIO_ResetBits(KEY_PWR_SAVE_PORT,KEY_PWR_SAVE_PIN);
 }
 
-void Valve_Init()
+void Init_Valve()
 {
 	GPIO_InitTypeDef  GPIO_InitStructure;
 	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_10|GPIO_Pin_11;
@@ -159,7 +232,7 @@ void Valve_Init()
 	GPIO_Init(GPIOB, &GPIO_InitStructure);
 }
 
-void Switch_Mode_Init()
+void Init_Switch_Mode()
 {
 	GPIO_InitTypeDef  GPIO_InitStructure;
 	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_15;
@@ -175,52 +248,57 @@ void Switch_Mode_Init()
 **************************************************************/
 void init_hardware()
 {
-	GPIO_InitTypeDef  GPIO_InitStructure;
+	//GPIO_InitTypeDef  GPIO_InitStructure;
 
 	RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOA | RCC_AHBPeriph_GPIOB | RCC_AHBPeriph_GPIOF, ENABLE);
 
-	//输入检测
-	GPIO_InitStructure.GPIO_Pin = EXP_DETECT_PIN;
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN;
-	GPIO_Init(EXP_DETECT_PORT, &GPIO_InitStructure);
+//	//输入检测
+//	GPIO_InitStructure.GPIO_Pin = EXP_DETECT_PIN;
+//	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN;
+//	GPIO_Init(EXP_DETECT_PORT, &GPIO_InitStructure);
 	
-	GPIO_InitStructure.GPIO_Pin = KEY_DETECT_PIN;
-	GPIO_Init(KEY_DETECT_PORT, &GPIO_InitStructure);
+//	GPIO_InitStructure.GPIO_Pin = KEY_DETECT_PIN;
+//	GPIO_Init(KEY_DETECT_PORT, &GPIO_InitStructure);
 	
-	//推挽输出
-	GPIO_InitStructure.GPIO_Pin = GREEN_LED_PIN;
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
-	GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
-	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-	GPIO_Init(GREEN_LED_PORT, &GPIO_InitStructure);
+//	//推挽输出
+//	GPIO_InitStructure.GPIO_Pin = GREEN_LED_PIN;
+//	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
+//	GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+//	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
+//	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+//	GPIO_Init(GREEN_LED_PORT, &GPIO_InitStructure);
 	
-	GPIO_InitStructure.GPIO_Pin = RED_LED_PIN;
-	GPIO_Init(RED_LED_PORT, &GPIO_InitStructure);
+//	GPIO_InitStructure.GPIO_Pin = RED_LED_PIN;
+//	GPIO_Init(RED_LED_PORT, &GPIO_InitStructure);
 	
-	//电源PWR_SAVE
-	GPIO_InitStructure.GPIO_Pin = KEY_PWR_SAVE_PIN;
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
-	GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
-	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-	GPIO_Init(KEY_PWR_SAVE_PORT, &GPIO_InitStructure);
-	GPIO_ResetBits(KEY_PWR_SAVE_PORT,KEY_PWR_SAVE_PIN);
+//	//电源PWR_SAVE
+//	GPIO_InitStructure.GPIO_Pin = KEY_PWR_SAVE_PIN;
+//	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
+//	GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+//	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
+//	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+//	GPIO_Init(KEY_PWR_SAVE_PORT, &GPIO_InitStructure);
+//	GPIO_ResetBits(KEY_PWR_SAVE_PORT,KEY_PWR_SAVE_PIN);
 	
-	GPIO_InitStructure.GPIO_Pin = RED_LED_PIN;
-	GPIO_Init(RED_LED_PORT, &GPIO_InitStructure);
-	set_led(LED_CLOSE);
+//	GPIO_InitStructure.GPIO_Pin = RED_LED_PIN;
+//	GPIO_Init(RED_LED_PORT, &GPIO_InitStructure);
+//	set_led(LED_CLOSE);
+	
+	//初始化power save管脚
+	Init_PWRSAVE();
+	//初始化5个LED灯
+	Init_LED();
 	
 	//初始化电磁阀控制管脚PB10,PB11
-	Valve_Init();
+	Init_Valve();
 	
 	//初始化按键PB15,MODE选择，之前的EAR项目用的是PA4,PA4可以不需要了
-	Switch_Mode_Init();
+	Init_Switch_Mode();
 	
 	//初始化ADC
-	ADC1_Init();
+	Init_ADC1();
 //	//初始化ADS115,I2C
-	ADS115_Init();
+	Init_ADS115();
 
 //	ADS115_enter_power_down_mode();
 //	//配置中断
@@ -236,10 +314,10 @@ void init_hardware()
 * 板级硬件资源控制
 **************************************************************/
 //呼吸檢測脚狀態
-BOOL get_exp_status(void)
-{
-	return GPIO_ReadInputDataBit(EXP_DETECT_PORT, EXP_DETECT_PIN);
-}
+//BOOL get_exp_status(void)
+//{
+//	return GPIO_ReadInputDataBit(EXP_DETECT_PORT, EXP_DETECT_PIN);
+//}
 
 //按键檢測脚狀態
 //TRUE：按下
@@ -249,35 +327,40 @@ BOOL get_key_status(void)
 	return GPIO_ReadInputDataBit(KEY_DETECT_PORT, KEY_DETECT_PIN);
 }
 
-//设置LED指示灯
-void set_led(LED_COLOR color)
-{
-	switch(color)
-	{
-		case LED_CLOSE:
-			GPIO_SetBits(GREEN_LED_PORT, GREEN_LED_PIN);
-			GPIO_SetBits(RED_LED_PORT, RED_LED_PIN);
-//			GPIO_SetBits(BLUE_LED_PORT, BLUE_LED_PIN);
-			break;
-		case LED_BLUE:
-			GPIO_SetBits(GREEN_LED_PORT, GREEN_LED_PIN);
-			GPIO_SetBits(RED_LED_PORT, RED_LED_PIN);
-//			GPIO_ResetBits(BLUE_LED_PORT, BLUE_LED_PIN);
-			break;
-		case LED_RED:
-			GPIO_ResetBits(RED_LED_PORT, RED_LED_PIN);
-			GPIO_SetBits(GREEN_LED_PORT, GREEN_LED_PIN);			
-//			GPIO_SetBits(BLUE_LED_PORT, BLUE_LED_PIN);
-			break;
-		case LED_GREEN:
-			GPIO_ResetBits(GREEN_LED_PORT, GREEN_LED_PIN);
-			GPIO_SetBits(RED_LED_PORT, RED_LED_PIN);
-//			GPIO_SetBits(BLUE_LED_PORT, BLUE_LED_PIN);
-			break;
-		default:
-			break;
-	}
-}
+
+
+
+
+
+////设置LED指示灯
+//void set_led(LED_COLOR color)
+//{	
+//	switch(color)
+//	{
+//		case LED_CLOSE:
+//			GPIO_SetBits(GREEN_LED_PORT, GREEN_LED_PIN);
+//			GPIO_SetBits(RED_LED_PORT, RED_LED_PIN);
+////			GPIO_SetBits(BLUE_LED_PORT, BLUE_LED_PIN);
+//			break;
+//		case LED_BLUE:
+//			GPIO_SetBits(GREEN_LED_PORT, GREEN_LED_PIN);
+//			GPIO_SetBits(RED_LED_PORT, RED_LED_PIN);
+////			GPIO_ResetBits(BLUE_LED_PORT, BLUE_LED_PIN);
+//			break;
+//		case LED_RED:
+//			GPIO_ResetBits(RED_LED_PORT, RED_LED_PIN);
+//			GPIO_SetBits(GREEN_LED_PORT, GREEN_LED_PIN);			
+////			GPIO_SetBits(BLUE_LED_PORT, BLUE_LED_PIN);
+//			break;
+//		case LED_GREEN:
+//			GPIO_ResetBits(GREEN_LED_PORT, GREEN_LED_PIN);
+//			GPIO_SetBits(RED_LED_PORT, RED_LED_PIN);
+////			GPIO_SetBits(BLUE_LED_PORT, BLUE_LED_PIN);
+//			break;
+//		default:
+//			break;
+//	}
+//}
 /**************************************************************
 * 电池电压检测
 **************************************************************/
@@ -502,7 +585,7 @@ void Key_WakeUp_Init(void)
   GPIO_Init(GPIOB, &GPIO_InitStructure);
 }
 
-void ADC1_Init(void)
+void Init_ADC1(void)
 {
 
 	GPIO_InitTypeDef    GPIO_InitStructure;

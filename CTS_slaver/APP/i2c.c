@@ -176,7 +176,7 @@ void ADS115_enter_power_down_mode()
 //	GPIO_Init(GPIOA, &GPIO_InitStructure);
 }
 
-void ADS115_Init(void)
+void Init_ADS115(void)
 {
 //	//debug
 //	//≈‰÷√Œ™power-downƒ£ Ω

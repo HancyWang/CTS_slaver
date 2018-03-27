@@ -56,6 +56,8 @@ uint32_t prev_PWM3_os_tick;
 uint32_t prev_PWM4_os_tick;
 uint32_t prev_PWM5_os_tick;
 uint32_t* p_prev_os_tick;
+
+BOOL b_switch_mode_changed=FALSE;
 //typedef enum
 //{
 //	SWITCH_MODE1=1,
@@ -97,7 +99,7 @@ PWM_STATE pwm3_state=PWM_START;
 
 //static uint16_t* p_PWM3_threshold; //只有PWM3才有threshold
 static PWM_STATE* p_pwm_state;
-static uint16_t* p_PWM_period_cnt;
+//static uint16_t* p_PWM_period_cnt;
 //static uint16_t* p_PWM_waitBetween_cnt;
 //static uint16_t* p_PWM_waitAfter_cnt;
 static uint8_t* p_PWM_numOfCycle;
@@ -150,6 +152,8 @@ void init_PWMState(void)
 	PWM1_timing_flag=TRUE;
 	PWM2_timing_flag=TRUE; 
 	PWM3_timing_flag=TRUE;
+	PWM4_timing_flag=TRUE;
+	PWM5_timing_flag=TRUE;
 	waitBeforeStart_timing_flag=TRUE;
 	//switch_bnt_timing_flag=TRUE;
 	
@@ -185,9 +189,9 @@ void Red_LED_Blink(uint8_t seconds)
 {
 	for(uint8_t i=0;i<seconds;i++)
 	{
-		set_led(LED_RED);
+		set_led(LED_ID_YELLOW,TRUE);
 		Delay_ms(500);
-		set_led(LED_CLOSE);
+		set_led(LED_ID_YELLOW,FALSE);
 		Delay_ms(500);
 	}
 }
@@ -384,9 +388,9 @@ void ReleaseGas(uint8_t second)
 }
 
 //定时x毫秒,n_ms最大就255s，255000
-BOOL Is_timing_Xmillisec(uint32_t n_ms,uint8_t num)
+BOOL Is_timing_Xmillisec(uint32_t n_ms,uint8_t PWM_ID)
 {
-	switch(num)
+	switch(PWM_ID)
 	{
 		case 1:      //PWM1
 			b_timing_flag=&PWM1_timing_flag;
@@ -424,24 +428,26 @@ BOOL Is_timing_Xmillisec(uint32_t n_ms,uint8_t num)
 		*p_prev_os_tick=os_ticks;
 		*b_timing_flag=FALSE;
 	}
-	if(os_ticks+n_ms<os_ticks) //如果os_ticks+n_ms溢出了，那么os_ticks+n_ms必然小于os_ticks
-	{
-		//*p_prev_os_tick=os_ticks;
-		if(os_ticks==os_ticks+n_ms)
-		{
-			*b_timing_flag=TRUE;
-			return TRUE;
-		}
-	}
 	else
 	{
-		if(os_ticks-*p_prev_os_tick>=n_ms)
+		if(os_ticks+n_ms<os_ticks) //如果os_ticks+n_ms溢出了，那么os_ticks+n_ms必然小于os_ticks
 		{
-			*b_timing_flag=TRUE;
-			return TRUE;
+			//*p_prev_os_tick=os_ticks;
+			if(os_ticks==os_ticks+n_ms)
+			{
+				*b_timing_flag=TRUE;
+				return TRUE;
+			}
+		}
+		else
+		{
+			if(os_ticks-*p_prev_os_tick>=n_ms)
+			{
+				*b_timing_flag=TRUE;
+				return TRUE;
+			}
 		}
 	}
-	
 	return FALSE;
 }
 
@@ -468,7 +474,7 @@ void PaintPWM(unsigned char num,unsigned char* buffer)
 	{
 		case 1:
 			p_pwm_state=&pwm1_state;
-			p_PWM_period_cnt=&PWM1_period_cnt;
+//			p_PWM_period_cnt=&PWM1_period_cnt;
 //			p_PWM_waitBetween_cnt=&PWM1_waitBetween_cnt;
 //			p_PWM_waitAfter_cnt=&PWM1_waitAfter_cnt;
 			p_PWM_numOfCycle=&PWM1_numOfCycle;
@@ -476,7 +482,7 @@ void PaintPWM(unsigned char num,unsigned char* buffer)
 			break;
 		case 2:
 			p_pwm_state=&pwm2_state;
-			p_PWM_period_cnt=&PWM2_period_cnt;
+//			p_PWM_period_cnt=&PWM2_period_cnt;
 //			p_PWM_waitBetween_cnt=&PWM2_waitBetween_cnt;
 //			p_PWM_waitAfter_cnt=&PWM2_waitAfter_cnt;
 			p_PWM_numOfCycle=&PWM2_numOfCycle;
@@ -492,7 +498,7 @@ void PaintPWM(unsigned char num,unsigned char* buffer)
 			WAIT_BETWEEN=7;
 			WAIT_AFTER=8;
 			p_pwm_state=&pwm3_state;
-			p_PWM_period_cnt=&PWM3_period_cnt;
+//			p_PWM_period_cnt=&PWM3_period_cnt;
 //			p_PWM_waitBetween_cnt=&PWM3_waitBetween_cnt;
 //			p_PWM_waitAfter_cnt=&PWM3_waitAfter_cnt;
 			p_PWM_numOfCycle=&PWM3_numOfCycle;
@@ -565,7 +571,6 @@ void PaintPWM(unsigned char num,unsigned char* buffer)
 					Motor_PWM_Freq_Dudy_Set(num,buffer[1+ELEMENTS_CNT*(*p_PWM_serial_cnt)+FREQ],buffer[1+ELEMENTS_CNT*(*p_PWM_serial_cnt)+DUTY_CYCLE]);
 					*p_pwm_state=PWM_PERIOD;
 				}
-					
 			}
 		}
 		
@@ -586,14 +591,14 @@ void PaintPWM(unsigned char num,unsigned char* buffer)
 			if(Is_timing_Xmillisec(buffer[1+ELEMENTS_CNT*(*p_PWM_serial_cnt)+PERIOD]*1000,num))
 			{
 				++(*p_PWM_numOfCycle);
-				*p_PWM_period_cnt=0;
+				//*p_PWM_period_cnt=0;
 				*p_pwm_state=PWM_WAIT_BETWEEN;
 				Motor_PWM_Freq_Dudy_Set(num,buffer[1+ELEMENTS_CNT*(*p_PWM_serial_cnt)+FREQ],0);
 			}
-			else
-			{
-				++(*p_PWM_period_cnt);
-			}
+//			else
+//			{
+//				++(*p_PWM_period_cnt);
+//			}
 		}
 		
 		if(*p_pwm_state==PWM_WAIT_BETWEEN)
@@ -762,11 +767,9 @@ void FillUpPWMbuffer(uint8_t* dest,uint8_t* src,uint8_t PWMX)
 	dest[0]=serial_cnt;
 }
 
-
-
 /*******************************************************************************
 ** 函数名称: get_switch_mode
-** 功能描述: 获取按键所对应的模式
+** 功能描述: 获取按键所对应的模式，通过按键按下和释放的检测来判断
 ** 输　  入: 无
 ** 输　  出: 无
 ** 全局变量: 无
@@ -775,34 +778,24 @@ void FillUpPWMbuffer(uint8_t* dest,uint8_t* src,uint8_t PWMX)
 void get_switch_mode()
 {
 	static uint8_t switch_mode_cnt=0;
+	static uint8_t release_btn_cnt=0;
+	static BOOL b_check_bnt_release=FALSE;
+	//static BOOL b_check_bnt_pressed=FALSE;
 	if(GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_15)==0)
 	{
 		if(switch_mode_cnt==5)
 		{
+			//b_check_bnt_pressed=TRUE;
+			b_check_bnt_release=TRUE;
 			switch_mode_cnt=0;
-			//切换按键模式
-			if(mode==1)
-			{
-				mode=2;
-			}
-			else if(mode==2)
-			{
-				mode=3;
-			}
-			else if(mode==3)
-			{
-				mode=1;
-			}
-			else
-			{
-				//do nothing
-			}
-			init_PWMState();
-			state=LOAD_PARA;
-			Motor_PWM_Freq_Dudy_Set(1,100,0);
-			Motor_PWM_Freq_Dudy_Set(2,100,0);
-			Motor_PWM_Freq_Dudy_Set(3,100,0);
-			//Motor_PWM_Freq_Dudy_Set(4,100,0);
+			
+//			init_PWMState();
+//			state=LOAD_PARA;
+//			Motor_PWM_Freq_Dudy_Set(1,100,0);
+//			Motor_PWM_Freq_Dudy_Set(2,100,0);
+//			Motor_PWM_Freq_Dudy_Set(3,100,0);
+//			Motor_PWM_Freq_Dudy_Set(4,100,0);
+//			Motor_PWM_Freq_Dudy_Set(5,100,0);
 		}
 		else
 		{
@@ -812,23 +805,76 @@ void get_switch_mode()
 	else
 	{
 		switch_mode_cnt=0;
+		if(b_check_bnt_release==TRUE)
+		{
+			if(release_btn_cnt==5)
+			{
+				release_btn_cnt=0;
+				//b_check_bnt_pressed=FALSE;
+				b_check_bnt_release=FALSE;
+				//切换按键模式
+				if(mode==1)
+				{
+					mode=2;
+//					set_led(LED_ID_MODE1,FALSE); //关掉LED1，打开LED2
+//					set_led(LED_ID_MODE2,TRUE);
+				}
+				else if(mode==2)
+				{
+					mode=3;
+//					set_led(LED_ID_MODE2,FALSE);   //关掉LED2，打开LED3
+//					set_led(LED_ID_MODE3,TRUE);
+				}
+				else if(mode==3)
+				{
+					mode=1;
+//					set_led(LED_ID_MODE3,FALSE);  //关掉LED3，打开LED1
+//					set_led(LED_ID_MODE1,TRUE);
+				}
+				else
+				{
+					//do nothing
+				}
+				b_switch_mode_changed=TRUE;
+				init_PWMState();
+				state=LOAD_PARA;
+				Motor_PWM_Freq_Dudy_Set(1,100,0);
+				Motor_PWM_Freq_Dudy_Set(2,100,0);
+				Motor_PWM_Freq_Dudy_Set(3,100,0);
+				Motor_PWM_Freq_Dudy_Set(4,100,0);
+				Motor_PWM_Freq_Dudy_Set(5,100,0);
+			}
+			else
+			{
+				release_btn_cnt++;
+			}
+		}
 	}
-	
+	#if 0
+//  static uint8_t switch_mode_cnt=0;
 //	if(GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_15)==0)
 //	{
-//		if(Is_timing_Xmillisec(1000,7))
+//		if(switch_mode_cnt==5)
 //		{
+//			switch_mode_cnt=0;
+//			//切换按键模式
 //			if(mode==1)
 //			{
 //				mode=2;
+////				set_led(LED_ID_MODE1,FALSE); //关掉LED1，打开LED2
+////				set_led(LED_ID_MODE2,TRUE);
 //			}
 //			else if(mode==2)
 //			{
 //				mode=3;
+////				set_led(LED_ID_MODE2,FALSE);   //关掉LED2，打开LED3
+////				set_led(LED_ID_MODE3,TRUE);
 //			}
 //			else if(mode==3)
 //			{
 //				mode=1;
+////				set_led(LED_ID_MODE3,FALSE);  //关掉LED3，打开LED1
+////				set_led(LED_ID_MODE1,TRUE);
 //			}
 //			else
 //			{
@@ -839,8 +885,18 @@ void get_switch_mode()
 //			Motor_PWM_Freq_Dudy_Set(1,100,0);
 //			Motor_PWM_Freq_Dudy_Set(2,100,0);
 //			Motor_PWM_Freq_Dudy_Set(3,100,0);
+//			//Motor_PWM_Freq_Dudy_Set(4,100,0);
+//		}
+//		else
+//		{
+//			switch_mode_cnt++;
 //		}
 //	}
+//	else
+//	{
+//		switch_mode_cnt=0;
+//	}
+#endif
 	os_delay_ms(TASK_GET_SWITCH_MODE, 20);
 }
 

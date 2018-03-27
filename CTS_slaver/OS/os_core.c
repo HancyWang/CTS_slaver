@@ -120,5 +120,6 @@ void os_isr_ticks(void)
 */
 void os_init(void)
 {
+	//os_ticks=4294967000;
 	OS_INIT();
 }

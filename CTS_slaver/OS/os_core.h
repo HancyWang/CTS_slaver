@@ -15,6 +15,8 @@ typedef struct SCB_DATA
 
 /*Íâ²¿º¯”µ¶¨Áx*/
 void os_init(void);
+//void Init_sysTick(uint8_t SYSCLK);
+
 void os_start(void);
 void os_create_task(void(*c_ptask)(void), uint8_t c_run_en, uint8_t c_id);
 void os_resume_task(uint8_t r_id);

@@ -101,6 +101,7 @@ void PendSV_Handler(void)
   */
 void SysTick_Handler(void)
 {
+//	os_isr_ticks();
 }
 
 /******************************************************************************/

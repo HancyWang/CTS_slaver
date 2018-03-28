@@ -89,6 +89,9 @@
 		#endif
 	};
 	
+
+	
+	
 int main(void)
 {
   delay_init();
@@ -96,7 +99,7 @@ int main(void)
 	os_init();
 	//Motor_PWM_Init();
 	
-	
+	//Init_sysTick(48);  //48M
 //	//进入stop模式
 //	EnterStopMode();
 //	//唤醒之后先初始化系统

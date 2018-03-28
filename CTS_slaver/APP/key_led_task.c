@@ -366,29 +366,29 @@ void EnterStopMode()
 
 void key_led_task(void)
 {
-	if(b_switch_mode_changed==TRUE)
-	{
-		b_switch_mode_changed=FALSE;
-		if(mode==1)
-		{
-			set_led(LED_ID_MODE3,FALSE);  //关掉LED3，打开LED1
-			set_led(LED_ID_MODE1,TRUE);
-		}
-		else if(mode==2)
-		{
-			set_led(LED_ID_MODE1,FALSE); //关掉LED1，打开LED2
-			set_led(LED_ID_MODE2,TRUE);
-		}
-		else if(mode==3)
-		{
-			set_led(LED_ID_MODE2,FALSE);   //关掉LED2，打开LED3
-			set_led(LED_ID_MODE3,TRUE);
-		}
-		else
-		{
-			//do nothing
-		}
-	}
+//	if(b_switch_mode_changed==TRUE)
+//	{
+//		b_switch_mode_changed=FALSE;
+//		if(mode==1)
+//		{
+//			set_led(LED_ID_MODE3,FALSE);  //关掉LED3，打开LED1
+//			set_led(LED_ID_MODE1,TRUE);
+//		}
+//		else if(mode==2)
+//		{
+//			set_led(LED_ID_MODE1,FALSE); //关掉LED1，打开LED2
+//			set_led(LED_ID_MODE2,TRUE);
+//		}
+//		else if(mode==3)
+//		{
+//			set_led(LED_ID_MODE2,FALSE);   //关掉LED2，打开LED3
+//			set_led(LED_ID_MODE3,TRUE);
+//		}
+//		else
+//		{
+//			//do nothing
+//		}
+//	}
 	
 	#if 1
 //	if(key_state==KEY_STOP_MODE)

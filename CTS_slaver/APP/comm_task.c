@@ -57,7 +57,7 @@ uint32_t prev_PWM4_os_tick;
 uint32_t prev_PWM5_os_tick;
 uint32_t* p_prev_os_tick;
 
-BOOL b_switch_mode_changed=FALSE;
+//BOOL b_switch_mode_changed=FALSE;
 //typedef enum
 //{
 //	SWITCH_MODE1=1,
@@ -816,29 +816,38 @@ void get_switch_mode()
 				if(mode==1)
 				{
 					mode=2;
-//					set_led(LED_ID_MODE1,FALSE); //关掉LED1，打开LED2
-//					set_led(LED_ID_MODE2,TRUE);
+					//这里有个问题，为什么不能调用API，一用就影响PWM2?
+					//Motor_PWM_Freq_Dudy_Set(2,100,0);必须写两次，否则就会出现这个问题
+//					GPIO_SetBits(LED_PORT,LED_ID_MODE1);
+//					GPIO_ResetBits(LED_PORT,LED_ID_MODE2);		
+					set_led(LED_ID_MODE1,FALSE); //关掉LED1，打开LED2
+					set_led(LED_ID_MODE2,TRUE);
 				}
 				else if(mode==2)
 				{
 					mode=3;
-//					set_led(LED_ID_MODE2,FALSE);   //关掉LED2，打开LED3
-//					set_led(LED_ID_MODE3,TRUE);
+//					GPIO_SetBits(LED_PORT,LED_ID_MODE2);
+//					GPIO_ResetBits(LED_PORT,LED_ID_MODE3);
+					set_led(LED_ID_MODE2,FALSE);   //关掉LED2，打开LED3
+					set_led(LED_ID_MODE3,TRUE);
 				}
 				else if(mode==3)
 				{
 					mode=1;
-//					set_led(LED_ID_MODE3,FALSE);  //关掉LED3，打开LED1
-//					set_led(LED_ID_MODE1,TRUE);
+//					GPIO_SetBits(LED_PORT,LED_ID_MODE3);
+//					GPIO_ResetBits(LED_PORT,LED_ID_MODE1);
+					set_led(LED_ID_MODE3,FALSE);  //关掉LED3，打开LED1
+					set_led(LED_ID_MODE1,TRUE);
 				}
 				else
 				{
 					//do nothing
 				}
-				b_switch_mode_changed=TRUE;
+				//b_switch_mode_changed=TRUE;
 				init_PWMState();
 				state=LOAD_PARA;
 				Motor_PWM_Freq_Dudy_Set(1,100,0);
+				Motor_PWM_Freq_Dudy_Set(2,100,0);  //必须写两次，否则就出问题
 				Motor_PWM_Freq_Dudy_Set(2,100,0);
 				Motor_PWM_Freq_Dudy_Set(3,100,0);
 				Motor_PWM_Freq_Dudy_Set(4,100,0);

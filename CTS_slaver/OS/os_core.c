@@ -123,3 +123,17 @@ void os_init(void)
 	//os_ticks=4294967000;
 	OS_INIT();
 }
+
+void Init_sysTick(uint8_t SYSCLK)
+{
+//	 uint16_t fac_us,fac_ms;
+//   SysTick->CTRL&=0xfffffffb;    //bit2??,??????  HCLK/8
+//   fac_us=SYSCLK/1;      
+//   fac_ms=(uint16_t)fac_us*1000;
+//   SysTick->LOAD=(uint32_t)1*fac_ms;    //????(SysTick->LOAD?24bit)
+//	//SysTick->LOAD=48000;
+//   SysTick->VAL =0x00;                    //?????
+//   SysTick->CTRL |=(1<<0 |1<<1);    //????    
+//    /* Function successful */
+}
+

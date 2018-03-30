@@ -25,3 +25,4 @@
 ..\obj\main.o: ..\APP\common.h
 ..\obj\main.o: ..\HARDWARE\Motor_pwm.h
 ..\obj\main.o: ..\STM32F03x_FWLib\inc\stm32f0xx_dma.h
+..\obj\main.o: iwtdg.h

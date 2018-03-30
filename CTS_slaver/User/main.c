@@ -14,6 +14,7 @@
 #include "Motor_pwm.h"
 //#include "device_type.h"
 #include "stm32f0xx_dma.h"
+#include "iwtdg.h"
 
  const uint8_t default_parameter_buf[PARAMETER_BUF_LEN] = {
 #if 1
@@ -88,12 +89,11 @@
 		0x28,0x35
 		#endif
 	};
-	
 
-	
 	
 int main(void)
 {
+	Init_iWtdg(4,1250);  //4*2^4=64∑÷∆µ£¨1250(¥Û∏≈ «1250*1.6ms=2s)
   delay_init();
 	
 	os_init();

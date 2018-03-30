@@ -16,7 +16,7 @@
 #include "i2c.h"
 #include "key_led_task.h"
 #include "hardware.h"
-
+#include "iwtdg.h"
 
 //全局变量
 CMD_Receive g_CmdReceive;  // 命令接收控制对象
@@ -193,6 +193,7 @@ void Red_LED_Blink(uint8_t seconds)
 		Delay_ms(500);
 		set_led(LED_ID_YELLOW,FALSE);
 		Delay_ms(500);
+		IWDG_Feed();   //喂狗
 	}
 }
 
@@ -815,6 +816,9 @@ void get_switch_mode()
 				//切换按键模式
 				if(mode==1)
 				{
+//					while(1)
+//					{//验证狗
+//					}   
 					mode=2;
 					//这里有个问题，为什么不能调用API，一用就影响PWM2?
 					//Motor_PWM_Freq_Dudy_Set(2,100,0);必须写两次，否则就会出现这个问题
@@ -1154,6 +1158,7 @@ void check_selectedMode_ouputPWM()
 ////		init_system_afterWakeUp();
 ////		Motor_PWM_Init();
 //	}
+	IWDG_Feed();   //喂狗
 	os_delay_ms(TASK_OUTPUT_PWM, CHECK_MODE_OUTPUT_PWM);
 }
 /*******************************************************************************

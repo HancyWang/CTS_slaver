@@ -2,6 +2,7 @@
 "..\obj\main.o"
 "..\obj\stm32f0xx_it.o"
 "..\obj\system_stm32f0xx.o"
+"..\obj\iwtdg.o"
 "..\obj\app.o"
 "..\obj\comm_task.o"
 "..\obj\key_led_task.o"
@@ -27,6 +28,7 @@
 "..\obj\stm32f0xx_adc.o"
 "..\obj\stm32f0xx_exti.o"
 "..\obj\stm32f0xx_syscfg.o"
+"..\obj\stm32f0xx_iwdg.o"
 --ro-base 0x08000000 --entry 0x08000000 --rw-base 0x20000000 --entry Reset_Handler --first __Vectors --strict --summary_stderr --info summarysizes --map --xref --callgraph --symbols
 --info sizes --info totals --info unused --info veneers
 --list ".\STM32F030Demo.map" -o ..\OBJ\STM32F030Demo.axf

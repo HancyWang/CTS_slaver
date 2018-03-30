@@ -30,3 +30,4 @@
 ..\obj\comm_task.o: ..\APP\i2c.h
 ..\obj\comm_task.o: ..\APP\common.h
 ..\obj\comm_task.o: ..\HARDWARE\hardware.h
+..\obj\comm_task.o: ..\User\iwtdg.h

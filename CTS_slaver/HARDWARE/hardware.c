@@ -279,6 +279,39 @@ void Init_PWR_EN()
 	GPIO_Init(GPIOA, &GPIO_InitStructure);
 }
 
+void Init_PWR_ON_OFF()      //PA8
+{
+	GPIO_InitTypeDef  GPIO_InitStructure;
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_8;
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN;
+//	GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+//	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
+//	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+	GPIO_Init(GPIOA, &GPIO_InitStructure);
+}
+
+void Init_SWITCH_ON_OFF()
+{
+	GPIO_InitTypeDef  GPIO_InitStructure;
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_13;
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN;
+//	GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+//	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
+//	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+	GPIO_Init(GPIOB, &GPIO_InitStructure);
+}
+
+void Init_USB_OE()
+{
+	GPIO_InitTypeDef  GPIO_InitStructure;
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_0;
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN;
+//	GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+//	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
+//	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+	GPIO_Init(GPIOA, &GPIO_InitStructure);
+}
+
 /**************************************************************
 * ³õÊ¼»¯Ó²¼þ¹Ü½Å
 **************************************************************/
@@ -320,6 +353,15 @@ void init_hardware()
 //	GPIO_Init(RED_LED_PORT, &GPIO_InitStructure);
 //	set_led(LED_CLOSE);
 	
+	//³õÊ¼»¯USB_OE
+	Init_USB_OE();  //PA0
+	
+	//³õÊ¼»¯ pwr_on_off
+	Init_PWR_ON_OFF();   //PA8
+	
+	//³õÊ¼»¯ switch_on_off 
+	Init_SWITCH_ON_OFF(); //PB13
+	
 	//³õÊ¼»¯bat charge and standby
 	Init_Bat_Charge_Stby();   //PA4,PA5
 	
@@ -338,7 +380,7 @@ void init_hardware()
 	Init_Switch_Mode();   //PB15
 	
 	//³õÊ¼»¯ADC
-	Init_ADC1();         //PB0£¬PA1(ÒªºÍPA15ÅäºÏÊ¹ÓÃ),Õâ¸öÒª¸Ä£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡
+	Init_ADC1();         //PB0£¬PA1(ÒªºÍPA15ÅäºÏÊ¹ÓÃ)
 //	//³õÊ¼»¯ADS115,I2C
 	Init_ADS115();       //PA9,PA10
 
@@ -634,7 +676,6 @@ void Init_ADC1(void)
 	DMA_InitTypeDef     DMA_InitStructure;
 	ADC_InitTypeDef     ADC_InitStructure;
 
-	
 	RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOA, ENABLE);
 	RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOB, ENABLE);  //ÐÂÔö
 	
@@ -666,8 +707,6 @@ void Init_ADC1(void)
   DMA_InitStructure.DMA_M2M = DMA_M2M_Disable;//DMAí¨µàx??óDéè???a?ú'?µ??ú'?'?ê?
   DMA_Init(DMA1_Channel1, &DMA_InitStructure);
 		  
-  
-	
 	DMA_Cmd(DMA1_Channel1, ENABLE);/* DMA1 Channel1 enable */			
 	ADC_DMARequestModeConfig(ADC1, ADC_DMAMode_Circular); /* Enable ADC_DMA */	
   ADC_DMACmd(ADC1, ENABLE);  

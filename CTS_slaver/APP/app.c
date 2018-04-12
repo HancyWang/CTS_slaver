@@ -24,7 +24,7 @@
 #include "fifo.h"
 #include "protocol_module.h"
 #include "stm32f0xx_rtc.h"
-#include "key_led_task.h"
+#include "key_power_on_task.h"
 //#include "exp_task.h" 
 #include "stm32f0xx_usart.h"
 //#include "store_fifo.h"
@@ -76,11 +76,13 @@ void init_task(void)
 
 	os_create_task(TaskDataSend, OS_TRUE, SEND_TASK_ID);
 	os_create_task(CMD_ProcessTask, OS_TRUE, RECEIVE_TASK_ID);
-	//os_create_task(key_led_task, OS_TRUE, KEY_LED_TASK_ID);
+	os_create_task(key_power_on_task, OS_TRUE, KEY_LED_TASK_ID);
 	os_create_task(check_selectedMode_ouputPWM,OS_TRUE,TASK_OUTPUT_PWM);
 	os_create_task(get_switch_mode,OS_TRUE,TASK_GET_SWITCH_MODE);
+	os_create_task(ReleaseGas, OS_TRUE, TASK_RELEASE_GAS_ID);
+	os_create_task(DetectPalm, OS_TRUE, TASK_DETECT_PALM_ID);
+	os_create_task(DetectBattery,OS_TRUE,TASK_DETECT_BATTERY_ID);
 	os_pend_task(INIT_TASK_ID);
-
 }
 
 

@@ -25,4 +25,4 @@
 ..\obj\app.o: ..\SYSTEM\fifo\fifo.h
 ..\obj\app.o: ..\MODULE\protocol_module.h
 ..\obj\app.o: ..\STM32F03x_FWLib\inc\stm32f0xx_rtc.h
-..\obj\app.o: ..\APP\key_led_task.h
+..\obj\app.o: ..\APP\key_power_on_task.h

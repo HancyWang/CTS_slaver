@@ -13,16 +13,16 @@
       <pCCUsed>5060422::V5.06 update 4 (build 422)::ARMCC</pCCUsed>
       <TargetOption>
         <TargetCommonOption>
-          <Device>STM32F030C8</Device>
+          <Device>STM32F070CB</Device>
           <Vendor>STMicroelectronics</Vendor>
           <PackID>Keil.STM32F0xx_DFP.1.5.0</PackID>
           <PackURL>http://www.keil.com/pack/</PackURL>
-          <Cpu>IRAM(0x20000000,0x2000) IROM(0x08000000,0x10000) CPUTYPE("Cortex-M0") CLOCK(12000000) ELITTLE</Cpu>
+          <Cpu>IRAM(0x20000000,0x4000) IROM(0x08000000,0x20000) CPUTYPE("Cortex-M0") CLOCK(12000000) ELITTLE</Cpu>
           <FlashUtilSpec></FlashUtilSpec>
           <StartupFile></StartupFile>
-          <FlashDriverDll>UL2CM3(-S0 -C0 -P0 -FD20000000 -FC1000 -FN1 -FF0STM32F0xx_64 -FS08000000 -FL010000 -FP0($$Device:STM32F030C8$Flash\STM32F0xx_64.FLM))</FlashDriverDll>
+          <FlashDriverDll>UL2CM3(-S0 -C0 -P0 -FD20000000 -FC1000 -FN1 -FF0STM32F0xx_128 -FS08000000 -FL020000 -FP0($$Device:STM32F070CB$Flash\STM32F0xx_128.FLM))</FlashDriverDll>
           <DeviceId>0</DeviceId>
-          <RegisterFile>$$Device:STM32F030C8$Device\Include\stm32f0xx.h</RegisterFile>
+          <RegisterFile>$$Device:STM32F070CB$Device\Include\stm32f0xx.h</RegisterFile>
           <MemoryEnv></MemoryEnv>
           <Cmp></Cmp>
           <Asm></Asm>
@@ -32,7 +32,7 @@
           <SLE66CMisc></SLE66CMisc>
           <SLE66AMisc></SLE66AMisc>
           <SLE66LinkerMisc></SLE66LinkerMisc>
-          <SFDFile>$$Device:STM32F030C8$SVD\STM32F0x0.svd</SFDFile>
+          <SFDFile>$$Device:STM32F070CB$SVD\STM32F0x0.svd</SFDFile>
           <bCustSvd>0</bCustSvd>
           <UseEnv>0</UseEnv>
           <BinPath></BinPath>
@@ -243,12 +243,12 @@
               <IRAM>
                 <Type>0</Type>
                 <StartAddress>0x20000000</StartAddress>
-                <Size>0x2000</Size>
+                <Size>0x4000</Size>
               </IRAM>
               <IROM>
                 <Type>1</Type>
                 <StartAddress>0x8000000</StartAddress>
-                <Size>0x10000</Size>
+                <Size>0x20000</Size>
               </IROM>
               <XRAM>
                 <Type>0</Type>
@@ -273,7 +273,7 @@
               <OCR_RVCT4>
                 <Type>1</Type>
                 <StartAddress>0x8000000</StartAddress>
-                <Size>0x10000</Size>
+                <Size>0x20000</Size>
               </OCR_RVCT4>
               <OCR_RVCT5>
                 <Type>1</Type>
@@ -298,7 +298,7 @@
               <OCR_RVCT9>
                 <Type>0</Type>
                 <StartAddress>0x20000000</StartAddress>
-                <Size>0x2000</Size>
+                <Size>0x4000</Size>
               </OCR_RVCT9>
               <OCR_RVCT10>
                 <Type>0</Type>
@@ -394,6 +394,11 @@
               <FileType>1</FileType>
               <FilePath>.\system_stm32f0xx.c</FilePath>
             </File>
+            <File>
+              <FileName>iwtdg.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\iwtdg.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -410,9 +415,9 @@
               <FilePath>..\APP\comm_task.c</FilePath>
             </File>
             <File>
-              <FileName>key_led_task.c</FileName>
+              <FileName>key_power_on_task.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\APP\key_led_task.c</FilePath>
+              <FilePath>..\APP\key_power_on_task.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -553,6 +558,11 @@
               <FileName>stm32f0xx_syscfg.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\STM32F03x_FWLib\src\stm32f0xx_syscfg.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32f0xx_iwdg.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\STM32F03x_FWLib\src\stm32f0xx_iwdg.c</FilePath>
             </File>
           </Files>
         </Group>

@@ -20,7 +20,7 @@
 ..\obj\main.o: ..\SYSTEM\fifo\datatype.h
 ..\obj\main.o: ..\APP\app.h
 ..\obj\main.o: ..\APP\comm_task.h
-..\obj\main.o: ..\APP\key_led_task.h
+..\obj\main.o: ..\APP\key_power_on_task.h
 ..\obj\main.o: ..\APP\i2c.h
 ..\obj\main.o: ..\APP\common.h
 ..\obj\main.o: ..\HARDWARE\Motor_pwm.h

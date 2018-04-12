@@ -5,7 +5,7 @@
 "..\obj\iwtdg.o"
 "..\obj\app.o"
 "..\obj\comm_task.o"
-"..\obj\key_led_task.o"
+"..\obj\key_power_on_task.o"
 "..\obj\protocol_module.o"
 "..\obj\common.o"
 "..\obj\delay.o"

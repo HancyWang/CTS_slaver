@@ -184,17 +184,18 @@ void Motor_PWM_Init(void)
 	Motor_PWM_GPIO_Config();
 	Motor_PWM_Config();
 	
-	Motor_PWM_Freq_Dudy_Set(1,100,50);
-	Motor_PWM_Freq_Dudy_Set(2,100,50);
-	Motor_PWM_Freq_Dudy_Set(3,100,50);	
-	Motor_PWM_Freq_Dudy_Set(4,100,50);  //inflate_pwm2
-	Motor_PWM_Freq_Dudy_Set(5,4000,50);
-	delay_ms(500);
-	Motor_PWM_Freq_Dudy_Set(1,100,0);
-	Motor_PWM_Freq_Dudy_Set(2,100,0);
-	Motor_PWM_Freq_Dudy_Set(3,100,0);
-	Motor_PWM_Freq_Dudy_Set(4,100,0);
-	Motor_PWM_Freq_Dudy_Set(5,4000,0);
+//	//debug
+//	Motor_PWM_Freq_Dudy_Set(1,100,50);
+//	Motor_PWM_Freq_Dudy_Set(2,100,50);
+//	Motor_PWM_Freq_Dudy_Set(3,100,50);	
+//	Motor_PWM_Freq_Dudy_Set(4,100,50);  //inflate_pwm2
+//	Motor_PWM_Freq_Dudy_Set(5,4000,50);
+//	delay_ms(500);
+//	Motor_PWM_Freq_Dudy_Set(1,100,0);
+//	Motor_PWM_Freq_Dudy_Set(2,100,0);
+//	Motor_PWM_Freq_Dudy_Set(3,100,0);
+//	Motor_PWM_Freq_Dudy_Set(4,100,0);
+//	Motor_PWM_Freq_Dudy_Set(5,4000,0);
 }
 
 void Motor_PWM_Freq_Dudy_Set(UINT8 PWM_NUMBER, UINT16 Freq,UINT16 Duty)			//PWM1-2-3,FREQ,DUFY

@@ -25,7 +25,7 @@
 #include "string.h"
 #include "stdlib.h"
 #include "stm32f0xx_flash.h"
-#include "key_led_task.h"
+#include "key_power_on_task.h"
 
 #include "common.h"
 /**********************************
@@ -454,31 +454,31 @@ uint8_t FlashReadByte(uint32_t addr)
 	return (uint8_t)(*(uint8_t*)addr);
 }
 
-//得到按键模式
-uint16_t GetModeSelected(void)
-{
-	uint16_t res;
-	res=RegularConvData_Tab[1];
-//	for(uint8_t i=0;i<3;i++)
+////得到按键模式
+//uint16_t GetModeSelected(void)
+//{
+//	uint16_t res;
+//	res=RegularConvData_Tab[1];
+////	for(uint8_t i=0;i<3;i++)
+////	{
+////		res=Adc_Switch(ADC_Channel_4);
+////	}
+//	
+//	if(res>=1500)
 //	{
-//		res=Adc_Switch(ADC_Channel_4);
+//		return 1;  //返回模式1
 //	}
-	
-	if(res>=1500)
-	{
-		return 1;  //返回模式1
-	}
-	else if(res>=700&&res<1500)
-	//else if(res>=mod2_base_vol-200&&res<=mod2_base_vol+200)
-	{
-		return 2;	//返回模式2
-	}
-	//else if(res>=138&&res<=538)
-	else
-	{
-		return 3; //返回模式3
-	}
-}
+//	else if(res>=700&&res<1500)
+//	//else if(res>=mod2_base_vol-200&&res<=mod2_base_vol+200)
+//	{
+//		return 2;	//返回模式2
+//	}
+//	//else if(res>=138&&res<=538)
+//	else
+//	{
+//		return 3; //返回模式3
+//	}
+//}
 
 
 //解析上位机命令

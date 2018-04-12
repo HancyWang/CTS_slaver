@@ -4,6 +4,10 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 #include "datatype.h"
+//#include "stdint.h"
+typedef unsigned char uint8_t;
+typedef unsigned int uint32_t;
+	
 
 //#define SEND_BUF_LEN  255
 //#define SEND_BUF_LEN  248
@@ -51,4 +55,9 @@ void PaintPWM(unsigned char num,unsigned char* pwm_buffer);
 void CheckFlashData(unsigned char* buffer);
 void ResetParameter(unsigned char* buffer);
 void get_switch_mode(void);
+void ReleaseGas(void);
+void Red_LED_Blink(unsigned char seconds);
+BOOL Is_timing_Xmillisec(uint32_t n_ms,uint8_t ID);
+void DetectPalm(void);
+void DetectBattery(void);
 #endif

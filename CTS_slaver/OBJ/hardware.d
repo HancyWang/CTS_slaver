@@ -25,5 +25,5 @@
 ..\obj\hardware.o: ..\APP\common.h
 ..\obj\hardware.o: ..\APP\comm_task.h
 ..\obj\hardware.o: ..\MODULE\protocol_module.h
-..\obj\hardware.o: ..\APP\key_led_task.h
+..\obj\hardware.o: ..\APP\key_power_on_task.h
 ..\obj\hardware.o: ..\APP\app.h

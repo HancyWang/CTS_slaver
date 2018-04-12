@@ -25,7 +25,7 @@
 ..\obj\comm_task.o: ..\SYSTEM\serial_port.h
 ..\obj\comm_task.o: ..\User\device_type.h
 ..\obj\comm_task.o: ..\MODULE\protocol_module.h
-..\obj\comm_task.o: ..\APP\key_led_task.h
+..\obj\comm_task.o: ..\APP\key_power_on_task.h
 ..\obj\comm_task.o: ..\HARDWARE\Motor_pwm.h
 ..\obj\comm_task.o: ..\APP\i2c.h
 ..\obj\comm_task.o: ..\APP\common.h

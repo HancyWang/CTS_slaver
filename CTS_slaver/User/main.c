@@ -8,7 +8,7 @@
 #include "app.h"
 
 #include "comm_task.h"
-#include "key_led_task.h"
+#include "key_power_on_task.h"
 #include "hardware.h"
 #include "i2c.h"
 #include "Motor_pwm.h"
@@ -93,17 +93,18 @@
 	
 int main(void)
 {
-	Init_iWtdg(4,1250);  //4*2^4=64分频，1250(大概是1250*1.6ms=2s)
+	//Init_iWtdg(4,1250);  //4*2^4=64分频，1250(大概是1250*1.6ms=2s)
   delay_init();
 	
 	os_init();
 	//Motor_PWM_Init();
 	
 	//Init_sysTick(48);  //48M
-//	//进入stop模式
-//	EnterStopMode();
-//	//唤醒之后先初始化系统
-//	init_system_afterWakeUp();
+////	//进入stop模式
+	EnterStopMode();
+	//唤醒之后先初始化系统
+	//set_led(LED_ID_MODE1,TRUE);
+	init_system_afterWakeUp();
 		
 	os_create_task(init_task, OS_TRUE, INIT_TASK_ID);
 	os_start();

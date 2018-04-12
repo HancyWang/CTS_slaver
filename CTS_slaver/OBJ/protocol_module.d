@@ -26,5 +26,5 @@
 ..\obj\protocol_module.o: D:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
 ..\obj\protocol_module.o: D:\Keil_v5\ARM\ARMCC\Bin\..\include\stdlib.h
 ..\obj\protocol_module.o: ..\STM32F03x_FWLib\inc\stm32f0xx_flash.h
-..\obj\protocol_module.o: ..\APP\key_led_task.h
+..\obj\protocol_module.o: ..\APP\key_power_on_task.h
 ..\obj\protocol_module.o: ..\APP\common.h

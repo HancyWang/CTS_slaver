@@ -64,7 +64,7 @@ uint32_t FlashReadWord(uint32_t addr);
 uint8_t FlashReadByte(uint32_t addr);
 //uint16_t FlashWrite(uint32_t addr, uint32_t *p_data, uint16_t len);
 uint16_t FlashWrite(uint32_t addr, uint8_t *p_data, uint16_t len);
-uint16_t GetModeSelected(void);
+//uint16_t GetModeSelected(void);
 /***********************************
 * 变量類型聲明
 ***********************************/

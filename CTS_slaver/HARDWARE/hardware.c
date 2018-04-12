@@ -29,7 +29,7 @@
 #include "i2c.h"
 #include "comm_task.h"
 #include "protocol_module.h"
-#include "key_led_task.h"
+#include "key_power_on_task.h"
 #include "app.h"
 /**********************************
 *宏定义
@@ -47,6 +47,8 @@ extern uint8_t parameter_buf[PARAMETER_BUF_LEN];
 
 extern const uint8_t default_parameter_buf[PARAMETER_BUF_LEN];
 extern BOOL b_Is_PCB_PowerOn;
+
+//extern uint8_t mode;
 /***********************************
 * 局部变量
 ***********************************/
@@ -217,6 +219,24 @@ void Init_LED(void)
 	GPIO_SetBits(LED_PORT,LED_MODE2_PIN);
 	GPIO_SetBits(LED_PORT,LED_MODE3_PIN);
 	
+//	if(mode==1)
+//	{	
+//		set_led(LED_ID_MODE1,TRUE); 
+//	}
+//	else if(mode==2)
+//	{
+//		set_led(LED_ID_MODE2,TRUE);   
+//	}
+//	else if(mode==3)
+//	{
+//		set_led(LED_ID_MODE3,TRUE);  
+//	}
+//	else
+//	{
+//		//do nothing
+//	}
+	
+	
 	//set_led(LED_ID_MODE1,TRUE);
 }
 
@@ -274,9 +294,10 @@ void Init_PWR_EN()
 	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_15;
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
 	GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
+	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
 	GPIO_Init(GPIOA, &GPIO_InitStructure);
+	GPIO_ResetBits(GPIOA,GPIO_Pin_12);
 }
 
 void Init_PWR_ON_OFF()      //PA8
@@ -320,7 +341,7 @@ void init_hardware()
 	//GPIO_InitTypeDef  GPIO_InitStructure;
 
 	RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOA | RCC_AHBPeriph_GPIOB | RCC_AHBPeriph_GPIOF, ENABLE);
-
+#if 0
 //	//输入检测
 //	GPIO_InitStructure.GPIO_Pin = EXP_DETECT_PIN;
 //	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN;
@@ -352,7 +373,7 @@ void init_hardware()
 //	GPIO_InitStructure.GPIO_Pin = RED_LED_PIN;
 //	GPIO_Init(RED_LED_PORT, &GPIO_InitStructure);
 //	set_led(LED_CLOSE);
-	
+	#endif
 	//初始化USB_OE
 	Init_USB_OE();  //PA0
 	
@@ -386,7 +407,7 @@ void init_hardware()
 
 //	ADS115_enter_power_down_mode();
 //	//配置中断
-//	CfgPA0ASWFI();
+//	CfgWFI();
 	//进入stop模式
 	//EnterStopMode();
 }

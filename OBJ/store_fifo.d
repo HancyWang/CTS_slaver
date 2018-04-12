@@ -1,0 +1,17 @@
+..\obj\store_fifo.o: ..\SYSTEM\fifo\store_fifo.c
+..\obj\store_fifo.o: ..\SYSTEM\fifo\store_fifo.h
+..\obj\store_fifo.o: ..\SYSTEM\fifo\datatype.h
+..\obj\store_fifo.o: ..\User\stm32f0xx.h
+..\obj\store_fifo.o: ..\CORE\core_cm0.h
+..\obj\store_fifo.o: D:\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
+..\obj\store_fifo.o: ..\CORE\core_cmInstr.h
+..\obj\store_fifo.o: ..\CORE\core_cmFunc.h
+..\obj\store_fifo.o: ..\User\system_stm32f0xx.h
+..\obj\store_fifo.o: ..\User\stm32f0xx_conf.h
+..\obj\store_fifo.o: ..\STM32F03x_FWLib\inc\stm32f0xx_adc.h
+..\obj\store_fifo.o: ..\User\stm32f0xx.h
+..\obj\store_fifo.o: ..\STM32F03x_FWLib\inc\stm32f0xx_gpio.h
+..\obj\store_fifo.o: ..\STM32F03x_FWLib\inc\stm32f0xx_rcc.h
+..\obj\store_fifo.o: ..\STM32F03x_FWLib\inc\stm32f0xx_usart.h
+..\obj\store_fifo.o: ..\STM32F03x_FWLib\inc\stm32f0xx_misc.h
+..\obj\store_fifo.o: ..\HARDWARE\hardware.h

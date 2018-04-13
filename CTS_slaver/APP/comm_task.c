@@ -56,6 +56,8 @@ static BOOL b_releaseGas_timing_flag=TRUE;
 //static BOOL b_detect_palm=TRUE;
 static BOOL* b_timing_flag;
 
+static uint16_t pressure_result;
+
 //uint32_t prev_switchBtn_os_tick;
 //uint32_t prev_detect_palm_flag;
 uint32_t prev_releaseGas_os_tick;
@@ -150,7 +152,7 @@ uint8_t pressure;
 uint16_t checkPressAgain_cnt=0;
 uint8_t wait_cnt=0;
 
-static uint8_t bat_detect_cnt=0;
+//static uint8_t bat_detect_cnt=0;
 
 /*******************************************************************************
 *                                内部函数声明
@@ -207,6 +209,33 @@ void init_PWMState(void)
 	PWM3_serial_cnt=0;
 }
 
+void No_Hand_IN_PLACE()
+{
+	Motor_PWM_Freq_Dudy_Set(1,100,0);
+	Motor_PWM_Freq_Dudy_Set(2,100,0);
+	Motor_PWM_Freq_Dudy_Set(3,100,0);	
+	Motor_PWM_Freq_Dudy_Set(4,100,0);  
+	Motor_PWM_Freq_Dudy_Set(5,4000,0);
+	
+	set_led(LED_ID_GREEN,FALSE);   //关掉电源的绿色LED灯
+	
+	//可以试一下使用while() {is_timing_Xseconds()}
+	for(uint8_t i=0;i<3;i++)
+	{
+		set_led(LED_ID_MODE1,TRUE); 
+		set_led(LED_ID_MODE2,TRUE);
+		set_led(LED_ID_MODE3,TRUE);
+		Motor_PWM_Freq_Dudy_Set(5,4000,50);
+		delay_ms(500);
+		set_led(LED_ID_MODE1,FALSE); 
+		set_led(LED_ID_MODE2,FALSE);
+		set_led(LED_ID_MODE3,FALSE);
+		Motor_PWM_Freq_Dudy_Set(5,4000,0);
+		delay_ms(500);
+	}
+}
+
+
 //红色LED闪烁
 void Red_LED_Blink(unsigned char seconds)
 {
@@ -217,7 +246,9 @@ void Red_LED_Blink(unsigned char seconds)
 	Motor_PWM_Freq_Dudy_Set(4,100,0);  
 	Motor_PWM_Freq_Dudy_Set(5,4000,0);
 	
-	set_led(LED_ID_GREEN,FALSE);
+	set_led(LED_ID_GREEN,FALSE);   //关掉电源的绿色LED灯
+	
+	//关闭模式指示灯
 	if(mode==1)
 	{	
 		set_led(LED_ID_MODE1,FALSE); 
@@ -235,7 +266,7 @@ void Red_LED_Blink(unsigned char seconds)
 		//do nothing
 	}
 	
-	
+	//闪烁
 	for(uint8_t i=0;i<seconds;i++)
 	{
 		set_led(LED_ID_YELLOW,TRUE);
@@ -471,7 +502,7 @@ BOOL Is_timing_Xmillisec(uint32_t n_ms,uint8_t ID)
 //			b_timing_flag=&switch_bnt_timing_flag;
 //			p_prev_os_tick=&prev_switchBtn_os_tick;
 //			break;
-		case 8:
+		case 8:   //release gas
 			b_timing_flag=&b_releaseGas_timing_flag;
 			p_prev_os_tick=&prev_releaseGas_os_tick;
 			break;
@@ -1014,42 +1045,79 @@ void ReleaseGas()
 	os_delay_ms(TASK_RELEASE_GAS_ID, 50);
 }
 	 
-void DetectBattery()
+void Detect_battery_and_tmp()
 {
-	//PWM_EN置为高电平
-	GPIO_SetBits(GPIOA,GPIO_Pin_15);
-	//delay_ms(10);
+	#if 0
+//	//PWM_EN置为高电平
+//	GPIO_SetBits(GPIOA,GPIO_Pin_15);
+//	//delay_ms(10);
 
-	if(bat_detect_cnt==1)  //延迟,因为硬件开关管子需要时间
+//	if(bat_detect_cnt==1)  //延迟,因为硬件开关管子需要时间
+//	{
+//		bat_detect_cnt=0;
+//		
+//		//经过1/2分压之后，电压在1.5v-2.1v之间(2048-2867)，偏差300
+//		uint16_t result;
+//		result=RegularConvData_Tab[0];
+
+//		//	if((result>=2048-300)&&(result<=2867+300))  //以3v作为参考电压 (2730是以3.3v为参考电压的) 
+//		if((result>=2252)&&(result<=3167))   //2252对应3.3V
+//		{
+//			b_bat_detected_ok=TRUE;
+//			GPIO_ResetBits(GPIOA,GPIO_Pin_15);
+//		}
+//		else
+//		{
+//			//电压不足，表示电池没电了，进入低功耗模式
+//			b_bat_detected_ok=FALSE;
+//			//橙色LED闪3s，关机
+//			Red_LED_Blink(3);
+//			mcu_state=POWER_OFF;
+//			//进入stop模式
+//			EnterStopMode();
+//			//唤醒之后重新初始化
+//			init_system_afterWakeUp();
+//		}
+//	}
+//	else
+//	{
+//		bat_detect_cnt++;
+//	}
+#endif
+	uint16_t result_0;
+	uint16_t result_1;
+	result_0=RegularConvData_Tab[0];  //对应的是电池电压检测
+	result_1=RegularConvData_Tab[1];  //对应的是温度检测
+	
+	//1.检测电池电压以及板子温度
+	//温度上限为60度，系数为0.302,  0.302*10K=3020ohm ,对应电压为3*(3020/(10k+3020))=0.695v
+	//0.695/3*4096=950,如果小于950，表示温度超过了60度
+	//温度下限不需要
+	if((result_0>=2252&&result_0<=3167)&&((result_1>=950)))
 	{
-		bat_detect_cnt=0;
-		
-		//经过1/2分压之后，电压在1.5v-2.1v之间(2048-2867)，偏差300
-		uint16_t result;
-		result=RegularConvData_Tab[0];
-
-		//	if((result>=2048-300)&&(result<=2867+300))  //以3v作为参考电压 (2730是以3.3v为参考电压的) 
-		if((result>=2252)&&(result<=3167))   //2252对应3.3V
-		{
-			b_bat_detected_ok=TRUE;
-			GPIO_ResetBits(GPIOA,GPIO_Pin_15);
-		}
-		else
-		{
-			//电压不足，表示电池没电了，进入低功耗模式
-			b_bat_detected_ok=FALSE;
-			//橙色LED闪3s，关机
-			Red_LED_Blink(3);
-			mcu_state=POWER_OFF;
-			//进入stop模式
-			EnterStopMode();
-			//唤醒之后重新初始化
-			init_system_afterWakeUp();
-		}
+//		//	//2.检测pressure sensor 是否工作
+//		pressure_result=ADS115_readByte(0x90);
+//		if(pressure_result>70*5)
+//		{
+//			
+//		}
+//		else
+//		{
+//			b_bat_detected_ok=TRUE;
+//		}
+		b_bat_detected_ok=TRUE;
 	}
 	else
 	{
-		bat_detect_cnt++;
+		b_bat_detected_ok=FALSE;
+		//橙色LED闪3s，关机
+		Red_LED_Blink(3);
+		
+		mcu_state=POWER_OFF;
+		//进入stop模式
+		EnterStopMode();
+		//唤醒之后重新初始化
+		init_system_afterWakeUp();
 	}
 
 	os_delay_ms(TASK_DETECT_BATTERY_ID, 50);
@@ -1085,8 +1153,8 @@ void DetectPalm()
 				noPalm_cnt=0;
 				b_palm_checked=FALSE;
 				//橙色LED闪3s，关机
-				Red_LED_Blink(3);
-				
+				//Red_LED_Blink(3);
+				No_Hand_IN_PLACE();
 //				key_state=KEY_UPING;
 				mcu_state=POWER_OFF;
 				//进入stop模式
@@ -1113,7 +1181,7 @@ void DetectPalm()
 *******************************************************************************/
 void check_selectedMode_ouputPWM()
 {
-	static uint16_t pressure_result; 
+	 
 //	pressure_result=ADS115_readByte(0x90);
 	//这里添加一个状态基，获取cycle_cnt;
 	static uint8_t cycle_cnt=0;
@@ -1195,7 +1263,7 @@ void check_selectedMode_ouputPWM()
 				//4.检测压力
 				if(state==CHECK_PRESSURE) //检测压力
 				{
-					//pressure_result=ADS115_readByte(0x90);
+					pressure_result=ADS115_readByte(0x90);
 					//if(pressure_result>=buffer[0]*70)  //压力达到threshold，进入输出PWM模式,其中75为斜率，5mmgH对应5*70+700
 					//pressure_result=900;
 					if(pressure_result<=70*5)  //这里应该是<=5mmgH就往下运行，5mmgH是固定值，目的是检测ballom中的气体，没有气体才能输出PWM
@@ -1252,6 +1320,11 @@ void check_selectedMode_ouputPWM()
 						//state=CHECK_BAT_VOL;
 						state=GET_CYCLE_CNT;
 						init_PWMState();
+						
+						//加一个BEEP，表示治疗完成
+						Motor_PWM_Freq_Dudy_Set(5,4000,50);
+						delay_ms(1000);
+						Motor_PWM_Freq_Dudy_Set(5,4000,0);
 					}		
 					else
 					{

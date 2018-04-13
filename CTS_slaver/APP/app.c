@@ -81,7 +81,7 @@ void init_task(void)
 	os_create_task(get_switch_mode,OS_TRUE,TASK_GET_SWITCH_MODE);
 	os_create_task(ReleaseGas, OS_TRUE, TASK_RELEASE_GAS_ID);
 	os_create_task(DetectPalm, OS_TRUE, TASK_DETECT_PALM_ID);
-	os_create_task(DetectBattery,OS_TRUE,TASK_DETECT_BATTERY_ID);
+	os_create_task(Detect_battery_and_tmp,OS_TRUE,TASK_DETECT_BATTERY_ID);
 	os_pend_task(INIT_TASK_ID);
 }
 

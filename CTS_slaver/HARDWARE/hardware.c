@@ -288,7 +288,7 @@ void Init_Bat_Charge_Stby()
 	GPIO_Init(GPIOB, &GPIO_InitStructure);
 }
 
-void Init_PWR_EN()
+void Init_PWR_EN()      //PA15
 {
 	GPIO_InitTypeDef  GPIO_InitStructure;
 	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_15;
@@ -297,7 +297,7 @@ void Init_PWR_EN()
 	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
 	GPIO_Init(GPIOA, &GPIO_InitStructure);
-	GPIO_ResetBits(GPIOA,GPIO_Pin_12);
+	GPIO_SetBits(GPIOA,GPIO_Pin_15);
 }
 
 void Init_PWR_ON_OFF()      //PA8
@@ -692,7 +692,6 @@ void Key_WakeUp_Init(void)
 
 void Init_ADC1(void)
 {
-	//Õâ¶Î´úÂëÒª¸Ä£¬ÏÖÔÚÊ¹ÓÃµÄÊÇPA1ºÍPB0(Ö®Ç°µÄÊÇPA1ºÍPA4)
 	GPIO_InitTypeDef    GPIO_InitStructure;
 	DMA_InitTypeDef     DMA_InitStructure;
 	ADC_InitTypeDef     ADC_InitStructure;
@@ -741,7 +740,7 @@ void Init_ADC1(void)
   ADC_InitStructure.ADC_DataAlign = ADC_DataAlign_Right;//êy?Y?????aóò????
   ADC_InitStructure.ADC_ScanDirection = ADC_ScanDirection_Backward; //ADCµ?é¨?è·??ò
   ADC_Init(ADC1, &ADC_InitStructure); 
-	 
+	
   ADC_ChannelConfig(ADC1, ADC_Channel_1 , ADC_SampleTime_239_5Cycles); /* Convert the ADC1 Channel 11 with 239.5 Cycles as sampling time */  
 //  ADC_ChannelConfig(ADC1, ADC_Channel_4 , ADC_SampleTime_239_5Cycles); /* Convert the ADC1 Channel 11 with 239.5 Cycles as sampling time */  
 	ADC_ChannelConfig(ADC1, ADC_Channel_8 , ADC_SampleTime_239_5Cycles);

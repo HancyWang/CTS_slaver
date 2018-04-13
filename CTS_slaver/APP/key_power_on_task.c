@@ -280,7 +280,7 @@ void CfgALLPins4StopMode()
 {
 	RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOA | RCC_AHBPeriph_GPIOB | RCC_AHBPeriph_GPIOF, ENABLE);
 	
-	//led端口配置为输出
+	//led端口配置为输出,PB2,PB3,PB4,PB5,PB6
 	GPIO_InitTypeDef GPIO_InitStructure_LED;
 	GPIO_InitStructure_LED.GPIO_Pin = GPIO_Pin_2|GPIO_Pin_3|GPIO_Pin_4|GPIO_Pin_5|GPIO_Pin_6;                       
 	GPIO_InitStructure_LED.GPIO_Speed = GPIO_Speed_50MHz;     
@@ -289,15 +289,35 @@ void CfgALLPins4StopMode()
 	GPIO_InitStructure_LED.GPIO_PuPd=GPIO_PuPd_UP;
 	//GPIO_InitStructure_PF.GPIO_PuPd=GPIO_PuPd_NOPULL;
 	GPIO_Init(GPIOB, &GPIO_InitStructure_LED);
-	GPIO_SetBits(GPIOB, GPIO_Pin_2|GPIO_Pin_3|GPIO_Pin_4|GPIO_Pin_5|GPIO_Pin_6);
+	//GPIO_SetBits(GPIOB, GPIO_Pin_2|GPIO_Pin_3|GPIO_Pin_4|GPIO_Pin_5|GPIO_Pin_6);
+	GPIO_SetBits(GPIOB, GPIO_Pin_2);
+	GPIO_SetBits(GPIOB, GPIO_Pin_3);
+	GPIO_SetBits(GPIOB, GPIO_Pin_4);
+	GPIO_SetBits(GPIOB, GPIO_Pin_5);
+	GPIO_SetBits(GPIOB, GPIO_Pin_6);
 	
 	
-	//配置ADC1和ADC4
-	GPIO_InitTypeDef GPIO_InitStructure_PA_1_4;
-	GPIO_InitStructure_PA_1_4.GPIO_Pin = GPIO_Pin_1|GPIO_Pin_4;
-  GPIO_InitStructure_PA_1_4.GPIO_Mode = GPIO_Mode_AN;
-  GPIO_InitStructure_PA_1_4.GPIO_PuPd = GPIO_PuPd_NOPULL ;
-  GPIO_Init(GPIOA, &GPIO_InitStructure_PA_1_4);	
+//	//配置ADC1和ADC4
+//	GPIO_InitTypeDef GPIO_InitStructure_PA_1_4;
+//	GPIO_InitStructure_PA_1_4.GPIO_Pin = GPIO_Pin_1|GPIO_Pin_4;
+//  GPIO_InitStructure_PA_1_4.GPIO_Mode = GPIO_Mode_AN;
+//  GPIO_InitStructure_PA_1_4.GPIO_PuPd = GPIO_PuPd_NOPULL ;
+//  GPIO_Init(GPIOA, &GPIO_InitStructure_PA_1_4);	
+	
+	
+	//配置ADC，PA1,PB0
+	GPIO_InitTypeDef GPIO_InitStructure_PA_1;
+	GPIO_InitStructure_PA_1.GPIO_Pin = GPIO_Pin_1;
+  GPIO_InitStructure_PA_1.GPIO_Mode = GPIO_Mode_AN;
+  GPIO_InitStructure_PA_1.GPIO_PuPd = GPIO_PuPd_NOPULL ;
+  GPIO_Init(GPIOA, &GPIO_InitStructure_PA_1);	
+	
+	GPIO_InitTypeDef GPIO_InitStructure_PB_0;
+	GPIO_InitStructure_PB_0.GPIO_Pin = GPIO_Pin_0;
+  GPIO_InitStructure_PB_0.GPIO_Mode = GPIO_Mode_AN;
+  GPIO_InitStructure_PB_0.GPIO_PuPd = GPIO_PuPd_NOPULL ;
+  GPIO_Init(GPIOB, &GPIO_InitStructure_PB_0);
+	
 	
 	//关闭ADC
 	DMA_Cmd(DMA1_Channel1, DISABLE);/* DMA1 Channel1 enable */			
@@ -308,7 +328,7 @@ void CfgALLPins4StopMode()
 //	RCC_AHBPeriphClockCmd(RCC_AHBPeriph_DMA1 , DISABLE);
 	
 	
-	//PA2,PA3
+	//串口IO,PA2,PA3
 	GPIO_InitTypeDef GPIO_InitStructure_PA_2_3;
 	GPIO_InitStructure_PA_2_3.GPIO_Pin = GPIO_Pin_2|GPIO_Pin_3;                       
 	GPIO_InitStructure_PA_2_3.GPIO_Speed = GPIO_Speed_50MHz;       
@@ -323,7 +343,7 @@ void CfgALLPins4StopMode()
 	DMA_Cmd(UART_DMA_TX_CHANNEL, DISABLE);
 	USART_Cmd(UART, DISABLE);
 	
-	//PA9,PA10
+	//I2C端口，PA9,PA10
 	GPIO_InitTypeDef GPIO_InitStructure_UART;
 	GPIO_InitStructure_UART.GPIO_Pin = GPIO_Pin_9|GPIO_Pin_10;                       
 	GPIO_InitStructure_UART.GPIO_Speed = GPIO_Speed_50MHz;       
@@ -332,38 +352,96 @@ void CfgALLPins4StopMode()
 	GPIO_InitStructure_UART.GPIO_PuPd=GPIO_PuPd_NOPULL;
 	GPIO_Init(GPIOA, &GPIO_InitStructure_UART);
 	
-	//PA5
-	GPIO_InitTypeDef GPIO_InitStructure_PA5;
-	GPIO_InitStructure_PA5.GPIO_Pin = GPIO_Pin_5;                       
-	GPIO_InitStructure_PA5.GPIO_Speed = GPIO_Speed_50MHz;       
-	GPIO_InitStructure_PA5.GPIO_Mode = GPIO_Mode_IN;
-	//GPIO_InitStructure_PA5.GPIO_OType=GPIO_OType_PP;
-	//GPIO_InitStructure_PA5.GPIO_PuPd=GPIO_PuPd_UP;
-	GPIO_InitStructure_PA5.GPIO_PuPd=GPIO_PuPd_NOPULL;
-	GPIO_Init(GPIOA, &GPIO_InitStructure_PA5);
-	//GPIO_ResetBits(GPIOA,GPIO_Pin_5);
+	//PWR save，PA12
+	GPIO_InitTypeDef GPIO_InitStructure_PA12;
+	GPIO_InitStructure_PA12.GPIO_Pin = GPIO_Pin_12;                       
+	GPIO_InitStructure_PA12.GPIO_Speed = GPIO_Speed_50MHz;       
+	GPIO_InitStructure_PA12.GPIO_Mode = GPIO_Mode_OUT;
+	//GPIO_InitStructure_PA12.GPIO_OType=GPIO_OType_PP;
+	GPIO_InitStructure_PA12.GPIO_PuPd=GPIO_PuPd_UP;
+//	GPIO_InitStructure_PA12.GPIO_PuPd=GPIO_PuPd_NOPULL;
+	GPIO_Init(GPIOA, &GPIO_InitStructure_PA12);
+	GPIO_SetBits(GPIOA,GPIO_Pin_12);   //输出高电平，关管子，省电
 	
-	//PWM1,PWM2
-	GPIO_InitTypeDef GPIO_InitStructure_PWM_1_2;
-	GPIO_InitStructure_PWM_1_2.GPIO_Pin = GPIO_Pin_6|GPIO_Pin_7;                       
-	GPIO_InitStructure_PWM_1_2.GPIO_Speed = GPIO_Speed_50MHz;       
-	GPIO_InitStructure_PWM_1_2.GPIO_Mode = GPIO_Mode_OUT;
-	GPIO_InitStructure_PWM_1_2.GPIO_OType=GPIO_OType_PP;
-	//GPIO_InitStructure_PWM_1_2.GPIO_PuPd=GPIO_PuPd_NOPULL;
-	GPIO_InitStructure_PWM_1_2.GPIO_PuPd=GPIO_PuPd_DOWN;
-	GPIO_Init(GPIOA, &GPIO_InitStructure_PWM_1_2);
+	
+	//PWR EN，PA15
+	GPIO_InitTypeDef GPIO_InitStructure_PA15;
+	GPIO_InitStructure_PA15.GPIO_Pin = GPIO_Pin_15;                       
+	GPIO_InitStructure_PA15.GPIO_Speed = GPIO_Speed_50MHz;       
+	GPIO_InitStructure_PA15.GPIO_Mode = GPIO_Mode_OUT;
+	//GPIO_InitStructure_PA5.GPIO_OType=GPIO_OType_PP;
+	GPIO_InitStructure_PA15.GPIO_PuPd=GPIO_PuPd_DOWN;
+	//GPIO_InitStructure_PA15.GPIO_PuPd=GPIO_PuPd_NOPULL;
+	GPIO_Init(GPIOA, &GPIO_InitStructure_PA15);
+	GPIO_ResetBits(GPIOA,GPIO_Pin_15);   //输出低电平，关管子，省电
+	
+	//PWM1(PA6),PWM2(PA7)  inflate_pwm2(PA11)
+	GPIO_InitTypeDef GPIO_InitStructure_PA_6_7_11;
+	GPIO_InitStructure_PA_6_7_11.GPIO_Pin = GPIO_Pin_6|GPIO_Pin_7|GPIO_Pin_11;                       
+	GPIO_InitStructure_PA_6_7_11.GPIO_Speed = GPIO_Speed_50MHz;       
+	GPIO_InitStructure_PA_6_7_11.GPIO_Mode = GPIO_Mode_OUT;
+	GPIO_InitStructure_PA_6_7_11.GPIO_OType=GPIO_OType_PP;
+	//GPIO_InitStructure_PA_6_7_11.GPIO_PuPd=GPIO_PuPd_NOPULL;
+	GPIO_InitStructure_PA_6_7_11.GPIO_PuPd=GPIO_PuPd_DOWN;
+	GPIO_Init(GPIOA, &GPIO_InitStructure_PA_6_7_11);
 	//GPIO_SetBits(GPIOA,GPIO_Pin_6|GPIO_Pin_7);
 	
-	//PWM3
-	GPIO_InitTypeDef GPIO_InitStructure_PWM3;
-	GPIO_InitStructure_PWM3.GPIO_Pin = GPIO_Pin_1;                       
-	GPIO_InitStructure_PWM3.GPIO_Speed = GPIO_Speed_50MHz;       
-	GPIO_InitStructure_PWM3.GPIO_Mode = GPIO_Mode_OUT;
-	GPIO_InitStructure_PWM3.GPIO_OType=GPIO_OType_PP;
-	//GPIO_InitStructure_PWM_1_2.GPIO_PuPd=GPIO_PuPd_NOPULL;
-	GPIO_InitStructure_PWM_1_2.GPIO_PuPd=GPIO_PuPd_DOWN;
-	GPIO_Init(GPIOB, &GPIO_InitStructure_PWM3);
-	//GPIO_SetBits(GPIOB,GPIO_Pin_1);
+	//PWM3(PB1) BEEP_PWM(PB14)
+	GPIO_InitTypeDef GPIO_InitStructure_PB_1_14;
+	GPIO_InitStructure_PB_1_14.GPIO_Pin = GPIO_Pin_1|GPIO_Pin_14;                       
+	GPIO_InitStructure_PB_1_14.GPIO_Speed = GPIO_Speed_50MHz;       
+	GPIO_InitStructure_PB_1_14.GPIO_Mode = GPIO_Mode_OUT;
+	GPIO_InitStructure_PB_1_14.GPIO_OType=GPIO_OType_PP;
+	GPIO_InitStructure_PB_1_14.GPIO_PuPd=GPIO_PuPd_DOWN;
+	GPIO_Init(GPIOB, &GPIO_InitStructure_PB_1_14);
+
+	
+	//BAT_CHARGE,BAT_STDBY   PA4,PA5
+	GPIO_InitTypeDef GPIO_InitStructure_PA_4_5;
+	GPIO_InitStructure_PA_4_5.GPIO_Pin = GPIO_Pin_4|GPIO_Pin_5;                       
+	GPIO_InitStructure_PA_4_5.GPIO_Speed = GPIO_Speed_50MHz;       
+	GPIO_InitStructure_PA_4_5.GPIO_Mode = GPIO_Mode_IN;
+//	GPIO_InitStructure_PA_4_5.GPIO_OType=GPIO_OType_PP;
+//	GPIO_InitStructure_PA_4_5.GPIO_PuPd=GPIO_PuPd_DOWN;
+	GPIO_Init(GPIOA, &GPIO_InitStructure_PA_4_5);
+	
+	//USB_OE PA0
+	GPIO_InitTypeDef GPIO_InitStructure_PA0;
+	GPIO_InitStructure_PA0.GPIO_Pin = GPIO_Pin_0;                       
+	GPIO_InitStructure_PA0.GPIO_Speed = GPIO_Speed_50MHz;       
+	GPIO_InitStructure_PA0.GPIO_Mode = GPIO_Mode_OUT;
+	GPIO_InitStructure_PA_4_5.GPIO_OType=GPIO_OType_PP;
+	GPIO_InitStructure_PA_4_5.GPIO_PuPd=GPIO_PuPd_UP;
+	GPIO_Init(GPIOA, &GPIO_InitStructure_PA0);
+	
+	//VAVLE PB10,PB11
+	GPIO_InitTypeDef GPIO_InitStructure_PB_10_11;
+	GPIO_InitStructure_PB_10_11.GPIO_Pin = GPIO_Pin_10|GPIO_Pin_11;                       
+	GPIO_InitStructure_PB_10_11.GPIO_Speed = GPIO_Speed_50MHz;       
+	GPIO_InitStructure_PB_10_11.GPIO_Mode = GPIO_Mode_IN;
+//	GPIO_InitStructure_PB_10_11.GPIO_OType=GPIO_OType_PP;
+	//GPIO_InitStructure_PB_10_11.GPIO_PuPd=GPIO_PuPd_DOWN;
+	GPIO_Init(GPIOB, &GPIO_InitStructure_PB_10_11);
+	
+//	//POWER ON/OFF (PA8)
+//	GPIO_InitTypeDef GPIO_InitStructure_PA_8;
+//	GPIO_InitStructure_PA_8.GPIO_Pin = GPIO_Pin_8;                       
+//	GPIO_InitStructure_PA_8.GPIO_Speed = GPIO_Speed_50MHz;       
+//	GPIO_InitStructure_PA_8.GPIO_Mode = GPIO_Mode_IN;
+//	//GPIO_InitStructure_PA_8.GPIO_OType=GPIO_OType_PP;
+//	GPIO_InitStructure_PA_8.GPIO_PuPd=GPIO_PuPd_DOWN;
+//	GPIO_Init(GPIOA, &GPIO_InitStructure_PA_8);
+//	//GPIO_SetBits(GPIOA,GPIO_Pin_8);
+
+	//SWITCH ON/OFF (PB13)   ,SWITCH MODE(PB15)
+	GPIO_InitTypeDef GPIO_InitStructure_PB_13_15;
+	GPIO_InitStructure_PB_13_15.GPIO_Pin = GPIO_Pin_13|GPIO_Pin_15;                       
+	GPIO_InitStructure_PB_13_15.GPIO_Speed = GPIO_Speed_50MHz;       
+	GPIO_InitStructure_PB_13_15.GPIO_Mode = GPIO_Mode_IN;
+	//GPIO_InitStructure_PB_13_15.GPIO_OType=GPIO_OType_PP;
+	//GPIO_InitStructure_PB_13_15.GPIO_PuPd=GPIO_PuPd_DOWN;
+	GPIO_Init(GPIOB, &GPIO_InitStructure_PB_13_15);
+
 }
 
 //进入stop模式，采用中断唤醒

@@ -3,7 +3,7 @@
 <title>Static Call Graph - [..\OBJ\STM32F030Demo.axf]</title></head>
 <body><HR>
 <H1>Static Call Graph for image ..\OBJ\STM32F030Demo.axf</H1><HR>
-<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060422: Last Updated: Fri Apr 13 16:18:31 2018
+<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060422: Last Updated: Mon Apr 16 09:28:42 2018
 <BR><P>
 <H3>Maximum Stack Usage =        924 bytes + Unknown(Functions without stacksize, Cycles, Untraceable Function Pointers)</H3><H3>
 Call chain for Maximum Stack Depth:</H3>
@@ -351,8 +351,8 @@ Global Symbols
 <LI><a href="#[2e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ReleaseGas
 </UL>
 
-<P><STRONG><a name="[6a]"></a>PaintPWM</STRONG> (Thumb, 864 bytes, Stack size 48 bytes, comm_task.o(.text))
-<BR><BR>[Stack]<UL><LI>Max Depth = 204<LI>Call Chain = PaintPWM &rArr; EnterStopMode &rArr; CfgALLPins4StopMode &rArr; GPIO_Init
+<P><STRONG><a name="[6a]"></a>PaintPWM</STRONG> (Thumb, 870 bytes, Stack size 48 bytes, comm_task.o(.text))
+<BR><BR>[Stack]<UL><LI>Max Depth = 240<LI>Call Chain = PaintPWM &rArr; init_system_afterWakeUp &rArr; init_task &rArr; UARTInit &rArr; USART_Init &rArr; RCC_GetClocksFreq
 </UL>
 <BR>[Calls]<UL><LI><a href="#[5b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_PWM_Freq_Dudy_Set
 <LI><a href="#[6e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;GPIO_SetBits
@@ -361,6 +361,7 @@ Global Symbols
 <LI><a href="#[68]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Is_timing_Xmillisec
 <LI><a href="#[5e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Red_LED_Blink
 <LI><a href="#[6b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;init_PWMState
+<LI><a href="#[48]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;init_system_afterWakeUp
 <LI><a href="#[47]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;EnterStopMode
 </UL>
 <BR>[Called By]<UL><LI><a href="#[2c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;check_selectedMode_ouputPWM
@@ -389,7 +390,7 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[2c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;check_selectedMode_ouputPWM
 </UL>
 
-<P><STRONG><a name="[2d]"></a>get_switch_mode</STRONG> (Thumb, 224 bytes, Stack size 16 bytes, comm_task.o(.text))
+<P><STRONG><a name="[2d]"></a>get_switch_mode</STRONG> (Thumb, 226 bytes, Stack size 16 bytes, comm_task.o(.text))
 <BR><BR>[Stack]<UL><LI>Max Depth = 76<LI>Call Chain = get_switch_mode &rArr; Motor_PWM_Freq_Dudy_Set &rArr; TIM_OC4Init
 </UL>
 <BR>[Calls]<UL><LI><a href="#[5c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;set_led
@@ -431,8 +432,8 @@ Global Symbols
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> app.o(.text)
 </UL>
-<P><STRONG><a name="[2c]"></a>check_selectedMode_ouputPWM</STRONG> (Thumb, 472 bytes, Stack size 480 bytes, comm_task.o(.text))
-<BR><BR>[Stack]<UL><LI>Max Depth = 684<LI>Call Chain = check_selectedMode_ouputPWM &rArr; PaintPWM &rArr; EnterStopMode &rArr; CfgALLPins4StopMode &rArr; GPIO_Init
+<P><STRONG><a name="[2c]"></a>check_selectedMode_ouputPWM</STRONG> (Thumb, 512 bytes, Stack size 480 bytes, comm_task.o(.text))
+<BR><BR>[Stack]<UL><LI>Max Depth = 720<LI>Call Chain = check_selectedMode_ouputPWM &rArr; PaintPWM &rArr; init_system_afterWakeUp &rArr; init_task &rArr; UARTInit &rArr; USART_Init &rArr; RCC_GetClocksFreq
 </UL>
 <BR>[Calls]<UL><LI><a href="#[5d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;delay_ms
 <LI><a href="#[5b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_PWM_Freq_Dudy_Set
@@ -504,7 +505,8 @@ Global Symbols
 <LI><a href="#[28]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;init_task
 <LI><a href="#[45]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;delay_init
 </UL>
-<BR>[Called By]<UL><LI><a href="#[2b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;key_power_on_task
+<BR>[Called By]<UL><LI><a href="#[6a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PaintPWM
+<LI><a href="#[2b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;key_power_on_task
 <LI><a href="#[2c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;check_selectedMode_ouputPWM
 <LI><a href="#[30]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Detect_battery_and_tmp
 <LI><a href="#[2f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;DetectPalm

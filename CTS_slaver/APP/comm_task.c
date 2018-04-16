@@ -664,6 +664,8 @@ void PaintPWM(unsigned char num,unsigned char* buffer)
 							//橙色LED闪3s
 							Red_LED_Blink(3);
 							EnterStopMode();
+							
+							init_system_afterWakeUp();
 						}   
 					}
 				}
@@ -1321,10 +1323,27 @@ void check_selectedMode_ouputPWM()
 						state=GET_CYCLE_CNT;
 						init_PWMState();
 						
-						//加一个BEEP，表示治疗完成
-						Motor_PWM_Freq_Dudy_Set(5,4000,50);
-						delay_ms(1000);
-						Motor_PWM_Freq_Dudy_Set(5,4000,0);
+						//如果运行完毕
+						if(cycle_cnt==0)  
+						{
+							//加一个BEEP，表示治疗完成  
+							for(uint8_t i=0;i<3;i++)
+							{
+								Motor_PWM_Freq_Dudy_Set(5,4000,50);
+								delay_ms(1000);
+								Motor_PWM_Freq_Dudy_Set(5,4000,0);
+								delay_ms(1000);
+							}
+								//橙色LED闪3s，关机
+							//Red_LED_Blink(3);
+						
+							mcu_state=POWER_OFF;
+							//进入stop模式
+							EnterStopMode();
+							//唤醒之后重新初始化
+							init_system_afterWakeUp();
+						}
+						
 					}		
 					else
 					{

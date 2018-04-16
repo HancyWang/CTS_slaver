@@ -101,7 +101,7 @@ I (..\SYSTEM\fifo\fifo.h)(0x5A74C6B0)
 I (..\MODULE\protocol_module.h)(0x5ACD5D3C)
 I (..\STM32F03x_FWLib\inc\stm32f0xx_rtc.h)(0x5A74C6B0)
 I (..\APP\key_power_on_task.h)(0x5ACDA0C6)
-F (..\APP\comm_task.c)(0x5AD06678)(--c99 -c --cpu Cortex-M0 -g -O3 --apcs=interwork -I ..\APP -I ..\OS -I ..\CORE -I ..\HARDWARE -I ..\MODULE -I ..\STM32F03x_FWLib\inc -I ..\STM32F03x_FWLib\src -I ..\User -I ..\SYSTEM -I ..\SYSTEM\cmd -I ..\SYSTEM\fifo-I.\RTE\_Stm32f030demo-ID:\Keil_v5\ARM\PACK\ARM\CMSIS\5.0.1\CMSIS\Include-ID:\Keil_v5\ARM\PACK\Keil\STM32F0xx_DFP\1.5.0\Device\Include-D__UVISION_VERSION="523" -D_RTE_ -DSTM32F070xB -DUSE_STDPERIPH_DRIVER -DSTM32F0XX-o ..\obj\comm_task.o --omf_browse ..\obj\comm_task.crf --depend ..\obj\comm_task.d)
+F (..\APP\comm_task.c)(0x5AD3FC46)(--c99 -c --cpu Cortex-M0 -g -O3 --apcs=interwork -I ..\APP -I ..\OS -I ..\CORE -I ..\HARDWARE -I ..\MODULE -I ..\STM32F03x_FWLib\inc -I ..\STM32F03x_FWLib\src -I ..\User -I ..\SYSTEM -I ..\SYSTEM\cmd -I ..\SYSTEM\fifo-I.\RTE\_Stm32f030demo-ID:\Keil_v5\ARM\PACK\ARM\CMSIS\5.0.1\CMSIS\Include-ID:\Keil_v5\ARM\PACK\Keil\STM32F0xx_DFP\1.5.0\Device\Include-D__UVISION_VERSION="523" -D_RTE_ -DSTM32F070xB -DUSE_STDPERIPH_DRIVER -DSTM32F0XX-o ..\obj\comm_task.o --omf_browse ..\obj\comm_task.crf --depend ..\obj\comm_task.d)
 I (..\APP\comm_task.h)(0x5AD02B80)
 I (..\SYSTEM\fifo\datatype.h)(0x5A74C6B0)
 I (..\SYSTEM\fifo\fifo.h)(0x5A74C6B0)

@@ -6,7 +6,7 @@
 #define OS_TRUE 1
 #define OS_FALSE 0
 
-#define OS_MAX_TASK  10
+#define OS_MAX_TASK  15
 
 #define OS_TICKS_PER_SEC    1000u
 

@@ -82,6 +82,7 @@ void init_task(void)
 	os_create_task(ReleaseGas, OS_TRUE, TASK_RELEASE_GAS_ID);
 	os_create_task(DetectPalm, OS_TRUE, TASK_DETECT_PALM_ID);
 	os_create_task(Detect_battery_and_tmp,OS_TRUE,TASK_DETECT_BATTERY_ID);
+	os_create_task(led_blink_beep,OS_TRUE,TASK_LED_BINK_BEEP);
 	os_pend_task(INIT_TASK_ID);
 }
 

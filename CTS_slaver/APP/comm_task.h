@@ -60,4 +60,5 @@ void Red_LED_Blink(unsigned char seconds);
 BOOL Is_timing_Xmillisec(uint32_t n_ms,uint8_t ID);
 void DetectPalm(void);
 void Detect_battery_and_tmp(void);
+void led_blink_beep(void);
 #endif

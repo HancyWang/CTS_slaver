@@ -42,6 +42,9 @@ BOOL b_release_gas=FALSE;
 BOOL b_palm_checked=FALSE;
 BOOL b_bat_detected_ok=FALSE;
 
+BOOL b_no_hand_in_place=FALSE;
+BOOL b_end_of_treatment=FALSE;
+
  uint32_t detectPalm_cnt=0;
  uint32_t noPalm_cnt=0;
 
@@ -51,6 +54,8 @@ static BOOL PWM3_timing_flag=TRUE;
 static BOOL PWM4_timing_flag=TRUE;
 static BOOL PWM5_timing_flag=TRUE;
 static BOOL waitBeforeStart_timing_flag=TRUE;
+static BOOL led_bink_timing_flag=TRUE;
+static BOOL beep_timing_flag=TRUE;
 //static BOOL switch_bnt_timing_flag=TRUE;
 static BOOL b_releaseGas_timing_flag=TRUE;
 //static BOOL b_detect_palm=TRUE;
@@ -61,6 +66,8 @@ static uint16_t pressure_result;
 //uint32_t prev_switchBtn_os_tick;
 //uint32_t prev_detect_palm_flag;
 uint32_t prev_releaseGas_os_tick;
+uint32_t prev_ledBlink_os_tick;
+uint32_t prev_beep_os_tick;
 uint32_t prev_WaitBeforeStart_os_tick;
 uint32_t prev_PWM1_os_tick;
 uint32_t prev_PWM2_os_tick;
@@ -154,6 +161,34 @@ uint8_t wait_cnt=0;
 
 //static uint8_t bat_detect_cnt=0;
 
+//typedef enum
+//{
+//	INIT,
+//	BLINK,
+//	BEEP
+//}LED_BEEP_STATE;
+
+//LED_BEEP_STATE led_beep_state=INIT;
+
+typedef enum
+{
+	LED_INIT,
+	LED_ON,
+	LED_OFF,
+	LED_END
+}LED_STATE;
+
+typedef enum
+{
+	BEEP_INIT,
+	BEEP_ON,
+	BEEP_OFF,
+	BEEP_END
+}BEEP_STATE;
+
+LED_STATE led_state=LED_INIT;
+BEEP_STATE beep_state=BEEP_INIT;
+static uint8_t led_beep_ID=0;
 /*******************************************************************************
 *                                内部函数声明
 *******************************************************************************/
@@ -510,6 +545,14 @@ BOOL Is_timing_Xmillisec(uint32_t n_ms,uint8_t ID)
 //			b_timing_flag=&b_detect_palm;
 //			p_prev_os_tick=&prev_detect_palm_flag;
 //			break;
+		case 10:                   //没侦测到手时，LED闪烁
+			b_timing_flag=&led_bink_timing_flag;
+			p_prev_os_tick=&prev_ledBlink_os_tick;
+			break;
+		case 11:                   //没侦测到手时，蜂鸣器鸣叫
+			b_timing_flag=&beep_timing_flag;
+			p_prev_os_tick=&prev_beep_os_tick;
+			break;
 		default:
 			break;
 	}
@@ -1047,45 +1090,236 @@ void ReleaseGas()
 	os_delay_ms(TASK_RELEASE_GAS_ID, 50);
 }
 	 
+void led_blink_beep()
+{
+	static uint8_t led_bink_cnt;
+	static uint8_t beep_cnt;
+	static uint8_t delay_cnt;
+	
+//	//没侦测到手
+	static uint8_t nohand_ledCnt=5;
+	static uint8_t nohand_beepCnt=5;
+	static uint16_t nohand_led_tm=300;  //定时300ms
+	static uint16_t nohand_beep_tm=300;
+	
+//	//治疗结束
+	static uint8_t endTreatment_ledCnt=5;
+	static uint8_t endTreatment_beepCnt=5;
+	static uint16_t endTreatment_led_tm=500;  //定时500ms
+	static uint16_t endTreatment_beep_tm=500; 
+	
+	static uint8_t* p_ledCnt;
+	static uint8_t* p_beepCnt;
+	static uint16_t* p_led_tm;
+	static uint16_t* p_beep_tm;
+	//if(b_no_hand_in_place)
+	{
+		if(led_state==LED_INIT)
+		{
+			if(b_no_hand_in_place||b_end_of_treatment)
+			{
+				//延迟一下在输出，效果好一些
+				if(delay_cnt==10)  //延迟10*50=500ms
+				{
+					delay_cnt=0;
+					
+					set_led(LED_ID_MODE1,TRUE); 
+					set_led(LED_ID_MODE2,TRUE);
+					set_led(LED_ID_MODE3,TRUE);
+					led_state=LED_ON;
+					
+					Motor_PWM_Freq_Dudy_Set(5,4000,50);
+					beep_state=BEEP_ON;
+				}
+				else
+				{
+					delay_cnt++;
+					
+					//关闭波形输出
+					Motor_PWM_Freq_Dudy_Set(1,100,0);
+					Motor_PWM_Freq_Dudy_Set(2,100,0);
+					Motor_PWM_Freq_Dudy_Set(3,100,0);	
+					Motor_PWM_Freq_Dudy_Set(4,100,0);  
+					Motor_PWM_Freq_Dudy_Set(5,4000,0);
+					
+					set_led(LED_ID_GREEN,FALSE);   //关掉电源的绿色LED灯
+					
+					if(mode==1)
+					{
+						set_led(LED_ID_MODE1,FALSE); 
+					}
+					else if(mode==2)
+					{
+						set_led(LED_ID_MODE2,FALSE);
+					}
+					else if(mode==3)
+					{
+						set_led(LED_ID_MODE3,FALSE);
+					}
+					else
+					{
+						//do nothing
+					}
+				}
+			}
+		}
+		
+//		if(beep_state==BEEP_INIT)
+//		{
+////			Motor_PWM_Freq_Dudy_Set(5,4000,50);
+//			beep_state=BEEP_ON;
+//		}
+
+		if(led_state==LED_ON)
+		{
+			//uint16_t tm=0;
+			switch(led_beep_ID)
+			{
+				case 1:   //没侦测到手
+					//tm=300;
+					p_led_tm=&nohand_led_tm;
+					p_ledCnt=&nohand_ledCnt;
+					break;
+				case 2:   //治疗结束
+		///			tm=500;
+					p_led_tm=&endTreatment_led_tm;
+					p_ledCnt=&endTreatment_ledCnt;
+					break;
+				default:
+					break;
+			}
+			if(Is_timing_Xmillisec((uint32_t)(*p_led_tm),10))  //500ms,ON
+			//if(Is_timing_Xmillisec(tm,10))
+			{
+				set_led(LED_ID_MODE1,FALSE); 
+				set_led(LED_ID_MODE2,FALSE);
+				set_led(LED_ID_MODE3,FALSE);
+				
+				led_state=LED_OFF;
+				led_bink_cnt++;
+			}
+		}
+
+		if(led_state==LED_OFF)
+		{
+			if(led_bink_cnt==*p_ledCnt)
+			//if(led_bink_cnt==5)
+			{
+				led_bink_cnt=0;
+				led_state=LED_END;
+			}
+			else
+			{
+////				uint16_t tm=0;
+//				switch(led_beep_ID)
+//				{
+//					case 1:   //没侦测到手
+//				//		tm=300;
+//						p_led_tm=&nohand_led_tm;
+//						break;
+//					case 2:   //治疗结束
+//					//	tm=500;
+//						p_led_tm=&endTreatment_led_tm;
+//						break;
+//					default:
+//						break;
+//				}
+				if(Is_timing_Xmillisec((uint32_t)(*p_led_tm),10))  //500ms,OFF
+				//if(Is_timing_Xmillisec((tm),10)) 
+				{
+					set_led(LED_ID_MODE1,TRUE); 
+					set_led(LED_ID_MODE2,TRUE);
+					set_led(LED_ID_MODE3,TRUE);
+					led_state=LED_ON;
+				}
+			}
+		}
+		
+		
+		if(beep_state==BEEP_ON)
+		{
+			//uint16_t tm=0;
+			switch(led_beep_ID)
+			{
+				case 1:   //没侦测到手
+					//tm=300;
+				  p_beep_tm=&nohand_beep_tm;
+					p_beepCnt=&nohand_beepCnt;
+					break;
+				case 2:   //治疗结束
+					//tm=500;
+					p_beep_tm=&endTreatment_beep_tm;
+					p_beepCnt=&endTreatment_beepCnt;
+					break;
+				default:
+					break;
+			}
+//			if(Is_timing_Xmillisec((uint32_t)(*p_tm),11))
+			if(Is_timing_Xmillisec((uint32_t)(*p_beep_tm),11))
+			{
+				Motor_PWM_Freq_Dudy_Set(5,4000,0);
+				beep_state=BEEP_OFF;
+				beep_cnt++;
+			}
+		}
+		
+		if(beep_state==BEEP_OFF)
+		{
+			if(beep_cnt==*p_beepCnt)
+			{
+				beep_cnt=0;
+				beep_state=BEEP_END;
+			}
+			else
+			{
+////				uint16_t tm=0;
+//				switch(led_beep_ID)
+//				{
+//					case 1:   //没侦测到手
+//						//tm=300;
+////						*p_tm=nohand_tm;
+//////						ledCnt=5;
+//////						beepCnt=5;
+//						break;
+//					case 2:   //治疗结束
+//						//tm=500;
+////						*p_tm=nohand_tm;
+//////						ledCnt=5;
+//////						beepCnt=5;
+//						break;
+//					default:
+//						break;
+//				}
+				if(Is_timing_Xmillisec((uint32_t)(*p_beep_tm),11))
+				//if(Is_timing_Xmillisec((tm),11))
+				{
+					Motor_PWM_Freq_Dudy_Set(5,4000,50);
+					beep_state=BEEP_ON;
+				}
+			}
+		}
+		
+		if(led_state==LED_END&&beep_state==BEEP_END)
+		{
+			b_no_hand_in_place=FALSE;
+			b_end_of_treatment=FALSE;
+			led_state=LED_INIT;
+			beep_state=BEEP_INIT;
+			led_bink_cnt=0;
+			beep_cnt=0;
+			
+			//进入stop模式
+			EnterStopMode();
+			//唤醒之后重新初始化
+			init_system_afterWakeUp();
+		}
+	}
+	os_delay_ms(TASK_LED_BINK_BEEP, 50);
+}
+
+
 void Detect_battery_and_tmp()
 {
-	#if 0
-//	//PWM_EN置为高电平
-//	GPIO_SetBits(GPIOA,GPIO_Pin_15);
-//	//delay_ms(10);
-
-//	if(bat_detect_cnt==1)  //延迟,因为硬件开关管子需要时间
-//	{
-//		bat_detect_cnt=0;
-//		
-//		//经过1/2分压之后，电压在1.5v-2.1v之间(2048-2867)，偏差300
-//		uint16_t result;
-//		result=RegularConvData_Tab[0];
-
-//		//	if((result>=2048-300)&&(result<=2867+300))  //以3v作为参考电压 (2730是以3.3v为参考电压的) 
-//		if((result>=2252)&&(result<=3167))   //2252对应3.3V
-//		{
-//			b_bat_detected_ok=TRUE;
-//			GPIO_ResetBits(GPIOA,GPIO_Pin_15);
-//		}
-//		else
-//		{
-//			//电压不足，表示电池没电了，进入低功耗模式
-//			b_bat_detected_ok=FALSE;
-//			//橙色LED闪3s，关机
-//			Red_LED_Blink(3);
-//			mcu_state=POWER_OFF;
-//			//进入stop模式
-//			EnterStopMode();
-//			//唤醒之后重新初始化
-//			init_system_afterWakeUp();
-//		}
-//	}
-//	else
-//	{
-//		bat_detect_cnt++;
-//	}
-#endif
 	uint16_t result_0;
 	uint16_t result_1;
 	result_0=RegularConvData_Tab[0];  //对应的是电池电压检测
@@ -1097,16 +1331,6 @@ void Detect_battery_and_tmp()
 	//温度下限不需要
 	if((result_0>=2252&&result_0<=3167)&&((result_1>=950)))
 	{
-//		//	//2.检测pressure sensor 是否工作
-//		pressure_result=ADS115_readByte(0x90);
-//		if(pressure_result>70*5)
-//		{
-//			
-//		}
-//		else
-//		{
-//			b_bat_detected_ok=TRUE;
-//		}
 		b_bat_detected_ok=TRUE;
 	}
 	else
@@ -1121,7 +1345,6 @@ void Detect_battery_and_tmp()
 		//唤醒之后重新初始化
 		init_system_afterWakeUp();
 	}
-
 	os_delay_ms(TASK_DETECT_BATTERY_ID, 50);
 }
 
@@ -1156,13 +1379,16 @@ void DetectPalm()
 				b_palm_checked=FALSE;
 				//橙色LED闪3s，关机
 				//Red_LED_Blink(3);
-				No_Hand_IN_PLACE();
+//				No_Hand_IN_PLACE();
+				b_no_hand_in_place=TRUE;
+				led_beep_ID=1;
+				
 //				key_state=KEY_UPING;
 				mcu_state=POWER_OFF;
-				//进入stop模式
-				EnterStopMode();
-				//唤醒之后重新初始化
-				init_system_afterWakeUp();
+//				//进入stop模式
+//				EnterStopMode();
+//				//唤醒之后重新初始化
+//				init_system_afterWakeUp();
 			}
 			else
 			{
@@ -1323,27 +1549,29 @@ void check_selectedMode_ouputPWM()
 						state=GET_CYCLE_CNT;
 						init_PWMState();
 						
+						
 						//如果运行完毕
 						if(cycle_cnt==0)  
 						{
-							//加一个BEEP，表示治疗完成  
-							for(uint8_t i=0;i<3;i++)
-							{
-								Motor_PWM_Freq_Dudy_Set(5,4000,50);
-								delay_ms(1000);
-								Motor_PWM_Freq_Dudy_Set(5,4000,0);
-								delay_ms(1000);
-							}
-								//橙色LED闪3s，关机
-							//Red_LED_Blink(3);
-						
-							mcu_state=POWER_OFF;
-							//进入stop模式
-							EnterStopMode();
-							//唤醒之后重新初始化
-							init_system_afterWakeUp();
+							b_end_of_treatment=TRUE;
+							led_beep_ID=2;
+//							//加一个BEEP，表示治疗完成  
+//							for(uint8_t i=0;i<3;i++)
+//							{
+//								Motor_PWM_Freq_Dudy_Set(5,4000,50);
+//								delay_ms(1000);
+//								Motor_PWM_Freq_Dudy_Set(5,4000,0);
+//								delay_ms(1000);
+//							}
+//								//橙色LED闪3s，关机
+//							//Red_LED_Blink(3);
+//						
+//							mcu_state=POWER_OFF;
+//							//进入stop模式
+//							EnterStopMode();
+//							//唤醒之后重新初始化
+//							init_system_afterWakeUp();
 						}
-						
 					}		
 					else
 					{

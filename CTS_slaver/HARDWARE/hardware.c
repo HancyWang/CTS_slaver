@@ -284,7 +284,7 @@ void Init_Bat_Charge_Stby()
 	//GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
 	//GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
 	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
-	//GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
 	GPIO_Init(GPIOB, &GPIO_InitStructure);
 }
 
@@ -374,6 +374,9 @@ void init_hardware()
 //	GPIO_Init(RED_LED_PORT, &GPIO_InitStructure);
 //	set_led(LED_CLOSE);
 	#endif
+	
+	
+	
 	//≥ı ºªØUSB_OE
 	Init_USB_OE();  //PA0
 	

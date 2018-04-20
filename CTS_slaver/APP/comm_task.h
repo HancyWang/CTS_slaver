@@ -44,6 +44,33 @@ typedef enum
 	PWM_OUTPUT_FINISH
 }PWM_STATE;
 
+
+typedef enum
+{
+	USB_CHARGE_NONE,
+	USB_CHARGING,
+	USB_CHARGED_FULL,
+	USB_CHARGE_FAULT,
+	USB_CHARGE_NO_BATTERY
+}USB_CHARGING_STATE;
+
+
+typedef enum
+{
+	LED_INIT,
+	LED_ON,
+	LED_OFF,
+	LED_END
+}LED_STATE;
+
+typedef enum
+{
+	BEEP_INIT,
+	BEEP_ON,
+	BEEP_OFF,
+	BEEP_END
+}BEEP_STATE;
+
 void init_PWMState(void);
 
 void TaskDataSend (void);
@@ -61,4 +88,6 @@ BOOL Is_timing_Xmillisec(uint32_t n_ms,uint8_t ID);
 void DetectPalm(void);
 void Detect_battery_and_tmp(void);
 void led_blink_beep(void);
+void usb_charge_battery(void);
+void InitKeyWakeUpTiming(void);
 #endif

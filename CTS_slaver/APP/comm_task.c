@@ -69,6 +69,9 @@ static BOOL* b_timing_flag;
 
 static uint16_t pressure_result;
 
+ BOOL b_Motor_Ready2Shake=TRUE;
+ BOOL b_Motor_shake=FALSE;
+
 //uint32_t prev_switchBtn_os_tick;
 //uint32_t prev_detect_palm_flag;
 uint32_t prev_releaseGas_os_tick;
@@ -167,6 +170,10 @@ uint8_t pressure;
 uint16_t checkPressAgain_cnt=0;
 uint8_t wait_cnt=0;
 
+
+static BOOL b_self_test=FALSE;
+
+BOOL b_Palm_check_complited=FALSE;
 //static uint8_t bat_detect_cnt=0;
 
 //typedef enum
@@ -939,6 +946,7 @@ void FillUpPWMbuffer(uint8_t* dest,uint8_t* src,uint8_t PWMX)
 	dest[0]=serial_cnt;
 }
 
+
 /*******************************************************************************
 ** 函数名称: get_switch_mode
 ** 功能描述: 获取按键所对应的模式，通过按键按下和释放的检测来判断
@@ -953,29 +961,38 @@ void get_switch_mode()
 	static uint8_t release_btn_cnt=0;
 	static BOOL b_check_bnt_release=FALSE;
 	//static BOOL b_check_bnt_pressed=FALSE;
-
+	
+	
 	if(!b_usb_charge_bat)  //USB没有插上的时候才能使用按键选择模式
 	{
 		if(GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_15)==0)
 		{
-			if(switch_mode_cnt==5)
+			if(Is_timing_Xmillisec(5000,14))  //长按检测
 			{
-				//b_check_bnt_pressed=TRUE;
-				b_check_bnt_release=TRUE;
-				switch_mode_cnt=0;
-				
-	//			init_PWMState();
-	//			state=LOAD_PARA;
-	//			Motor_PWM_Freq_Dudy_Set(1,100,0);
-	//			Motor_PWM_Freq_Dudy_Set(2,100,0);
-	//			Motor_PWM_Freq_Dudy_Set(3,100,0);
-	//			Motor_PWM_Freq_Dudy_Set(4,100,0);
-	//			Motor_PWM_Freq_Dudy_Set(5,100,0);
+				b_self_test=TRUE;
 			}
 			else
 			{
-				switch_mode_cnt++;
+				if(switch_mode_cnt==5)
+				{
+					//b_check_bnt_pressed=TRUE;
+					b_check_bnt_release=TRUE;
+					switch_mode_cnt=0;
+					
+		//			init_PWMState();
+		//			state=LOAD_PARA;
+		//			Motor_PWM_Freq_Dudy_Set(1,100,0);
+		//			Motor_PWM_Freq_Dudy_Set(2,100,0);
+		//			Motor_PWM_Freq_Dudy_Set(3,100,0);
+		//			Motor_PWM_Freq_Dudy_Set(4,100,0);
+		//			Motor_PWM_Freq_Dudy_Set(5,100,0);
+				}
+				else
+				{
+					switch_mode_cnt++;
+				}
 			}
+			
 		}
 		else
 		{
@@ -1148,7 +1165,6 @@ void usb_charge_battery()
 		}
 		else
 		{
-			
 			//usb_charging_state=USB_CHARGE_NONE;
 		}
 		
@@ -1187,6 +1203,19 @@ void usb_charge_battery()
 		}
 	}
 	os_delay_ms(TASK_USB_CHARGE_BAT, 20);
+}
+
+//周一接着写
+void self_test()
+{
+	if(b_self_test)
+	{
+		//流水灯
+		//1.打开电磁阀放气3s
+		//2.关闭电磁阀持续5s，取样比较
+		//3.关闭电磁阀
+	}
+	os_delay_ms(TASK_SELF_TEST, 20);
 }
 
 void led_blink_beep()
@@ -1416,73 +1445,92 @@ void Detect_battery_and_tmp()
 	os_delay_ms(TASK_DETECT_BATTERY_ID, 50);
 }
 
-
+ 
 //侦测手掌任务
 void DetectPalm()
 {
 	//正在运行过程中，如果插入了USB，必须清除计数状态
-	//假设在进行60s检测手掌时，已经到了30s,如果不清楚，系统唤醒的时候还记得是30s
+	//假设在进行60s检测手掌时，已经到了30s,如果不清除，系统唤醒的时候还记得是30s
 	if(b_usb_charge_bat)
 	{
 		detectPalm_cnt=0;
 		noPalm_cnt=0;
 	}
-	
-	//if(b_Is_PCB_PowerOn)
-	if(b_Is_PCB_PowerOn&&!b_usb_charge_bat)  //Power on之后才能做检测手掌的任务
-	{			
-		if(GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_13)==0)
+	else
+	{
+		if(b_Motor_Ready2Shake)
 		{
-			if(detectPalm_cnt*KEY_LED_PERIOD==2*1000)
+			if(b_Motor_shake)
+			{
+				static uint8_t nMotorShake_Cnt=0;
+				if(nMotorShake_Cnt==25)
+				{
+					nMotorShake_Cnt=0;
+					b_Motor_Ready2Shake=FALSE;
+					Motor_PWM_Freq_Dudy_Set(1,100,0);
+					Motor_PWM_Freq_Dudy_Set(2,100,0);
+					Motor_PWM_Freq_Dudy_Set(3,100,0);
+					b_Palm_check_complited=TRUE;
+				}
+				else
+				{
+					Motor_PWM_Freq_Dudy_Set(1,100,80);
+					Motor_PWM_Freq_Dudy_Set(2,100,80);
+					Motor_PWM_Freq_Dudy_Set(2,100,80);
+					Motor_PWM_Freq_Dudy_Set(3,100,80);
+					nMotorShake_Cnt++;
+				}
+			}
+		}
+		
+		
+		//if(b_Is_PCB_PowerOn)
+		if(b_Is_PCB_PowerOn&&!b_usb_charge_bat)  //Power on之后才能做检测手掌的任务
+		{			
+			if(GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_13)==0)
+			{
+				if(detectPalm_cnt*KEY_LED_PERIOD==2*1000)
+				{
+					detectPalm_cnt=0;
+					noPalm_cnt=0;
+					
+					b_palm_checked=TRUE;
+	//					key_state=KEY_UPING;
+					mcu_state=POWER_ON;
+					b_Motor_shake=TRUE;
+				}
+				else
+				{
+					detectPalm_cnt++;
+				}	
+			}
+			else
 			{
 				detectPalm_cnt=0;
-				noPalm_cnt=0;
-				
-				b_palm_checked=TRUE;
-//					key_state=KEY_UPING;
-				mcu_state=POWER_ON;
-				
-//				Motor_PWM_Freq_Dudy_Set(1,100,80);
-//				Motor_PWM_Freq_Dudy_Set(2,100,80);
-//				Motor_PWM_Freq_Dudy_Set(2,100,80);
-//				Motor_PWM_Freq_Dudy_Set(3,100,80);
-//				Delay_ms(500);
-//				Motor_PWM_Freq_Dudy_Set(1,100,0);
-//				Motor_PWM_Freq_Dudy_Set(2,100,0);
-//				Motor_PWM_Freq_Dudy_Set(3,100,0);
-			}
-			else
-			{
-				detectPalm_cnt++;
-			}	
-		}
-		else
-		{
-			detectPalm_cnt=0;
-			if(noPalm_cnt*KEY_LED_PERIOD==60*1000)  //60s没有侦测到手
-			{
-				noPalm_cnt=0;
-				b_palm_checked=FALSE;
-				//橙色LED闪3s，关机
-				//Red_LED_Blink(3);
-//				No_Hand_IN_PLACE();
-				b_no_hand_in_place=TRUE;
-				led_beep_ID=1;
-				
-//				key_state=KEY_UPING;
-				mcu_state=POWER_OFF;
-//				//进入stop模式
-//				EnterStopMode();
-//				//唤醒之后重新初始化
-//				init_system_afterWakeUp();
-			}
-			else
-			{
-				noPalm_cnt++;
+				if(noPalm_cnt*KEY_LED_PERIOD==60*1000)  //60s没有侦测到手
+				{
+					noPalm_cnt=0;
+					b_palm_checked=FALSE;
+					//橙色LED闪3s，关机
+					//Red_LED_Blink(3);
+	//				No_Hand_IN_PLACE();
+					b_no_hand_in_place=TRUE;
+					led_beep_ID=1;
+					
+	//				key_state=KEY_UPING;
+					mcu_state=POWER_OFF;
+	//				//进入stop模式
+	//				EnterStopMode();
+	//				//唤醒之后重新初始化
+	//				init_system_afterWakeUp();
+				}
+				else
+				{
+					noPalm_cnt++;
+				}
 			}
 		}
 	}
-	
 	os_delay_ms(TASK_DETECT_PALM_ID, 20);
 }
 
@@ -1502,7 +1550,7 @@ void check_selectedMode_ouputPWM()
 //	cycle_cnt=3;//buffer[0],cycle time
 	
 //	if(mcu_state==POWER_ON)
-	if(b_palm_checked&&mcu_state==POWER_ON&&!b_usb_charge_bat)  //USB插上之后不允许出波形
+	if(b_palm_checked&&mcu_state==POWER_ON&&!b_usb_charge_bat&&b_Palm_check_complited==TRUE)  //USB插上之后不允许出波形
 	{
 		if(!b_release_gas)
 		//if(!b_release_gas&&!b_usb_charge_bat)   //4s放气，充电，都不允许输出PWM

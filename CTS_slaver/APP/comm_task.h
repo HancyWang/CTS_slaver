@@ -90,4 +90,5 @@ void Detect_battery_and_tmp(void);
 void led_blink_beep(void);
 void usb_charge_battery(void);
 void InitKeyWakeUpTiming(void);
+void self_test(void);
 #endif

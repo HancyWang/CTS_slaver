@@ -69,6 +69,9 @@ extern BOOL b_bat_detected_ok;
 
 extern LED_STATE led_state;
 
+extern BOOL b_Motor_Ready2Shake;
+extern BOOL	 b_Motor_shake;
+extern BOOL b_Palm_check_complited;
  BOOL b_KeyWkUP_InterrupHappened=FALSE;
 //KEY值，这里点按为确认蓝牙连接
 typedef enum {
@@ -163,36 +166,36 @@ void CfgWFI()
 }
 
 
-////检测PA0(WAKE_UP)是否被按下
-//检测PA8(power_on_off)是否被按下
-BOOL Check_wakeUpKey_pressed(void)
-{
-	while(TRUE)
-	{
-		//读取PA8的电平
-		if(GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_8)==0)
-		{
-			//b_Interrupt_key_wakeUp=TRUE;
-			delay_ms(30);
+//////检测PA0(WAKE_UP)是否被按下
+////检测PA8(power_on_off)是否被按下
+//BOOL Check_wakeUpKey_pressed(void)
+//{
+//	while(TRUE)
+//	{
+//		//读取PA8的电平
+//		if(GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_8)==0)
+//		{
+//			//b_Interrupt_key_wakeUp=TRUE;
+//			delay_ms(30);
 
-			if(GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_8)==0)
-			{
-				while(TRUE)
-				{
-					delay_ms(10);
-					if(GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_8)==1)
-					{
-						return TRUE;
-					}
-				}
-			}
-		}
-		else
-		{
-			return FALSE;
-		}
-	}
-}
+//			if(GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_8)==0)
+//			{
+//				while(TRUE)
+//				{
+//					delay_ms(10);
+//					if(GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_8)==1)
+//					{
+//						return TRUE;
+//					}
+//				}
+//			}
+//		}
+//		else
+//		{
+//			return FALSE;
+//		}
+//	}
+//}
 
 ////PA0,判断USB是插入还是拔出
 USB_DETECT_STATE Check_USB_pull_or_push()
@@ -218,7 +221,7 @@ USB_DETECT_STATE Check_USB_pull_or_push()
 			//循环5次，如果5次都是高电平，说明已经稳定的插入USB了
 			for(uint8_t i=0;i<5;i++)
 			{
-				delay_ms(5);
+				delay_ms(2);
 				if(GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_0)==1)
 				{
 					cnt++;
@@ -252,7 +255,7 @@ USB_DETECT_STATE Check_USB_pull_or_push()
 			uint8_t cnt=0;
 			for(uint8_t i=0;i<5;i++)
 			{
-				delay_ms(5);
+				delay_ms(2);
 				if(GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_0)==0)
 				{
 					cnt++;
@@ -611,6 +614,10 @@ void EnterStopMode()
 //		return;
 //	}
 //	
+	b_Palm_check_complited=FALSE;
+	b_Motor_Ready2Shake=TRUE;
+	b_Motor_shake=FALSE;
+	
 	led_state=LED_INIT;
 	b_usb_charge_bat=FALSE;
 	
@@ -652,7 +659,7 @@ void key_power_on_task(void)
 		//1.按键按下时间必须>=2s,2.释放后侦测100ms  满足1和2才能算一个完整的按键动作
 		if(GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_8)==0)
 		{
-			if(Is_timing_Xmillisec(2000,13))
+			if(Is_timing_Xmillisec(1000,13))
 			{
 				InitKeyWakeUpTiming();
 				//b_Interrupt_KeyWakeUp_Pressed=TRUE;
@@ -730,16 +737,14 @@ void key_power_on_task(void)
 					{
 						//do nothing
 					}
-					
-					
-					Motor_PWM_Freq_Dudy_Set(1,100,80);
-					Motor_PWM_Freq_Dudy_Set(2,100,80);
-					Motor_PWM_Freq_Dudy_Set(2,100,80);
-					Motor_PWM_Freq_Dudy_Set(3,100,80);
-					Delay_ms(500);
-					Motor_PWM_Freq_Dudy_Set(1,100,0);
-					Motor_PWM_Freq_Dudy_Set(2,100,0);
-					Motor_PWM_Freq_Dudy_Set(3,100,0);
+//					Motor_PWM_Freq_Dudy_Set(1,100,80);
+//					Motor_PWM_Freq_Dudy_Set(2,100,80);
+//					Motor_PWM_Freq_Dudy_Set(2,100,80);
+//					Motor_PWM_Freq_Dudy_Set(3,100,80);
+//					Delay_ms(500);
+//					Motor_PWM_Freq_Dudy_Set(1,100,0);
+//					Motor_PWM_Freq_Dudy_Set(2,100,0);
+//					Motor_PWM_Freq_Dudy_Set(3,100,0);
 					
 					key_state=KEY_UPING;
 				}

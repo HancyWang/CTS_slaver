@@ -106,11 +106,24 @@ extern uint16_t checkPressAgain_cnt;
 extern uint8_t wait_cnt;
 
 extern BOOL	b_self_test;
-
+extern BOOL key_self_test_timing_flag;
+extern uint32_t	prev_selfTest_os_tick;
+	
 extern BOOL	b_usb_push_in;
 extern BOOL	b_usb_pull_up;
 extern BOOL	b_stop_current_works;
 extern uint8_t led_beep_ID;
+
+extern SELF_TEST_STATE self_tet_state;
+extern LED_IN_TURN_STATE led_In_Turn_state;
+extern BOOL b_LED_ON_in_turn;
+
+extern BOOL b_check_bnt_release;
+extern uint8_t selfTest_delay_Cnt;
+extern uint8_t nLED_ON_in_turn;
+extern uint8_t inflate_cnt;
+extern uint8_t hold_cnt;
+extern uint8_t deflate_cnt;
 
 //extern BOOL b_start_powerOn_check;
 // BOOL b_KeyWkUP_InterrupHappened=FALSE;
@@ -353,8 +366,11 @@ void EXTI4_15_IRQHandler(void)
 {  
 	if(EXTI_GetITStatus(EXTI_Line8)!=RESET)  
 	{ 
+		if(usb_detect_state==USB_NOT_DETECT)
+		{
+			key_state=KEY_DOWNING;
+		}
 		//b_KeyWkUP_InterrupHappened=TRUE;
-		key_state=KEY_DOWNING;
 	//	set_led(LED_ID_YELLOW,TRUE); //debug
 	} 
 	EXTI_ClearFlag(EXTI_Line8);
@@ -647,11 +663,6 @@ void Init_gloab_viriable()
 	key_Press_or_Release_timing_flag=TRUE;
 	//static BOOL switch_bnt_timing_flag=TRUE;
 	b_releaseGas_timing_flag=TRUE;
-//	b_detect_palm=TRUE;
-	
-
-	//static uint16_t pressure_result;
-
 
 	led_bink_cnt=0;
 	beep_cnt=0;
@@ -660,8 +671,6 @@ void Init_gloab_viriable()
 	b_Motor_Ready2Shake=TRUE;
 	b_Motor_shake=FALSE;
 
-	//uint32_t prev_switchBtn_os_tick;
-	//uint32_t prev_detect_palm_flag;
 	prev_releaseGas_os_tick=0;
 	prev_ledBlink_os_tick=0;
 	prev_keyPressOrRelease_os_tick=0;
@@ -675,6 +684,9 @@ void Init_gloab_viriable()
 	prev_PWM5_os_tick=0;
 	//p_prev_os_tick=NULL;
 
+	key_self_test_timing_flag=TRUE;
+	prev_selfTest_os_tick=0;
+	
 	checkPressAgain_cnt=0;
 	wait_cnt=0;
 
@@ -691,7 +703,18 @@ void Init_gloab_viriable()
 	led_state=LED_INIT;
 	beep_state=BEEP_INIT;
 	
-
+	self_tet_state=SELF_TEST_NONE;
+  led_In_Turn_state=LED_IN_TURN_NONE;
+	
+	b_LED_ON_in_turn=FALSE;
+	b_check_bnt_release=FALSE;
+	
+	
+	selfTest_delay_Cnt=0;
+  nLED_ON_in_turn=0;
+  inflate_cnt=0;
+  hold_cnt=0;
+  deflate_cnt=0;
 }
 
 

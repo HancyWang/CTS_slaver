@@ -43,6 +43,8 @@ extern USB_CHARGING_STATE usb_charging_state;
 extern uint8_t led_beep_ID;
 
 extern USB_DETECT_STATE usb_detect_state;
+
+extern BOOL b_LED_ON_in_turn;
 //extern BOOL b_usb_intterruptHappened;
 //extern BOOL b_KeyWkUP_InterrupHappened;
 //BOOL b_start_powerOn_check=FALSE;
@@ -68,6 +70,7 @@ static BOOL waitBeforeStart_timing_flag=TRUE;
  BOOL beep_timing_flag=TRUE;
  BOOL usb_charge_timing_flag=TRUE;
  BOOL key_Press_or_Release_timing_flag=TRUE;
+ BOOL key_self_test_timing_flag=TRUE;
 //static BOOL switch_bnt_timing_flag=TRUE;
  BOOL b_releaseGas_timing_flag=TRUE;
 //static BOOL b_detect_palm=TRUE;
@@ -75,6 +78,7 @@ static BOOL* b_timing_flag;
 
 static uint16_t pressure_result;
 
+BOOL b_check_bnt_release=FALSE;
 
  uint16_t led_bink_cnt;
 	uint16_t beep_cnt;
@@ -87,6 +91,7 @@ static uint16_t pressure_result;
 //uint32_t prev_detect_palm_flag;
 uint32_t prev_releaseGas_os_tick;
 uint32_t prev_ledBlink_os_tick;
+uint32_t prev_selfTest_os_tick;
 uint32_t prev_keyPressOrRelease_os_tick;
 uint32_t prev_usbCharge_os_tick;
 uint32_t prev_beep_os_tick;
@@ -191,7 +196,17 @@ USB_CHARGING_STATE usb_charging_state=USB_CHARGE_NONE;
  BOOL b_usb_push_in;
  BOOL b_usb_pull_up;
 BOOL b_stop_current_works=FALSE;
+BOOL b_LED_ON_in_turn=FALSE;
 
+SELF_TEST_STATE self_tet_state=SELF_TEST_NONE;
+LED_IN_TURN_STATE led_In_Turn_state=LED_IN_TURN_NONE;
+
+
+ uint8_t selfTest_delay_Cnt;
+ uint8_t nLED_ON_in_turn;
+ uint8_t inflate_cnt;
+ uint8_t hold_cnt;
+ uint8_t deflate_cnt;
 //static uint8_t bat_detect_cnt=0;
 
 //typedef enum
@@ -587,6 +602,9 @@ BOOL Is_timing_Xmillisec(uint32_t n_ms,uint8_t ID)
 		case 13:                 //开关机键
 			b_timing_flag=&key_Press_or_Release_timing_flag;
 			p_prev_os_tick=&prev_keyPressOrRelease_os_tick;
+		case 14:                 //模式按键长按，自检
+			b_timing_flag=&key_self_test_timing_flag;
+			p_prev_os_tick=&prev_selfTest_os_tick;
 			break;
 		default:
 			break;
@@ -964,7 +982,7 @@ void FillUpPWMbuffer(uint8_t* dest,uint8_t* src,uint8_t PWMX)
 	dest[0]=serial_cnt;
 }
 
-
+ 
 /*******************************************************************************
 ** 函数名称: get_switch_mode
 ** 功能描述: 获取按键所对应的模式，通过按键按下和释放的检测来判断
@@ -977,16 +995,24 @@ void get_switch_mode()
 {
 	static uint8_t switch_mode_cnt=0;
 	static uint8_t release_btn_cnt=0;
-	static BOOL b_check_bnt_release=FALSE;
+	
 	//static BOOL b_check_bnt_pressed=FALSE;
 	
-	if(!b_stop_current_works)  
+	if(!b_stop_current_works&&mcu_state==POWER_ON)  
 	{
 		if(GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_15)==0)
 		{
 			if(Is_timing_Xmillisec(5000,14))  //长按检测
 			{
 				b_self_test=TRUE;
+				self_tet_state=SELF_TEST_DELAY_BEFORE_START;
+				init_PWMState();
+				state=LOAD_PARA;
+				Motor_PWM_Freq_Dudy_Set(1,100,0);
+				Motor_PWM_Freq_Dudy_Set(2,100,0);
+				Motor_PWM_Freq_Dudy_Set(3,100,0);
+				Motor_PWM_Freq_Dudy_Set(4,100,0);
+				Motor_PWM_Freq_Dudy_Set(5,100,0);
 			}
 			else
 			{
@@ -1009,15 +1035,21 @@ void get_switch_mode()
 					switch_mode_cnt++;
 				}
 			}
-			
 		}
 		else
 		{
 			switch_mode_cnt=0;
 			if(b_check_bnt_release==TRUE)
 			{
-				if(release_btn_cnt==5)
+				if(release_btn_cnt==5&&!b_self_test&&!b_LED_ON_in_turn)
+				//if(release_btn_cnt==5&&!b_self_test)
+				//if(release_btn_cnt==5)
 				{
+					//清除Is_timing_Xmillisec(5000,14)中的计数，防止累加而开启自检功能
+					key_self_test_timing_flag=TRUE;
+					prev_selfTest_os_tick=0;
+					
+					
 					release_btn_cnt=0;
 					//b_check_bnt_pressed=FALSE;
 					b_check_bnt_release=FALSE;
@@ -1072,54 +1104,6 @@ void get_switch_mode()
 			}
 		}
 	}
-
-	#if 0
-//  static uint8_t switch_mode_cnt=0;
-//	if(GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_15)==0)
-//	{
-//		if(switch_mode_cnt==5)
-//		{
-//			switch_mode_cnt=0;
-//			//切换按键模式
-//			if(mode==1)
-//			{
-//				mode=2;
-////				set_led(LED_ID_MODE1,FALSE); //关掉LED1，打开LED2
-////				set_led(LED_ID_MODE2,TRUE);
-//			}
-//			else if(mode==2)
-//			{
-//				mode=3;
-////				set_led(LED_ID_MODE2,FALSE);   //关掉LED2，打开LED3
-////				set_led(LED_ID_MODE3,TRUE);
-//			}
-//			else if(mode==3)
-//			{
-//				mode=1;
-////				set_led(LED_ID_MODE3,FALSE);  //关掉LED3，打开LED1
-////				set_led(LED_ID_MODE1,TRUE);
-//			}
-//			else
-//			{
-//				//do nothing
-//			}
-//			init_PWMState();
-//			state=LOAD_PARA;
-//			Motor_PWM_Freq_Dudy_Set(1,100,0);
-//			Motor_PWM_Freq_Dudy_Set(2,100,0);
-//			Motor_PWM_Freq_Dudy_Set(3,100,0);
-//			//Motor_PWM_Freq_Dudy_Set(4,100,0);
-//		}
-//		else
-//		{
-//			switch_mode_cnt++;
-//		}
-//	}
-//	else
-//	{
-//		switch_mode_cnt=0;
-//	}
-#endif
 	os_delay_ms(TASK_GET_SWITCH_MODE, 20);
 }
 
@@ -1224,6 +1208,12 @@ void usb_charge_battery()
 			usb_charging_state=USB_CHARGE_FAULT;
 			//usb_charging_state=USB_CHARGE_NONE;
 		}
+	}
+	
+	if(usb_charging_state==USB_CHARGE_FAULT)
+	{
+		EnterStopMode();
+		init_system_afterWakeUp();
 	}
 	
 	if(usb_charging_state==USB_CHARGING)
@@ -1512,16 +1502,216 @@ void usb_charge_battery()
 //	os_delay_ms(TASK_PROCESS_INTERRUPT, 20);
 //}
 
-//周一接着写
+
+
 void self_test()
 {
-	if(b_self_test)
+	//b_self_test=TRUE; //debug
+//	static uint8_t current_mode;
+//	if(b_self_test)
+//	{
+//		self_tet_state=SELF_TEST_DELAY_BEFORE_START;
+//	}
+	
+	//关闭波形，灯，并做短暂的延时
+	if(self_tet_state==SELF_TEST_DELAY_BEFORE_START)
 	{
-		//流水灯
-		//1.打开电磁阀放气3s
+		//关闭模式灯
+		set_led(LED_ID_MODE1,FALSE);
+		set_led(LED_ID_MODE2,FALSE);
+		set_led(LED_ID_MODE3,FALSE);
+		Motor_PWM_Freq_Dudy_Set(1,100,0);
+		Motor_PWM_Freq_Dudy_Set(2,100,0);
+		Motor_PWM_Freq_Dudy_Set(3,100,0);
+		Motor_PWM_Freq_Dudy_Set(4,100,0);
+		Motor_PWM_Freq_Dudy_Set(5,4000,0);
+		
+//		state=LOAD_PARA;
+//		init_PWMState();
+		
+		if(selfTest_delay_Cnt==10)
+		{
+			selfTest_delay_Cnt=0;
+			self_tet_state=SELF_TEST_START;
+		}
+		else
+		{
+			selfTest_delay_Cnt++;
+		}
+	}
+	
+	if(self_tet_state==SELF_TEST_START)
+	{
+		b_LED_ON_in_turn=TRUE;
+		self_tet_state=SELF_TEST_INFLATE;
+		led_In_Turn_state=LED_IN_TURN_MODE1;
+				//流水灯
+		//1.开电机(pwm3)，充气5s
 		//2.关闭电磁阀持续5s，取样比较
 		//3.关闭电磁阀
 	}
+	
+	//流水灯
+	if(b_LED_ON_in_turn==TRUE)  
+	{
+		if(led_In_Turn_state==LED_IN_TURN_MODE1)
+		{
+			if(nLED_ON_in_turn==40)
+			{
+				nLED_ON_in_turn=0;
+				led_In_Turn_state=LED_IN_TURN_MODE2;
+				set_led(LED_ID_MODE1,FALSE);
+			}
+			else
+			{
+				nLED_ON_in_turn++;
+				set_led(LED_ID_MODE1,TRUE);
+			}
+		}
+		
+		if(led_In_Turn_state==LED_IN_TURN_MODE2)
+		{
+			if(nLED_ON_in_turn==40)
+			{
+				nLED_ON_in_turn=0;
+				led_In_Turn_state=LED_IN_TURN_MODE3;
+				set_led(LED_ID_MODE2,FALSE);
+			}
+			else
+			{
+				nLED_ON_in_turn++;
+				set_led(LED_ID_MODE2,TRUE);
+			}
+		}
+		
+		if(led_In_Turn_state==LED_IN_TURN_MODE3)
+		{
+			if(nLED_ON_in_turn==40)
+			{
+				nLED_ON_in_turn=0;
+				led_In_Turn_state=LED_IN_TURN_MODE1;
+				set_led(LED_ID_MODE3,FALSE);
+			}
+			else
+			{
+				nLED_ON_in_turn++;
+				set_led(LED_ID_MODE3,TRUE);
+			}
+		}
+	}
+	
+	//充气
+	if(self_tet_state==SELF_TEST_INFLATE)
+	{
+		if(inflate_cnt*20==5000) //充气5s
+		{
+			self_tet_state=SELF_TEST_HOLD;
+		}
+		else
+		{
+			inflate_cnt++;
+			//检查充气是否有问题
+			//如果有问题，可能是电机坏了，也可能是漏气
+			if(inflate_cnt==5)
+			{
+				//记录数据1
+			}
+			if(inflate_cnt==15)
+			{
+				//记录数据2
+				
+				//数据2-数据1
+				self_tet_state=SELF_TEST_FAIL;
+			}
+		}
+	}
+	
+	if(self_tet_state==SELF_TEST_HOLD)
+	{
+		if(hold_cnt*20==5000) //hold住5s
+		{
+			self_tet_state=SELF_TEST_DEFLATE;
+		}
+		else
+		{
+			hold_cnt++;
+			//检查是否漏气，时间尽量长
+			if(hold_cnt==1)
+			{
+				//记录数据1
+			}
+			if(hold_cnt==19)
+			{
+				//记录数据2
+				
+				//数据2-数据1
+//				self_tet_state=SELF_TEST_FAIL;
+			}
+		}
+	}
+	
+	if(self_tet_state==SELF_TEST_DEFLATE)
+	{
+		if(deflate_cnt*20==5000) //放气5s
+		{
+			self_tet_state=SELF_TEST_END;
+		}
+		else
+		{
+			deflate_cnt++;
+		}
+		//检查电磁阀放气，时间尽量长
+		if(deflate_cnt==1)
+		{
+			//记录数据1
+		}
+		if(deflate_cnt==19)
+		{
+			//记录数据2
+			
+			//数据2-数据1
+			self_tet_state=SELF_TEST_FAIL;
+		}
+	}
+	
+	if(self_tet_state==SELF_TEST_FAIL)
+	{
+		//闪灯，直接进入低功耗
+	}
+	
+	if(self_tet_state==SELF_TEST_END)
+	{
+		b_self_test=FALSE;
+		b_LED_ON_in_turn=FALSE;
+		
+		//灯常亮5s，表示自检ok,然后进入低功耗
+		
+		EnterStopMode();
+		init_system_afterWakeUp();
+	#if 0	
+//		if(mode==1)
+//		{
+//			mode=2;		
+//			set_led(LED_ID_MODE1,FALSE); //关掉LED1，打开LED2
+//			set_led(LED_ID_MODE2,TRUE);
+//		}
+//		else if(mode==2)
+//		{
+//			set_led(LED_ID_MODE2,FALSE);   //关掉LED2，打开LED3
+//			set_led(LED_ID_MODE3,TRUE);
+//		}
+//		else if(mode==3)
+//		{
+//			set_led(LED_ID_MODE3,FALSE);  //关掉LED3，打开LED1
+//			set_led(LED_ID_MODE1,TRUE);
+//		}
+//		else
+//		{
+//			//do nothing
+//		}
+#endif
+	}
+	
 	os_delay_ms(TASK_SELF_TEST, 20);
 }
 
@@ -1530,8 +1720,8 @@ void led_blink_beep()
 //	//没侦测到手
 	static uint16_t nohand_ledCnt=5;
 	static uint16_t nohand_beepCnt=5;
-	static uint16_t nohand_led_tm=300;  //定时300ms
-	static uint16_t nohand_beep_tm=300;
+	static uint16_t nohand_led_tm=200;  //定时200ms
+	static uint16_t nohand_beep_tm=200;
 	
 //	//治疗结束
 	static uint16_t endTreatment_ledCnt=5;
@@ -1873,7 +2063,7 @@ void check_selectedMode_ouputPWM()
 	
 //	if(mcu_state==POWER_ON)
 	//if(b_palm_checked&&mcu_state==POWER_ON&&b_Palm_check_complited==TRUE&&!b_usb_intterruptHappened)  //USB插上之后不允许出波形
-	if(b_Palm_check_complited==TRUE&&!b_stop_current_works)
+	if(b_Palm_check_complited==TRUE&&!b_stop_current_works&&!b_self_test)
 	{
 		if(!b_release_gas)
 		//if(!b_release_gas&&!b_usb_charge_bat)   //4s放气，充电，都不允许输出PWM

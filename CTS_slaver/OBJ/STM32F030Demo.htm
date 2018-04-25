@@ -3,7 +3,7 @@
 <title>Static Call Graph - [..\OBJ\STM32F030Demo.axf]</title></head>
 <body><HR>
 <H1>Static Call Graph for image ..\OBJ\STM32F030Demo.axf</H1><HR>
-<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060422: Last Updated: Wed Apr 25 08:53:22 2018
+<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060422: Last Updated: Wed Apr 25 16:57:34 2018
 <BR><P>
 <H3>Maximum Stack Usage =        924 bytes + Unknown(Functions without stacksize, Cycles, Untraceable Function Pointers)</H3><H3>
 Call chain for Maximum Stack Depth:</H3>
@@ -344,7 +344,7 @@ Global Symbols
 </UL>
 <P><STRONG><a name="[124]"></a>InitKeyWakeUpTiming</STRONG> (Thumb, 14 bytes, Stack size 0 bytes, comm_task.o(.text), UNUSED)
 
-<P><STRONG><a name="[6b]"></a>Is_timing_Xmillisec</STRONG> (Thumb, 196 bytes, Stack size 12 bytes, comm_task.o(.text))
+<P><STRONG><a name="[6b]"></a>Is_timing_Xmillisec</STRONG> (Thumb, 208 bytes, Stack size 12 bytes, comm_task.o(.text))
 <BR><BR>[Stack]<UL><LI>Max Depth = 20<LI>Call Chain = Is_timing_Xmillisec &rArr; __ARM_common_switch8
 </UL>
 <BR>[Calls]<UL><LI><a href="#[6c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__ARM_common_switch8
@@ -396,7 +396,7 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[2c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;check_selectedMode_ouputPWM
 </UL>
 
-<P><STRONG><a name="[2d]"></a>get_switch_mode</STRONG> (Thumb, 234 bytes, Stack size 24 bytes, comm_task.o(.text))
+<P><STRONG><a name="[2d]"></a>get_switch_mode</STRONG> (Thumb, 272 bytes, Stack size 24 bytes, comm_task.o(.text))
 <BR><BR>[Stack]<UL><LI>Max Depth = 84<LI>Call Chain = get_switch_mode &rArr; Motor_PWM_Freq_Dudy_Set &rArr; TIM_OC4Init
 </UL>
 <BR>[Calls]<UL><LI><a href="#[5f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;set_led
@@ -418,7 +418,7 @@ Global Symbols
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> app.o(.text)
 </UL>
-<P><STRONG><a name="[32]"></a>usb_charge_battery</STRONG> (Thumb, 368 bytes, Stack size 24 bytes, comm_task.o(.text))
+<P><STRONG><a name="[32]"></a>usb_charge_battery</STRONG> (Thumb, 378 bytes, Stack size 24 bytes, comm_task.o(.text))
 <BR><BR>[Stack]<UL><LI>Max Depth = 216<LI>Call Chain = usb_charge_battery &rArr; init_system_afterWakeUp &rArr; init_task &rArr; UARTInit &rArr; USART_Init &rArr; RCC_GetClocksFreq
 </UL>
 <BR>[Calls]<UL><LI><a href="#[5f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;set_led
@@ -433,14 +433,18 @@ Global Symbols
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> app.o(.text)
 </UL>
-<P><STRONG><a name="[33]"></a>self_test</STRONG> (Thumb, 12 bytes, Stack size 8 bytes, comm_task.o(.text))
-<BR><BR>[Stack]<UL><LI>Max Depth = 16<LI>Call Chain = self_test &rArr; os_delay_ms
+<P><STRONG><a name="[33]"></a>self_test</STRONG> (Thumb, 382 bytes, Stack size 24 bytes, comm_task.o(.text))
+<BR><BR>[Stack]<UL><LI>Max Depth = 216<LI>Call Chain = self_test &rArr; init_system_afterWakeUp &rArr; init_task &rArr; UARTInit &rArr; USART_Init &rArr; RCC_GetClocksFreq
 </UL>
-<BR>[Calls]<UL><LI><a href="#[5c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;os_delay_ms
+<BR>[Calls]<UL><LI><a href="#[5f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;set_led
+<LI><a href="#[5e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_PWM_Freq_Dudy_Set
+<LI><a href="#[5c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;os_delay_ms
+<LI><a href="#[4b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;init_system_afterWakeUp
+<LI><a href="#[4a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;EnterStopMode
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> app.o(.text)
 </UL>
-<P><STRONG><a name="[31]"></a>led_blink_beep</STRONG> (Thumb, 522 bytes, Stack size 24 bytes, comm_task.o(.text))
+<P><STRONG><a name="[31]"></a>led_blink_beep</STRONG> (Thumb, 498 bytes, Stack size 24 bytes, comm_task.o(.text))
 <BR><BR>[Stack]<UL><LI>Max Depth = 216<LI>Call Chain = led_blink_beep &rArr; init_system_afterWakeUp &rArr; init_task &rArr; UARTInit &rArr; USART_Init &rArr; RCC_GetClocksFreq
 </UL>
 <BR>[Calls]<UL><LI><a href="#[5f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;set_led
@@ -452,7 +456,7 @@ Global Symbols
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> app.o(.text)
 </UL>
-<P><STRONG><a name="[30]"></a>Detect_battery_and_tmp</STRONG> (Thumb, 78 bytes, Stack size 8 bytes, comm_task.o(.text))
+<P><STRONG><a name="[30]"></a>Detect_battery_and_tmp</STRONG> (Thumb, 76 bytes, Stack size 8 bytes, comm_task.o(.text))
 <BR><BR>[Stack]<UL><LI>Max Depth = 200<LI>Call Chain = Detect_battery_and_tmp &rArr; init_system_afterWakeUp &rArr; init_task &rArr; UARTInit &rArr; USART_Init &rArr; RCC_GetClocksFreq
 </UL>
 <BR>[Calls]<UL><LI><a href="#[61]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Red_LED_Blink
@@ -462,7 +466,7 @@ Global Symbols
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> app.o(.text)
 </UL>
-<P><STRONG><a name="[2f]"></a>DetectPalm</STRONG> (Thumb, 228 bytes, Stack size 24 bytes, comm_task.o(.text))
+<P><STRONG><a name="[2f]"></a>DetectPalm</STRONG> (Thumb, 226 bytes, Stack size 24 bytes, comm_task.o(.text))
 <BR><BR>[Stack]<UL><LI>Max Depth = 84<LI>Call Chain = DetectPalm &rArr; Motor_PWM_Freq_Dudy_Set &rArr; TIM_OC4Init
 </UL>
 <BR>[Calls]<UL><LI><a href="#[5e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_PWM_Freq_Dudy_Set
@@ -471,7 +475,7 @@ Global Symbols
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> app.o(.text)
 </UL>
-<P><STRONG><a name="[2c]"></a>check_selectedMode_ouputPWM</STRONG> (Thumb, 466 bytes, Stack size 480 bytes, comm_task.o(.text))
+<P><STRONG><a name="[2c]"></a>check_selectedMode_ouputPWM</STRONG> (Thumb, 506 bytes, Stack size 480 bytes, comm_task.o(.text))
 <BR><BR>[Stack]<UL><LI>Max Depth = 720<LI>Call Chain = check_selectedMode_ouputPWM &rArr; PaintPWM &rArr; init_system_afterWakeUp &rArr; init_task &rArr; UARTInit &rArr; USART_Init &rArr; RCC_GetClocksFreq
 </UL>
 <BR>[Calls]<UL><LI><a href="#[76]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;FlashRead
@@ -492,7 +496,7 @@ Global Symbols
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> app.o(.text)
 </UL>
-<P><STRONG><a name="[2a]"></a>CMD_ProcessTask</STRONG> (Thumb, 32 bytes, Stack size 8 bytes, comm_task.o(.text))
+<P><STRONG><a name="[2a]"></a>CMD_ProcessTask</STRONG> (Thumb, 30 bytes, Stack size 8 bytes, comm_task.o(.text))
 <BR><BR>[Stack]<UL><LI>Max Depth = 924<LI>Call Chain = CMD_ProcessTask &rArr; ModuleUnPackFrame &rArr; protocol_module_process &rArr; send_prameter_fram1_to_PC &rArr; CheckFlashData &rArr; ResetParameter &rArr; FlashWrite &rArr; FLASH_ProgramWord &rArr; FLASH_WaitForLastOperation
 </UL>
 <BR>[Calls]<UL><LI><a href="#[7a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ReceiveData
@@ -531,7 +535,7 @@ Global Symbols
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> startup_stm32f0xx.o(RESET)
 </UL>
-<P><STRONG><a name="[12]"></a>EXTI4_15_IRQHandler</STRONG> (Thumb, 30 bytes, Stack size 8 bytes, key_power_on_task.o(.text))
+<P><STRONG><a name="[12]"></a>EXTI4_15_IRQHandler</STRONG> (Thumb, 36 bytes, Stack size 8 bytes, key_power_on_task.o(.text))
 <BR><BR>[Stack]<UL><LI>Max Depth = 8<LI>Call Chain = EXTI4_15_IRQHandler
 </UL>
 <BR>[Calls]<UL><LI><a href="#[84]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;EXTI_GetITStatus
@@ -549,6 +553,7 @@ Global Symbols
 </UL>
 <BR>[Called By]<UL><LI><a href="#[6d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PaintPWM
 <LI><a href="#[32]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;usb_charge_battery
+<LI><a href="#[33]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;self_test
 <LI><a href="#[31]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;led_blink_beep
 <LI><a href="#[2b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;key_power_on_task
 <LI><a href="#[2c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;check_selectedMode_ouputPWM
@@ -571,7 +576,7 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[4a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;EnterStopMode
 </UL>
 
-<P><STRONG><a name="[8b]"></a>Init_gloab_viriable</STRONG> (Thumb, 184 bytes, Stack size 8 bytes, key_power_on_task.o(.text))
+<P><STRONG><a name="[8b]"></a>Init_gloab_viriable</STRONG> (Thumb, 228 bytes, Stack size 8 bytes, key_power_on_task.o(.text))
 <BR><BR>[Stack]<UL><LI>Max Depth = 8<LI>Call Chain = Init_gloab_viriable
 </UL>
 <BR>[Calls]<UL><LI><a href="#[6e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;init_PWMState
@@ -591,6 +596,7 @@ Global Symbols
 </UL>
 <BR>[Called By]<UL><LI><a href="#[6d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PaintPWM
 <LI><a href="#[32]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;usb_charge_battery
+<LI><a href="#[33]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;self_test
 <LI><a href="#[31]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;led_blink_beep
 <LI><a href="#[2b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;key_power_on_task
 <LI><a href="#[2c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;check_selectedMode_ouputPWM
@@ -598,7 +604,7 @@ Global Symbols
 <LI><a href="#[42]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
 </UL>
 
-<P><STRONG><a name="[2b]"></a>key_power_on_task</STRONG> (Thumb, 198 bytes, Stack size 16 bytes, key_power_on_task.o(.text))
+<P><STRONG><a name="[2b]"></a>key_power_on_task</STRONG> (Thumb, 434 bytes, Stack size 16 bytes, key_power_on_task.o(.text))
 <BR><BR>[Stack]<UL><LI>Max Depth = 208<LI>Call Chain = key_power_on_task &rArr; init_system_afterWakeUp &rArr; init_task &rArr; UARTInit &rArr; USART_Init &rArr; RCC_GetClocksFreq
 </UL>
 <BR>[Calls]<UL><LI><a href="#[5f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;set_led
@@ -982,6 +988,7 @@ Global Symbols
 <LI><a href="#[61]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Red_LED_Blink
 <LI><a href="#[5d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;No_Hand_IN_PLACE
 <LI><a href="#[32]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;usb_charge_battery
+<LI><a href="#[33]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;self_test
 <LI><a href="#[31]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;led_blink_beep
 <LI><a href="#[2b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;key_power_on_task
 <LI><a href="#[2d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;get_switch_mode
@@ -1149,6 +1156,7 @@ Global Symbols
 <LI><a href="#[61]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Red_LED_Blink
 <LI><a href="#[5d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;No_Hand_IN_PLACE
 <LI><a href="#[32]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;usb_charge_battery
+<LI><a href="#[33]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;self_test
 <LI><a href="#[31]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;led_blink_beep
 <LI><a href="#[2d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;get_switch_mode
 <LI><a href="#[2f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;DetectPalm

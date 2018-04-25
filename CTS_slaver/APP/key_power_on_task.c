@@ -45,10 +45,6 @@
 /***********************************
 * 局部变量
 ***********************************/
-
-
-
-
 extern uint32_t os_ticks;
 extern CMD_Receive g_CmdReceive;  // 命令接收控制对象
 
@@ -68,11 +64,57 @@ extern uint32_t noPalm_cnt;
 extern BOOL b_bat_detected_ok;
 
 extern LED_STATE led_state;
+extern BEEP_STATE beep_state;
 
 extern BOOL b_Motor_Ready2Shake;
 extern BOOL	 b_Motor_shake;
 extern BOOL b_Palm_check_complited;
+
+//extern BOOL led_bink_timing_flag;
+//extern BOOL beep_timing_flag;
+//extern uint32_t prev_ledBlink_os_tick;
+//extern uint32_t prev_beep_os_tick;
+extern uint16_t led_bink_cnt;
+extern uint16_t beep_cnt;
+extern uint16_t delay_cnt;
+
+extern BOOL b_stop_current_works;
+extern BOOL b_no_hand_in_place;
+extern BOOL b_end_of_treatment;
+
+extern USB_CHARGING_STATE usb_charging_state;
+extern BOOL b_release_gas;
+extern BOOL led_bink_timing_flag;
+extern BOOL	beep_timing_flag;
+extern BOOL	usb_charge_timing_flag;
+extern BOOL	key_Press_or_Release_timing_flag;
+extern BOOL	b_releaseGas_timing_flag;
+extern BOOL	b_timing_flag;
+//extern BOOL b_detect_palm;
+extern uint32_t prev_releaseGas_os_tick;
+extern uint32_t prev_ledBlink_os_tick;
+extern uint32_t prev_keyPressOrRelease_os_tick;
+extern uint32_t prev_usbCharge_os_tick;
+extern uint32_t prev_beep_os_tick;
+extern uint32_t prev_WaitBeforeStart_os_tick;
+extern uint32_t prev_PWM1_os_tick;
+extern uint32_t prev_PWM2_os_tick;
+extern uint32_t prev_PWM3_os_tick;
+extern uint32_t prev_PWM4_os_tick;
+extern uint32_t prev_PWM5_os_tick;
+extern uint16_t checkPressAgain_cnt;
+extern uint8_t wait_cnt;
+
+extern BOOL	b_self_test;
+
+extern BOOL	b_usb_push_in;
+extern BOOL	b_usb_pull_up;
+extern BOOL	b_stop_current_works;
+extern uint8_t led_beep_ID;
+
+//extern BOOL b_start_powerOn_check;
  BOOL b_KeyWkUP_InterrupHappened=FALSE;
+ BOOL b_usb_intterruptHappened=FALSE;
 //KEY值，这里点按为确认蓝牙连接
 typedef enum {
 	NO_KEY,
@@ -80,13 +122,9 @@ typedef enum {
 }KEY_VAL;
 
 
-typedef enum
-{
-	USB_PUSH_IN,
-	USB_PULL_UP,
-	USB_NOT_DETECT
-}USB_DETECT_STATE;
 
+
+USB_DETECT_STATE usb_detect_state=USB_NOT_DETECT;
 
 MCU_STATE mcu_state=POWER_OFF;
 //mcu_state=POWER_OFF;
@@ -96,9 +134,10 @@ MCU_STATE mcu_state=POWER_OFF;
 
 //extern uint8_t OUTPUT_FINISH;
 BOOL b_Is_PCB_PowerOn=FALSE;
-BOOL b_usb_charge_bat=FALSE;
+//BOOL b_usb_charge_bat=FALSE;
 
-volatile KEY_STATE key_state=KEY_STOP_MODE;
+//volatile KEY_STATE key_state=KEY_STOP_MODE;
+KEY_STATE key_state=KEY_UPING;
 
 extern uint16_t RegularConvData_Tab[2];
 /***********************************
@@ -221,7 +260,7 @@ USB_DETECT_STATE Check_USB_pull_or_push()
 			//循环5次，如果5次都是高电平，说明已经稳定的插入USB了
 			for(uint8_t i=0;i<5;i++)
 			{
-				delay_ms(2);
+				delay_ms(5);
 				if(GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_0)==1)
 				{
 					cnt++;
@@ -255,7 +294,7 @@ USB_DETECT_STATE Check_USB_pull_or_push()
 			uint8_t cnt=0;
 			for(uint8_t i=0;i<5;i++)
 			{
-				delay_ms(2);
+				delay_ms(5);
 				if(GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_0)==0)
 				{
 					cnt++;
@@ -279,74 +318,24 @@ USB_DETECT_STATE Check_USB_pull_or_push()
 	}
 }
 
+ 
+
 void EXTI0_1_IRQHandler(void)
 {
 	if(EXTI_GetITStatus(EXTI_Line0)!=RESET)  
 	{ 
-		InitKeyWakeUpTiming();
-		if(Check_USB_pull_or_push()==USB_PUSH_IN) //如果读到1，说明是上升沿，USB插入了
-		{
-			b_Is_PCB_PowerOn=TRUE;
-			b_usb_charge_bat=TRUE;
-			
-			mcu_state=POWER_ON;	
-			key_state=KEY_WAKE_UP;		
-			state=LOAD_PARA;
-			init_PWMState();	
-
-		}
-		else if(Check_USB_pull_or_push()==USB_PULL_UP)  //如果读到0，说明是下降沿，USB拔出了
-		{
-			b_Is_PCB_PowerOn=FALSE;
-			b_usb_charge_bat=FALSE;
-			
-			mcu_state=POWER_OFF;	
-			key_state=KEY_STOP_MODE;
-			state=LOAD_PARA;
-			init_PWMState();
-			
-		}
-		else  //没有侦测到USB
-		{
-			//do nothing
-		}
+		b_usb_intterruptHappened=TRUE;
 	}  
 	EXTI_ClearFlag(EXTI_Line0);
 }
 
 void EXTI4_15_IRQHandler(void)
 {  
-	if(!b_usb_charge_bat)  //USB插上的时候，让按键中断处理失效
-	{
-		if(EXTI_GetITStatus(EXTI_Line8)!=RESET)  
-		{ 
-			b_KeyWkUP_InterrupHappened=TRUE;
-			//delay_ms(3);
-			//b_usb_charge_bat=FALSE;
-			#if 0
-//			if(Check_wakeUpKey_pressed())
-//			{
-//				b_Is_PCB_PowerOn=!b_Is_PCB_PowerOn;		//每按一次，b_Is_PCB_PowerOn翻转一次状态
-//				if(b_Is_PCB_PowerOn==TRUE)
-//				{
-//					mcu_state=POWER_ON;	
-//					key_state=KEY_WAKE_UP;		
-//					state=LOAD_PARA;
-//					init_PWMState();
-//				}
-//				else
-//				{
-//					mcu_state=POWER_OFF;	
-//					key_state=KEY_STOP_MODE;
-//					state=LOAD_PARA;
-//					init_PWMState();
-//				}
-//			}
-			#endif
-		}  
-//		//EXTI_ClearITPendingBit(EXTI_Line0);
-//		EXTI_ClearFlag(EXTI_Line8);
-	}
+	if(EXTI_GetITStatus(EXTI_Line8)!=RESET)  
+	{ 
+		b_KeyWkUP_InterrupHappened=TRUE;
+	//	set_led(LED_ID_YELLOW,TRUE); //debug
+	} 
 	EXTI_ClearFlag(EXTI_Line8);
 } 
 
@@ -585,15 +574,15 @@ void CfgALLPins4StopMode()
 	//GPIO_InitStructure_PB_10_11.GPIO_PuPd=GPIO_PuPd_DOWN;
 	GPIO_Init(GPIOB, &GPIO_InitStructure_PB_10_11);
 	
-//	//POWER ON/OFF (PA8)
-//	GPIO_InitTypeDef GPIO_InitStructure_PA_8;
-//	GPIO_InitStructure_PA_8.GPIO_Pin = GPIO_Pin_8;                       
-//	GPIO_InitStructure_PA_8.GPIO_Speed = GPIO_Speed_50MHz;       
-//	GPIO_InitStructure_PA_8.GPIO_Mode = GPIO_Mode_IN;
-//	//GPIO_InitStructure_PA_8.GPIO_OType=GPIO_OType_PP;
-//	GPIO_InitStructure_PA_8.GPIO_PuPd=GPIO_PuPd_DOWN;
-//	GPIO_Init(GPIOA, &GPIO_InitStructure_PA_8);
-//	//GPIO_SetBits(GPIOA,GPIO_Pin_8);
+	//POWER ON/OFF (PA8)
+	GPIO_InitTypeDef GPIO_InitStructure_PA_8;
+	GPIO_InitStructure_PA_8.GPIO_Pin = GPIO_Pin_8;                       
+	GPIO_InitStructure_PA_8.GPIO_Speed = GPIO_Speed_50MHz;       
+	GPIO_InitStructure_PA_8.GPIO_Mode = GPIO_Mode_IN;
+	//GPIO_InitStructure_PA_8.GPIO_OType=GPIO_OType_PP;
+	//GPIO_InitStructure_PA_8.GPIO_PuPd=GPIO_PuPd_DOWN;
+	GPIO_Init(GPIOA, &GPIO_InitStructure_PA_8);
+	//GPIO_SetBits(GPIOA,GPIO_Pin_8);
 
 	//SWITCH ON/OFF (PB13)   ,SWITCH MODE(PB15)
 	GPIO_InitTypeDef GPIO_InitStructure_PB_13_15;
@@ -603,8 +592,87 @@ void CfgALLPins4StopMode()
 	//GPIO_InitStructure_PB_13_15.GPIO_OType=GPIO_OType_PP;
 	//GPIO_InitStructure_PB_13_15.GPIO_PuPd=GPIO_PuPd_DOWN;
 	GPIO_Init(GPIOB, &GPIO_InitStructure_PB_13_15);
+}
+
+void Init_gloab_viriable()
+{
+	init_PWMState();
+	state=LOAD_PARA;
+
+	b_Is_PCB_PowerOn=FALSE;
+	mcu_state=POWER_OFF;
+	key_state=KEY_UPING;
+
+	usb_charging_state=USB_CHARGE_NONE;
+
+	usb_detect_state=USB_NOT_DETECT;
+	b_usb_intterruptHappened=FALSE;
+	b_KeyWkUP_InterrupHappened=FALSE;
+
+	b_release_gas=FALSE;
+	b_palm_checked=FALSE;
+	b_bat_detected_ok=FALSE;
+
+	b_no_hand_in_place=FALSE;
+	b_end_of_treatment=FALSE;
+
+	detectPalm_cnt=0;
+	noPalm_cnt=0;
+
+
+	led_bink_timing_flag=TRUE;
+	beep_timing_flag=TRUE;
+	usb_charge_timing_flag=TRUE;
+	key_Press_or_Release_timing_flag=TRUE;
+	//static BOOL switch_bnt_timing_flag=TRUE;
+	b_releaseGas_timing_flag=TRUE;
+//	b_detect_palm=TRUE;
+	
+
+	//static uint16_t pressure_result;
+
+
+	led_bink_cnt=0;
+	beep_cnt=0;
+	delay_cnt=0;
+
+	b_Motor_Ready2Shake=TRUE;
+	b_Motor_shake=FALSE;
+
+	//uint32_t prev_switchBtn_os_tick;
+	//uint32_t prev_detect_palm_flag;
+	prev_releaseGas_os_tick=0;
+	prev_ledBlink_os_tick=0;
+	prev_keyPressOrRelease_os_tick=0;
+	prev_usbCharge_os_tick=0;
+	prev_beep_os_tick=0;
+	prev_WaitBeforeStart_os_tick=0;
+	prev_PWM1_os_tick=0;
+	prev_PWM2_os_tick=0;
+	prev_PWM3_os_tick=0;
+	prev_PWM4_os_tick=0;
+	prev_PWM5_os_tick=0;
+	//p_prev_os_tick=NULL;
+
+	checkPressAgain_cnt=0;
+	wait_cnt=0;
+
+
+	b_Palm_check_complited=FALSE;
+	
+	b_self_test=FALSE;
+
+	b_usb_push_in=FALSE;
+	b_usb_pull_up=FALSE;
+	b_stop_current_works=FALSE;
+
+	led_beep_ID=0;
+	led_state=LED_INIT;
+	beep_state=BEEP_INIT;
+	
 
 }
+
 
 //进入stop模式，采用中断唤醒
 void EnterStopMode()
@@ -614,19 +682,14 @@ void EnterStopMode()
 //		return;
 //	}
 //	
-	b_Palm_check_complited=FALSE;
-	b_Motor_Ready2Shake=TRUE;
-	b_Motor_shake=FALSE;
+	//b_KeyWkUP_InterrupHappened=FALSE;
+
+//	led_bink_timing_flag=FALSE;
+//	prev_ledBlink_os_tick=0;
+//	beep_timing_flag=FALSE;
+//	prev_beep_os_tick=0;
 	
-	led_state=LED_INIT;
-	b_usb_charge_bat=FALSE;
-	
-	//清除手掌记录状态
-	detectPalm_cnt=0;
-	noPalm_cnt=0;
-	b_palm_checked=FALSE;
-	
-	b_bat_detected_ok=FALSE;
+	Init_gloab_viriable();
 	
 	//配置中断
 	CfgWFI();
@@ -638,25 +701,102 @@ void EnterStopMode()
 	PWR_EnterSTOPMode(PWR_Regulator_LowPower, PWR_STOPEntry_WFI);
 }
 
-//BOOL check_power_key_press_release(BOOL b_PressPowerOn)
-//{
-//	if(b_PressPowerOn)
-//	{
-//		//如果是开机按钮
-//		
-//	}
-//	else
-//	{
-//	}
-//	
-//}
-
 
 void key_power_on_task(void)
 {
+	static uint8_t wakeup_Cnt;
+	//static uint8_t sleep_Cnt;
+	if(key_state==KEY_DOWNING)
+	{
+		if(GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_8)==0)
+		{
+			if(wakeup_Cnt==50)
+			{
+				wakeup_Cnt=0;
+				b_KeyWkUP_InterrupHappened=FALSE;  //清除中断发生标志
+				b_Is_PCB_PowerOn=!b_Is_PCB_PowerOn;
+				
+				if(b_Is_PCB_PowerOn)
+				{
+					mcu_state=POWER_ON;	
+					key_state=KEY_WAKE_UP;		
+					state=LOAD_PARA;
+					init_PWMState();
+				}
+				else
+				{
+					mcu_state=POWER_OFF;	
+					key_state=KEY_STOP_MODE;
+					state=LOAD_PARA;
+					init_PWMState();
+				}
+			}
+			else
+			{
+				wakeup_Cnt++;
+			}
+		}
+		else
+		{
+			wakeup_Cnt=0;
+			if(!b_Is_PCB_PowerOn)  //b_Is_PCB_PowerOn为FALSE是才进行判断，按键时间过短，不允许启动
+			{
+				//sleep_Cnt++;
+				key_state=KEY_FAIL_WAKEUP;
+				//b_KeyWkUP_InterrupHappened=FALSE;
+				//key_state=KEY_STOP_MODE;
+			}
+		}
+	}
+	
+	if(key_state==KEY_FAIL_WAKEUP)
+	{
+		//if(sleep_Cnt>0)
+		{
+			//sleep_Cnt=0;
+			EnterStopMode();
+			init_system_afterWakeUp();
+		}
+	}
+	
+	if(key_state==KEY_WAKE_UP)
+	{
+		if(b_bat_detected_ok)
+		{
+			//开机
+			set_led(LED_ID_GREEN,TRUE);
+			
+			if(mode==1)
+			{	
+				set_led(LED_ID_MODE1,TRUE); 
+			}
+			else if(mode==2)
+			{
+				set_led(LED_ID_MODE2,TRUE);   
+			}
+			else if(mode==3)
+			{
+				set_led(LED_ID_MODE3,TRUE);  
+			}
+			else
+			{
+				//do nothing
+			}
+			//wakeup_Cnt=0;
+			key_state=KEY_UPING;
+		}
+	}
+	
+	if(key_state==KEY_STOP_MODE)
+	{
+		//sleep_Cnt=0;
+		EnterStopMode();
+		init_system_afterWakeUp();
+	}
+
+	/*
 	if(b_KeyWkUP_InterrupHappened)  //判断唤醒按键是否按下，PA8
 	{
-		//1.按键按下时间必须>=2s,2.释放后侦测100ms  满足1和2才能算一个完整的按键动作
 		if(GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_8)==0)
 		{
 			if(Is_timing_Xmillisec(1000,13))
@@ -683,10 +823,15 @@ void key_power_on_task(void)
 					set_led(LED_ID_GREEN,FALSE);
 				}
 			}
+			else
+			{
+				set_led(LED_ID_YELLOW,FALSE);
+				//InitKeyWakeUpTiming();
+			}
 		}
 		else
 		{
-			InitKeyWakeUpTiming();  //如果不清除，按键计时会累加
+			  //如果不清除，按键计时会累加
 			
 			//if(!b_Is_PCB_PowerOn)是防止关机的时候，一下子就关机了
 			if(!b_Is_PCB_PowerOn)  //开机的时候需要判断，关机的时候b_Is_PCB_PowerOn是TRUE，不执行，必须让按键按2s才关机
@@ -698,11 +843,13 @@ void key_power_on_task(void)
 	}
 	else
 	{
-		if(b_usb_charge_bat==TRUE)  //如果正在充电,开关机按键无效
+		
+		//if(b_usb_charge_bat==TRUE)  //如果正在充电,开关机按键无效
+		if(usb_detect_state==USB_PUSH_IN)
 		{
 			key_state=KEY_UPING; 
 		}
-		else
+		else 
 		{
 			if(key_state==KEY_STOP_MODE)
 			{
@@ -737,20 +884,12 @@ void key_power_on_task(void)
 					{
 						//do nothing
 					}
-//					Motor_PWM_Freq_Dudy_Set(1,100,80);
-//					Motor_PWM_Freq_Dudy_Set(2,100,80);
-//					Motor_PWM_Freq_Dudy_Set(2,100,80);
-//					Motor_PWM_Freq_Dudy_Set(3,100,80);
-//					Delay_ms(500);
-//					Motor_PWM_Freq_Dudy_Set(1,100,0);
-//					Motor_PWM_Freq_Dudy_Set(2,100,0);
-//					Motor_PWM_Freq_Dudy_Set(3,100,0);
-					
 					key_state=KEY_UPING;
 				}
 			}
 		}
 	}
-
+*/
+	
 	os_delay_ms(KEY_LED_TASK_ID, KEY_LED_PERIOD);
 }

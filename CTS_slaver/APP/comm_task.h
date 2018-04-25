@@ -48,6 +48,7 @@ typedef enum
 typedef enum
 {
 	USB_CHARGE_NONE,
+	USB_CHECK_CHARG,
 	USB_CHARGING,
 	USB_CHARGED_FULL,
 	USB_CHARGE_FAULT,
@@ -91,4 +92,5 @@ void led_blink_beep(void);
 void usb_charge_battery(void);
 void InitKeyWakeUpTiming(void);
 void self_test(void);
+void process_interrupt(void);
 #endif

@@ -38,9 +38,15 @@ extern uint16_t RegularConvData_Tab[2];
 
 extern uint32_t os_ticks;
 
-extern BOOL b_usb_charge_bat;
+//extern BOOL b_usb_charge_bat;
 extern USB_CHARGING_STATE usb_charging_state;
 extern uint8_t led_beep_ID;
+
+extern USB_DETECT_STATE usb_detect_state;
+extern BOOL b_usb_intterruptHappened;
+extern BOOL b_KeyWkUP_InterrupHappened;
+//BOOL b_start_powerOn_check=FALSE;
+
 
 BOOL b_release_gas=FALSE;
 BOOL b_palm_checked=FALSE;
@@ -58,17 +64,22 @@ static BOOL PWM3_timing_flag=TRUE;
 static BOOL PWM4_timing_flag=TRUE;
 static BOOL PWM5_timing_flag=TRUE;
 static BOOL waitBeforeStart_timing_flag=TRUE;
-static BOOL led_bink_timing_flag=TRUE;
-static BOOL beep_timing_flag=TRUE;
-static BOOL usb_charge_timing_flag=TRUE;
-static BOOL key_Press_or_Release_timing_flag=TRUE;
+ BOOL led_bink_timing_flag=TRUE;
+ BOOL beep_timing_flag=TRUE;
+ BOOL usb_charge_timing_flag=TRUE;
+ BOOL key_Press_or_Release_timing_flag=TRUE;
 //static BOOL switch_bnt_timing_flag=TRUE;
-static BOOL b_releaseGas_timing_flag=TRUE;
+ BOOL b_releaseGas_timing_flag=TRUE;
 //static BOOL b_detect_palm=TRUE;
 static BOOL* b_timing_flag;
 
 static uint16_t pressure_result;
 
+
+ uint16_t led_bink_cnt;
+	uint16_t beep_cnt;
+	uint16_t delay_cnt;
+	
  BOOL b_Motor_Ready2Shake=TRUE;
  BOOL b_Motor_shake=FALSE;
 
@@ -166,14 +177,21 @@ CHCKMODE_OUTPUT_PWM state=LOAD_PARA;
 static uint8_t pwm1_buffer[49+6];
 static uint8_t pwm2_buffer[49+6];
 static uint8_t pwm3_buffer[49+6];
-uint8_t pressure;
+//uint8_t pressure;
 uint16_t checkPressAgain_cnt=0;
 uint8_t wait_cnt=0;
 
 
-static BOOL b_self_test=FALSE;
+ BOOL b_self_test=FALSE;
 
 BOOL b_Palm_check_complited=FALSE;
+
+
+USB_CHARGING_STATE usb_charging_state=USB_CHARGE_NONE;
+ BOOL b_usb_push_in;
+ BOOL b_usb_pull_up;
+BOOL b_stop_current_works=FALSE;
+
 //static uint8_t bat_detect_cnt=0;
 
 //typedef enum
@@ -962,8 +980,7 @@ void get_switch_mode()
 	static BOOL b_check_bnt_release=FALSE;
 	//static BOOL b_check_bnt_pressed=FALSE;
 	
-	
-	if(!b_usb_charge_bat)  //USB没有插上的时候才能使用按键选择模式
+	if(!b_stop_current_works)  
 	{
 		if(GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_15)==0)
 		{
@@ -1134,10 +1151,258 @@ void ReleaseGas()
 //	USB_CHARGE_NO_BATTERY
 //}USB_CHARGING_STATE;
 
-USB_CHARGING_STATE usb_charging_state=USB_CHARGE_NONE;
 
 void usb_charge_battery()
 {
+	//明天试一下这个方法
+	if(usb_detect_state==USB_PUSH_IN)  //刚刚插入USB,
+	{
+		Motor_PWM_Freq_Dudy_Set(1,100,0);
+		Motor_PWM_Freq_Dudy_Set(2,100,0);
+		Motor_PWM_Freq_Dudy_Set(3,100,0);
+		Motor_PWM_Freq_Dudy_Set(4,100,0);
+		Motor_PWM_Freq_Dudy_Set(5,4000,0);
+		delay_ms(50);
+		
+		if(GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_0)==1)
+		{
+			usb_detect_state=USB_INSERTED;
+			usb_charging_state=USB_CHECK_CHARG;
+			b_stop_current_works=TRUE; //不管系统是在工作状态，还是从唤醒到工作，都需要停止工作,不做任何输出
+			
+			if(!b_Is_PCB_PowerOn)
+			{
+				b_Is_PCB_PowerOn=TRUE;
+				mcu_state=POWER_ON;	
+				//key_state=KEY_WAKE_UP;  		
+				state=LOAD_PARA;
+				init_PWMState();
+			}
+		}
+		else
+		{
+			usb_detect_state=USB_FAIL_INSERT;
+		}
+	}
+	
+	if(usb_detect_state==USB_FAIL_INSERT)
+	{
+		EnterStopMode();
+		init_system_afterWakeUp();
+	}
+		
+	if(usb_detect_state==USB_PULL_UP)
+	{
+		EnterStopMode();
+		init_system_afterWakeUp();
+	}
+	
+	if(usb_charging_state==USB_CHECK_CHARG)
+	{
+		//set_led(LED_ID_GREEN,TRUE);
+		if(GPIO_ReadInputDataBit(GPIOA,GPIO_Pin_5)==1&&GPIO_ReadInputDataBit(GPIOA,GPIO_Pin_4)==0)  //充电中
+		{
+			usb_charging_state=USB_CHARGING;
+			//led_beep_ID=3;
+			
+			//usb_charging_state=USB_CHARGE_FAULT;
+		}
+		else if(GPIO_ReadInputDataBit(GPIOA,GPIO_Pin_5)==0&&GPIO_ReadInputDataBit(GPIOA,GPIO_Pin_4)==1)  //充满了
+		{
+			//这个情况要考虑从 10变到01的时间，不是瞬间就变过来的
+			usb_charging_state=USB_CHARGED_FULL;
+		}
+		else if(GPIO_ReadInputDataBit(GPIOA,GPIO_Pin_5)==1&&GPIO_ReadInputDataBit(GPIOA,GPIO_Pin_4)==1)  //故障
+		{
+			usb_charging_state=USB_CHARGE_FAULT;
+			
+//			usb_charging_state=USB_CHARGING;
+//			led_beep_ID=3;
+		}
+		else
+		{
+			usb_charging_state=USB_CHARGE_FAULT;
+			//usb_charging_state=USB_CHARGE_NONE;
+		}
+	}
+	
+	if(usb_charging_state==USB_CHARGING)
+	{
+		static BOOL b_charge_flag=TRUE;
+		
+		set_led(LED_ID_YELLOW,FALSE); 
+//		set_led(LED_ID_GREEN,FALSE);
+		set_led(LED_ID_MODE1,FALSE); 
+		set_led(LED_ID_MODE2,FALSE); 
+		set_led(LED_ID_MODE3,FALSE); 
+		
+		if(b_charge_flag)
+		{
+			if(Is_timing_Xmillisec(1000,12)) 
+			{
+				set_led(LED_ID_GREEN,TRUE);
+				b_charge_flag=FALSE;
+			}
+		}
+		else
+		{
+			if(Is_timing_Xmillisec(1000,12))
+			{
+				set_led(LED_ID_GREEN,FALSE);
+				b_charge_flag=TRUE;
+			}
+		}
+	}
+	
+	if(usb_charging_state==USB_CHARGED_FULL)
+	{
+		set_led(LED_ID_GREEN,TRUE);
+	}
+	
+	/*	
+		static uint8_t pushIn_Cnt;
+//	static uint8_t pullUp_Cnt;
+	
+		//set_led(LED_YELLOW_PWR_PIN,TRUE);
+		if(GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_0)==1)
+		{
+			if(pushIn_Cnt==10)  //10*20=200ms
+			{
+				pushIn_Cnt=0;
+				usb_detect_state=USB_INSERTED;  //USB稳定的插入了,不在进入状态机进行检测USB的状态
+				usb_charging_state=USB_CHECK_CHARG; //USB稳定的插入了，开始检测充电 
+				
+				//怎么区分
+				//1.系统正在运行 
+				//2.系统在睡觉,相当于按键唤醒一样，初始化状态
+				if(b_Is_PCB_PowerOn)
+				{   
+					//将正在运行的波形停掉，初始化
+					Motor_PWM_Freq_Dudy_Set(1,100,0);
+					Motor_PWM_Freq_Dudy_Set(2,100,0);
+					Motor_PWM_Freq_Dudy_Set(3,100,0);
+					Motor_PWM_Freq_Dudy_Set(4,100,0);
+					Motor_PWM_Freq_Dudy_Set(5,4000,0);
+					state=LOAD_PARA;
+					init_PWMState();
+				}
+				else
+				{
+					b_Is_PCB_PowerOn=TRUE;
+					mcu_state=POWER_ON;	
+					key_state=KEY_WAKE_UP;		
+					state=LOAD_PARA;
+					init_PWMState();
+				}
+#if 0
+//				b_Is_PCB_PowerOn=TRUE;
+//				
+//				if(b_Is_PCB_PowerOn)
+//				{
+//					mcu_state=POWER_ON;	
+//					key_state=KEY_WAKE_UP;		
+//					state=LOAD_PARA;
+//					init_PWMState();
+//				}
+////				else
+////				{
+////					mcu_state=POWER_OFF;	
+////					key_state=KEY_STOP_MODE;
+////					state=LOAD_PARA;
+////					init_PWMState();
+////				}
+#endif
+			}
+			else
+			{
+				pushIn_Cnt++;
+			}
+		}
+		else
+		{
+			pushIn_Cnt=0;
+			if(!b_Is_PCB_PowerOn)  
+			{
+				usb_detect_state=USB_FAIL_INSERT;  //USB唤醒系统失败
+			}
+		}
+	}
+	
+	if(usb_detect_state==USB_FAIL_INSERT) //usb唤醒失败，进入低功耗模式
+	{
+		EnterStopMode();
+		init_system_afterWakeUp();
+	}
+		
+	if(usb_detect_state==USB_PULL_UP)
+	{
+		EnterStopMode();
+		init_system_afterWakeUp();
+	}
+	
+	if(usb_charging_state==USB_CHECK_CHARG)
+	{
+		//set_led(LED_ID_GREEN,TRUE);
+		if(GPIO_ReadInputDataBit(GPIOA,GPIO_Pin_5)==1&&GPIO_ReadInputDataBit(GPIOA,GPIO_Pin_4)==0)  //充电中
+		{
+			usb_charging_state=USB_CHARGING;
+			//led_beep_ID=3;
+			
+			//usb_charging_state=USB_CHARGE_FAULT;
+		}
+		else if(GPIO_ReadInputDataBit(GPIOA,GPIO_Pin_5)==0&&GPIO_ReadInputDataBit(GPIOA,GPIO_Pin_4)==1)  //充满了
+		{
+			//这个情况要考虑从 10变到01的时间，不是瞬间就变过来的
+			usb_charging_state=USB_CHARGED_FULL;
+		}
+		else if(GPIO_ReadInputDataBit(GPIOA,GPIO_Pin_5)==1&&GPIO_ReadInputDataBit(GPIOA,GPIO_Pin_4)==1)  //故障
+		{
+			usb_charging_state=USB_CHARGE_FAULT;
+			
+//			usb_charging_state=USB_CHARGING;
+//			led_beep_ID=3;
+		}
+		else
+		{
+			//usb_charging_state=USB_CHARGE_NONE;
+		}
+	}
+	
+	if(usb_charging_state==USB_CHARGING)
+	{
+		static BOOL b_charge_flag=TRUE;
+		
+		set_led(LED_ID_YELLOW,FALSE); 
+		set_led(LED_ID_MODE1,FALSE); 
+		set_led(LED_ID_MODE2,FALSE); 
+		set_led(LED_ID_MODE3,FALSE); 
+		
+		if(b_charge_flag)
+		{
+			if(Is_timing_Xmillisec(1000,12)) 
+			{
+				set_led(LED_ID_GREEN,TRUE);
+				b_charge_flag=FALSE;
+			}
+		}
+		else
+		{
+			if(Is_timing_Xmillisec(1000,12))
+			{
+				set_led(LED_ID_GREEN,FALSE);
+				b_charge_flag=TRUE;
+			}
+		}
+	}
+	
+	if(usb_charging_state==USB_CHARGED_FULL)
+	{
+		set_led(LED_ID_GREEN,TRUE);
+	}
+	
+	*/
+	#if 0
+	/*
 	if(b_usb_charge_bat)
 	{
 		//PA5,    BAT_STBY
@@ -1202,7 +1467,49 @@ void usb_charge_battery()
 			//do nothing
 		}
 	}
+	*/
+	#endif
 	os_delay_ms(TASK_USB_CHARGE_BAT, 20);
+}
+
+//BOOL b_usb_push_in=FALSE;
+//BOOL b_usb_pull_up=FALSE;
+
+void process_interrupt()
+{
+	//在这个任务中处理中断
+	if(b_usb_intterruptHappened==TRUE)  //有可能是上拉，也有可能是下拉
+	{
+//		b_KeyWkUP_InterrupHappened=FALSE;
+		if(GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_0)==1) //高电平表示插入了USB,上拉
+		{
+			//处理USB插入
+//			b_usb_push_in=TRUE;
+			usb_detect_state=USB_PUSH_IN;
+		}
+		else if(GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_0)==0)  //低电平表示拔出了USB，下拉
+		{
+			//处理USB拔出
+			//b_usb_pull_up=TRUE;
+			usb_detect_state=USB_PULL_UP;
+		}
+		else
+		{
+			//do nothing
+		}
+		
+		//新增，明天验证一下, //意思是判断了上拉下拉之后就不再进入这个函数，而是去
+		//usb_charge_battery验证USB插拔是否有效
+		b_usb_intterruptHappened=FALSE;  
+	}
+	
+	if(b_KeyWkUP_InterrupHappened==TRUE)
+	{
+		//b_usb_intterruptHappened=FALSE;
+		key_state=KEY_DOWNING;
+		b_KeyWkUP_InterrupHappened=FALSE;
+	}
+	os_delay_ms(TASK_PROCESS_INTERRUPT, 20);
 }
 
 //周一接着写
@@ -1220,10 +1527,6 @@ void self_test()
 
 void led_blink_beep()
 {
-	static uint16_t led_bink_cnt;
-	static uint16_t beep_cnt;
-	static uint16_t delay_cnt;
-	
 //	//没侦测到手
 	static uint16_t nohand_ledCnt=5;
 	static uint16_t nohand_beepCnt=5;
@@ -1245,8 +1548,7 @@ void led_blink_beep()
 	static uint16_t* p_led_tm;
 	static uint16_t* p_beep_tm;
 
-
-	//if(b_no_hand_in_place)
+	//if(!b_usb_intterruptHappened)
 	{
 		if(led_state==LED_INIT)
 		{
@@ -1276,6 +1578,7 @@ void led_blink_beep()
 					Motor_PWM_Freq_Dudy_Set(3,100,0);	
 					Motor_PWM_Freq_Dudy_Set(4,100,0);  
 					Motor_PWM_Freq_Dudy_Set(5,4000,0);
+					Motor_PWM_Freq_Dudy_Set(5,4000,0);
 					
 					set_led(LED_ID_GREEN,FALSE);   //关掉电源的绿色LED灯
 					
@@ -1287,11 +1590,11 @@ void led_blink_beep()
 			}
 		}
 		
-//		if(beep_state==BEEP_INIT)
-//		{
-////			Motor_PWM_Freq_Dudy_Set(5,4000,50);
-//			beep_state=BEEP_ON;
-//		}
+	//		if(beep_state==BEEP_INIT)
+	//		{
+	////			Motor_PWM_Freq_Dudy_Set(5,4000,50);
+	//			beep_state=BEEP_ON;
+	//		}
 
 		if(led_state==LED_ON)
 		{
@@ -1307,9 +1610,9 @@ void led_blink_beep()
 		///			tm=500;
 					p_led_tm=&endTreatment_led_tm;
 					p_ledCnt=&endTreatment_ledCnt;
-//				case 3:   //usb充电
-//					p_led_tm=&charge_led_tm;
-//					p_ledCnt=&charge_ledCnt;
+	//				case 3:   //usb充电
+	//					p_led_tm=&charge_led_tm;
+	//					p_ledCnt=&charge_ledCnt;
 					break;
 				default:
 					break;
@@ -1354,7 +1657,7 @@ void led_blink_beep()
 			{
 				case 1:   //没侦测到手
 					//tm=300;
-				  p_beep_tm=&nohand_beep_tm;
+					p_beep_tm=&nohand_beep_tm;
 					p_beepCnt=&nohand_beepCnt;
 					break;
 				case 2:   //治疗结束
@@ -1365,10 +1668,11 @@ void led_blink_beep()
 				default:
 					break;
 			}
-//			if(Is_timing_Xmillisec((uint32_t)(*p_tm),11))
+	//			if(Is_timing_Xmillisec((uint32_t)(*p_tm),11))
 			if(Is_timing_Xmillisec((uint32_t)(*p_beep_tm),11))
 			{
 				Motor_PWM_Freq_Dudy_Set(5,4000,0);
+				//Motor_PWM_Freq_Dudy_Set(5,4000,0);
 				beep_state=BEEP_OFF;
 				beep_cnt++;
 			}
@@ -1394,12 +1698,12 @@ void led_blink_beep()
 		
 		if(led_state==LED_END&&beep_state==BEEP_END)
 		{
-			b_no_hand_in_place=FALSE;
-			b_end_of_treatment=FALSE;
-			led_state=LED_INIT;
-			beep_state=BEEP_INIT;
-			led_bink_cnt=0;
-			beep_cnt=0;
+//			b_no_hand_in_place=FALSE;
+//			b_end_of_treatment=FALSE;
+//			led_state=LED_INIT;
+//			beep_state=BEEP_INIT;
+//			led_bink_cnt=0;
+//			beep_cnt=0;
 			
 			//进入stop模式
 			EnterStopMode();
@@ -1407,6 +1711,7 @@ void led_blink_beep()
 			init_system_afterWakeUp();
 		}
 	}
+	
 	os_delay_ms(TASK_LED_BINK_BEEP, 50);
 }
 
@@ -1422,7 +1727,7 @@ void Detect_battery_and_tmp()
 	//温度上限为60度，系数为0.302,  0.302*10K=3020ohm ,对应电压为3*(3020/(10k+3020))=0.695v
 	//0.695/3*4096=950,如果小于950，表示温度超过了60度
 	//温度下限不需要
-	if(!b_usb_charge_bat)  //不充电的时候，才检测电池和温度
+	if(!b_stop_current_works)  //不充电的时候，才检测电池和温度
 	{
 		if((result_0>=2252&&result_0<=3167)&&((result_1>=950)))
 		{
@@ -1451,86 +1756,103 @@ void DetectPalm()
 {
 	//正在运行过程中，如果插入了USB，必须清除计数状态
 	//假设在进行60s检测手掌时，已经到了30s,如果不清除，系统唤醒的时候还记得是30s
-	if(b_usb_charge_bat)
+	//USB_PUSH_IN
+	//if(usb_detect_state==USB_PUSH_IN)
+	//if(b_usb_charge_bat)
+	if(b_stop_current_works)
 	{
 		detectPalm_cnt=0;
 		noPalm_cnt=0;
 	}
 	else
+	//if(!b_stop_current_works)  
 	{
-		if(b_Motor_Ready2Shake)
+//		if(usb_detect_state==USB_INSERTED)
+//		{
+//			detectPalm_cnt=0;
+//			noPalm_cnt=0;
+//		}
+		//if(usb_detect_state==USB_NOT_DETECT)
+		//else
 		{
-			if(b_Motor_shake)
+			if(b_Motor_Ready2Shake)
 			{
-				static uint8_t nMotorShake_Cnt=0;
-				if(nMotorShake_Cnt==25)
+				if(b_Motor_shake)
 				{
-					nMotorShake_Cnt=0;
-					b_Motor_Ready2Shake=FALSE;
-					Motor_PWM_Freq_Dudy_Set(1,100,0);
-					Motor_PWM_Freq_Dudy_Set(2,100,0);
-					Motor_PWM_Freq_Dudy_Set(3,100,0);
-					b_Palm_check_complited=TRUE;
-				}
-				else
-				{
-					Motor_PWM_Freq_Dudy_Set(1,100,80);
-					Motor_PWM_Freq_Dudy_Set(2,100,80);
-					Motor_PWM_Freq_Dudy_Set(2,100,80);
-					Motor_PWM_Freq_Dudy_Set(3,100,80);
-					nMotorShake_Cnt++;
+					static uint8_t nMotorShake_Cnt=0;
+					if(nMotorShake_Cnt==25)
+					{
+						nMotorShake_Cnt=0;
+						b_Motor_Ready2Shake=FALSE;
+						Motor_PWM_Freq_Dudy_Set(1,100,0);
+						Motor_PWM_Freq_Dudy_Set(2,100,0);
+						Motor_PWM_Freq_Dudy_Set(3,100,0);
+						b_Palm_check_complited=TRUE;   //新增的
+					}
+					else
+					{
+						Motor_PWM_Freq_Dudy_Set(1,100,80);
+						Motor_PWM_Freq_Dudy_Set(2,100,80);
+						Motor_PWM_Freq_Dudy_Set(2,100,80);
+						Motor_PWM_Freq_Dudy_Set(3,100,80);
+						nMotorShake_Cnt++;
+					}
 				}
 			}
-		}
-		
-		
-		//if(b_Is_PCB_PowerOn)
-		if(b_Is_PCB_PowerOn&&!b_usb_charge_bat)  //Power on之后才能做检测手掌的任务
-		{			
-			if(GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_13)==0)
-			{
-				if(detectPalm_cnt*KEY_LED_PERIOD==2*1000)
+			
+			
+			//if(b_Is_PCB_PowerOn)
+			//if(b_Is_PCB_PowerOn&&!b_usb_charge_bat)  //Power on之后才能做检测手掌的任务
+			//if(mcu_state==POWER_ON&&!b_usb_charge_bat)
+			if(mcu_state==POWER_ON)
+			{			
+				if(GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_13)==0)
+				{
+					if(detectPalm_cnt*KEY_LED_PERIOD==2*1000)
+					{
+						detectPalm_cnt=0;
+						noPalm_cnt=0;
+						
+						b_palm_checked=TRUE;
+		//					key_state=KEY_UPING;
+						mcu_state=POWER_ON;
+						b_Motor_shake=TRUE;
+					}
+					else
+					{
+						detectPalm_cnt++;
+					}	
+				}
+				else
 				{
 					detectPalm_cnt=0;
-					noPalm_cnt=0;
-					
-					b_palm_checked=TRUE;
-	//					key_state=KEY_UPING;
-					mcu_state=POWER_ON;
-					b_Motor_shake=TRUE;
-				}
-				else
-				{
-					detectPalm_cnt++;
-				}	
-			}
-			else
-			{
-				detectPalm_cnt=0;
-				if(noPalm_cnt*KEY_LED_PERIOD==60*1000)  //60s没有侦测到手
-				{
-					noPalm_cnt=0;
-					b_palm_checked=FALSE;
-					//橙色LED闪3s，关机
-					//Red_LED_Blink(3);
-	//				No_Hand_IN_PLACE();
-					b_no_hand_in_place=TRUE;
-					led_beep_ID=1;
-					
-	//				key_state=KEY_UPING;
-					mcu_state=POWER_OFF;
-	//				//进入stop模式
-	//				EnterStopMode();
-	//				//唤醒之后重新初始化
-	//				init_system_afterWakeUp();
-				}
-				else
-				{
-					noPalm_cnt++;
+					if(noPalm_cnt*KEY_LED_PERIOD==60*1000)  //60s没有侦测到手
+					{
+						noPalm_cnt=0;
+						b_palm_checked=FALSE;
+						//橙色LED闪3s，关机
+						//Red_LED_Blink(3);
+		//				No_Hand_IN_PLACE();
+						b_no_hand_in_place=TRUE;
+						led_beep_ID=1;
+						
+		//				key_state=KEY_UPING;
+						mcu_state=POWER_OFF;
+		//				//进入stop模式
+		//				EnterStopMode();
+		//				//唤醒之后重新初始化
+		//				init_system_afterWakeUp();
+					}
+					else
+					{
+						noPalm_cnt++;
+					}
 				}
 			}
 		}
 	}
+	
+	
 	os_delay_ms(TASK_DETECT_PALM_ID, 20);
 }
 
@@ -1550,7 +1872,8 @@ void check_selectedMode_ouputPWM()
 //	cycle_cnt=3;//buffer[0],cycle time
 	
 //	if(mcu_state==POWER_ON)
-	if(b_palm_checked&&mcu_state==POWER_ON&&!b_usb_charge_bat&&b_Palm_check_complited==TRUE)  //USB插上之后不允许出波形
+	//if(b_palm_checked&&mcu_state==POWER_ON&&b_Palm_check_complited==TRUE&&!b_usb_intterruptHappened)  //USB插上之后不允许出波形
+	if(b_Palm_check_complited==TRUE&&!b_stop_current_works)
 	{
 		if(!b_release_gas)
 		//if(!b_release_gas&&!b_usb_charge_bat)   //4s放气，充电，都不允许输出PWM

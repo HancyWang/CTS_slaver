@@ -113,8 +113,8 @@ extern BOOL	b_stop_current_works;
 extern uint8_t led_beep_ID;
 
 //extern BOOL b_start_powerOn_check;
- BOOL b_KeyWkUP_InterrupHappened=FALSE;
- BOOL b_usb_intterruptHappened=FALSE;
+// BOOL b_KeyWkUP_InterrupHappened=FALSE;
+// BOOL b_usb_intterruptHappened=FALSE;
 //KEY值，这里点按为确认蓝牙连接
 typedef enum {
 	NO_KEY,
@@ -324,7 +324,27 @@ void EXTI0_1_IRQHandler(void)
 {
 	if(EXTI_GetITStatus(EXTI_Line0)!=RESET)  
 	{ 
-		b_usb_intterruptHappened=TRUE;
+//		b_usb_intterruptHappened=TRUE;
+		if(GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_0)==1) //高电平表示插入了USB,上拉
+		{
+			//处理USB插入
+//			b_usb_push_in=TRUE;
+			usb_detect_state=USB_PUSH_IN;
+		}
+		else if(GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_0)==0)  //低电平表示拔出了USB，下拉
+		{
+			//处理USB拔出
+			//b_usb_pull_up=TRUE;
+			usb_detect_state=USB_PULL_UP;
+		}
+		else
+		{
+			//do nothing
+		}
+		
+		//新增，明天验证一下, //意思是判断了上拉下拉之后就不再进入这个函数，而是去
+		//usb_charge_battery验证USB插拔是否有效
+//		b_usb_intterruptHappened=FALSE;
 	}  
 	EXTI_ClearFlag(EXTI_Line0);
 }
@@ -333,7 +353,8 @@ void EXTI4_15_IRQHandler(void)
 {  
 	if(EXTI_GetITStatus(EXTI_Line8)!=RESET)  
 	{ 
-		b_KeyWkUP_InterrupHappened=TRUE;
+		//b_KeyWkUP_InterrupHappened=TRUE;
+		key_state=KEY_DOWNING;
 	//	set_led(LED_ID_YELLOW,TRUE); //debug
 	} 
 	EXTI_ClearFlag(EXTI_Line8);
@@ -606,8 +627,8 @@ void Init_gloab_viriable()
 	usb_charging_state=USB_CHARGE_NONE;
 
 	usb_detect_state=USB_NOT_DETECT;
-	b_usb_intterruptHappened=FALSE;
-	b_KeyWkUP_InterrupHappened=FALSE;
+//	b_usb_intterruptHappened=FALSE;
+//	b_KeyWkUP_InterrupHappened=FALSE;
 
 	b_release_gas=FALSE;
 	b_palm_checked=FALSE;
@@ -713,7 +734,7 @@ void key_power_on_task(void)
 			if(wakeup_Cnt==50)
 			{
 				wakeup_Cnt=0;
-				b_KeyWkUP_InterrupHappened=FALSE;  //清除中断发生标志
+//				b_KeyWkUP_InterrupHappened=FALSE;  //清除中断发生标志
 				b_Is_PCB_PowerOn=!b_Is_PCB_PowerOn;
 				
 				if(b_Is_PCB_PowerOn)

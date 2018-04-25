@@ -43,8 +43,8 @@ extern USB_CHARGING_STATE usb_charging_state;
 extern uint8_t led_beep_ID;
 
 extern USB_DETECT_STATE usb_detect_state;
-extern BOOL b_usb_intterruptHappened;
-extern BOOL b_KeyWkUP_InterrupHappened;
+//extern BOOL b_usb_intterruptHappened;
+//extern BOOL b_KeyWkUP_InterrupHappened;
 //BOOL b_start_powerOn_check=FALSE;
 
 
@@ -1475,42 +1475,42 @@ void usb_charge_battery()
 //BOOL b_usb_push_in=FALSE;
 //BOOL b_usb_pull_up=FALSE;
 
-void process_interrupt()
-{
-	//在这个任务中处理中断
-	if(b_usb_intterruptHappened==TRUE)  //有可能是上拉，也有可能是下拉
-	{
-//		b_KeyWkUP_InterrupHappened=FALSE;
-		if(GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_0)==1) //高电平表示插入了USB,上拉
-		{
-			//处理USB插入
-//			b_usb_push_in=TRUE;
-			usb_detect_state=USB_PUSH_IN;
-		}
-		else if(GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_0)==0)  //低电平表示拔出了USB，下拉
-		{
-			//处理USB拔出
-			//b_usb_pull_up=TRUE;
-			usb_detect_state=USB_PULL_UP;
-		}
-		else
-		{
-			//do nothing
-		}
-		
-		//新增，明天验证一下, //意思是判断了上拉下拉之后就不再进入这个函数，而是去
-		//usb_charge_battery验证USB插拔是否有效
-		b_usb_intterruptHappened=FALSE;  
-	}
-	
-	if(b_KeyWkUP_InterrupHappened==TRUE)
-	{
-		//b_usb_intterruptHappened=FALSE;
-		key_state=KEY_DOWNING;
-		b_KeyWkUP_InterrupHappened=FALSE;
-	}
-	os_delay_ms(TASK_PROCESS_INTERRUPT, 20);
-}
+//void process_interrupt()
+//{
+//	//在这个任务中处理中断
+//	if(b_usb_intterruptHappened==TRUE)  //有可能是上拉，也有可能是下拉
+//	{
+////		b_KeyWkUP_InterrupHappened=FALSE;
+//		if(GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_0)==1) //高电平表示插入了USB,上拉
+//		{
+//			//处理USB插入
+////			b_usb_push_in=TRUE;
+//			usb_detect_state=USB_PUSH_IN;
+//		}
+//		else if(GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_0)==0)  //低电平表示拔出了USB，下拉
+//		{
+//			//处理USB拔出
+//			//b_usb_pull_up=TRUE;
+//			usb_detect_state=USB_PULL_UP;
+//		}
+//		else
+//		{
+//			//do nothing
+//		}
+//		
+//		//新增，明天验证一下, //意思是判断了上拉下拉之后就不再进入这个函数，而是去
+//		//usb_charge_battery验证USB插拔是否有效
+//		b_usb_intterruptHappened=FALSE;  
+//	}
+//	
+//	if(b_KeyWkUP_InterrupHappened==TRUE)
+//	{
+//		//b_usb_intterruptHappened=FALSE;
+//		key_state=KEY_DOWNING;
+////		b_KeyWkUP_InterrupHappened=FALSE;
+//	}
+//	os_delay_ms(TASK_PROCESS_INTERRUPT, 20);
+//}
 
 //周一接着写
 void self_test()

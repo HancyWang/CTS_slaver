@@ -366,7 +366,9 @@ void EXTI4_15_IRQHandler(void)
 {  
 	if(EXTI_GetITStatus(EXTI_Line8)!=RESET)  
 	{ 
-		if(usb_detect_state==USB_NOT_DETECT)
+		//1.USB没插入的时候才响应
+		//2.没有自检的时候才响应中断
+		if(usb_detect_state==USB_NOT_DETECT&&!b_self_test)  
 		{
 			key_state=KEY_DOWNING;
 		}

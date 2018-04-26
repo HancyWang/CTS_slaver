@@ -1545,6 +1545,8 @@ void self_test()
 		b_LED_ON_in_turn=TRUE;
 		self_tet_state=SELF_TEST_INFLATE;
 		led_In_Turn_state=LED_IN_TURN_MODE1;
+		
+		Motor_PWM_Freq_Dudy_Set(3,100,90);  //打开PWM3，开始抽气到ballon中
 				//流水灯
 		//1.开电机(pwm3)，充气5s
 		//2.关闭电磁阀持续5s，取样比较
@@ -1603,8 +1605,12 @@ void self_test()
 	//充气
 	if(self_tet_state==SELF_TEST_INFLATE)
 	{
+		static uint16_t selfTest_inflate_record_1;
+		static uint16_t selfTest_inflate_record_2;
+		
 		if(inflate_cnt*20==5000) //充气5s
 		{
+			Motor_PWM_Freq_Dudy_Set(3,100,0);  //充气完毕，进入hold阶段，检测是否漏气
 			self_tet_state=SELF_TEST_HOLD;
 		}
 		else
@@ -1615,21 +1621,32 @@ void self_test()
 			if(inflate_cnt==5)
 			{
 				//记录数据1
+				selfTest_inflate_record_1=ADS115_readByte(0x90);
 			}
-			if(inflate_cnt==15)
+			if(inflate_cnt==200)
 			{
 				//记录数据2
-				
+				selfTest_inflate_record_2=ADS115_readByte(0x90);
 				//数据2-数据1
-				self_tet_state=SELF_TEST_FAIL;
+				if(selfTest_inflate_record_2-selfTest_inflate_record_1<150)  //如果差值小于150，认为有问题
+				{
+					self_tet_state=SELF_TEST_FAIL;
+				}
 			}
 		}
 	}
 	
 	if(self_tet_state==SELF_TEST_HOLD)
 	{
+		static uint16_t selfTest_hold_record_1;
+		static uint16_t selfTest_hold_record_2;
+		
 		if(hold_cnt*20==5000) //hold住5s
 		{
+			//开启PB10,PB11,放气,进入放气阶段
+			GPIO_SetBits(GPIOB,GPIO_Pin_10);
+			GPIO_SetBits(GPIOB,GPIO_Pin_11);
+			
 			self_tet_state=SELF_TEST_DEFLATE;
 		}
 		else
@@ -1639,21 +1656,32 @@ void self_test()
 			if(hold_cnt==1)
 			{
 				//记录数据1
+				selfTest_hold_record_1=ADS115_readByte(0x90);
 			}
-			if(hold_cnt==19)
+			if(hold_cnt==200)
 			{
 				//记录数据2
-				
+				selfTest_hold_record_2=ADS115_readByte(0x90);
 				//数据2-数据1
-//				self_tet_state=SELF_TEST_FAIL;
+				if(selfTest_hold_record_2-selfTest_hold_record_1>60)  //hold阶段，如果差值大于60，认为漏气
+				{
+					self_tet_state=SELF_TEST_FAIL;
+				}		
 			}
 		}
 	}
 	
 	if(self_tet_state==SELF_TEST_DEFLATE)
 	{
+		static uint16_t selfTest_deflate_record_1;
+		static uint16_t selfTest_deflate_record_2;
+		
 		if(deflate_cnt*20==5000) //放气5s
 		{
+			//关闭电磁阀PB10,PB11,进入end阶段
+			GPIO_ResetBits(GPIOB,GPIO_Pin_10);
+			GPIO_ResetBits(GPIOB,GPIO_Pin_11);
+			
 			self_tet_state=SELF_TEST_END;
 		}
 		else
@@ -1664,30 +1692,98 @@ void self_test()
 		if(deflate_cnt==1)
 		{
 			//记录数据1
+			selfTest_deflate_record_1=ADS115_readByte(0x90);
 		}
-		if(deflate_cnt==19)
+		if(deflate_cnt==200)
 		{
 			//记录数据2
-			
+			selfTest_deflate_record_2=ADS115_readByte(0x90);
 			//数据2-数据1
-			self_tet_state=SELF_TEST_FAIL;
+			if(selfTest_deflate_record_2-selfTest_deflate_record_1<100)  //如果差值小于100,说明都没放气，电磁阀坏了
+			{
+				self_tet_state=SELF_TEST_FAIL;
+			}
 		}
 	}
 	
 	if(self_tet_state==SELF_TEST_FAIL)
 	{
 		//闪灯，直接进入低功耗
+		
+		//待会在写这个，先将开机按键屏蔽，自检中不响应开机按键 ,已经添加
+		
+		b_LED_ON_in_turn=FALSE;
+		
+		static uint8_t selfTest_fail_Cnt;
+		static uint8_t selfTest_fail_period_H;
+		static uint8_t selfTest_fail_period_L;
+		
+		if(selfTest_fail_Cnt==10)  //闪十次
+		{
+			selfTest_fail_Cnt=0;
+			b_self_test=FALSE;  
+			
+			EnterStopMode();
+			init_system_afterWakeUp();
+		}
+		else
+		{
+			//在这里完成一个周期
+			if(selfTest_fail_period_H*20==500)
+			{
+				if(selfTest_fail_period_L*20==500)
+				{
+					selfTest_fail_Cnt++;
+					selfTest_fail_period_H=0;
+					selfTest_fail_period_L=0;
+				}
+				else
+				{
+					selfTest_fail_period_L++;
+					set_led(LED_ID_MODE1,TRUE);
+					set_led(LED_ID_MODE2,TRUE);
+					set_led(LED_ID_MODE3,TRUE);
+					Motor_PWM_Freq_Dudy_Set(5,4000,80);
+				}
+			}
+			else
+			{
+				selfTest_fail_period_H++;
+				set_led(LED_ID_MODE1,FALSE);
+				set_led(LED_ID_MODE2,FALSE);
+				set_led(LED_ID_MODE3,FALSE);
+				Motor_PWM_Freq_Dudy_Set(5,4000,0);
+			}
+		}
+
 	}
 	
 	if(self_tet_state==SELF_TEST_END)
 	{
-		b_self_test=FALSE;
-		b_LED_ON_in_turn=FALSE;
+		b_LED_ON_in_turn=FALSE;  //关闭流水灯
 		
 		//灯常亮5s，表示自检ok,然后进入低功耗
+		static uint8_t selfTest_end_Cnt;
+		if(selfTest_end_Cnt*20==5000)  //常亮5s，表示自检ok
+		{
+			b_self_test=FALSE;
+
+			selfTest_end_Cnt=0;
+			set_led(LED_ID_MODE1,FALSE);
+			set_led(LED_ID_MODE2,FALSE);
+			set_led(LED_ID_MODE3,FALSE);
+			EnterStopMode();
+			init_system_afterWakeUp();
+		}
+		else
+		{
+			selfTest_end_Cnt++;
+			set_led(LED_ID_MODE1,TRUE);
+			set_led(LED_ID_MODE2,TRUE);
+			set_led(LED_ID_MODE3,TRUE);
+		}
 		
-		EnterStopMode();
-		init_system_afterWakeUp();
+		
 	#if 0	
 //		if(mode==1)
 //		{

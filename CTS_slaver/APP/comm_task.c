@@ -998,7 +998,7 @@ void get_switch_mode()
 	
 	//static BOOL b_check_bnt_pressed=FALSE;
 	
-	if(!b_stop_current_works&&mcu_state==POWER_ON)  
+	if(!b_stop_current_works&&mcu_state==POWER_ON&&!b_self_test)  
 	{
 		if(GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_15)==0)
 		{
@@ -1630,6 +1630,7 @@ void self_test()
 				//数据2-数据1
 				if(selfTest_inflate_record_2-selfTest_inflate_record_1<150)  //如果差值小于150，认为有问题
 				{
+					Motor_PWM_Freq_Dudy_Set(3,100,0);
 					self_tet_state=SELF_TEST_FAIL;
 				}
 			}
@@ -1729,9 +1730,9 @@ void self_test()
 		else
 		{
 			//在这里完成一个周期
-			if(selfTest_fail_period_H*20==500)
+			if(selfTest_fail_period_H*20==300)
 			{
-				if(selfTest_fail_period_L*20==500)
+				if(selfTest_fail_period_L*20==300)
 				{
 					selfTest_fail_Cnt++;
 					selfTest_fail_period_H=0;

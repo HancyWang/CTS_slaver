@@ -3,7 +3,7 @@
 <title>Static Call Graph - [..\OBJ\STM32F030Demo.axf]</title></head>
 <body><HR>
 <H1>Static Call Graph for image ..\OBJ\STM32F030Demo.axf</H1><HR>
-<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060422: Last Updated: Thu Apr 26 09:38:52 2018
+<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060422: Last Updated: Fri Apr 27 17:00:03 2018
 <BR><P>
 <H3>Maximum Stack Usage =        924 bytes + Unknown(Functions without stacksize, Cycles, Untraceable Function Pointers)</H3><H3>
 Call chain for Maximum Stack Depth:</H3>
@@ -396,7 +396,7 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[2c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;check_selectedMode_ouputPWM
 </UL>
 
-<P><STRONG><a name="[2d]"></a>get_switch_mode</STRONG> (Thumb, 272 bytes, Stack size 24 bytes, comm_task.o(.text))
+<P><STRONG><a name="[2d]"></a>get_switch_mode</STRONG> (Thumb, 276 bytes, Stack size 24 bytes, comm_task.o(.text))
 <BR><BR>[Stack]<UL><LI>Max Depth = 84<LI>Call Chain = get_switch_mode &rArr; Motor_PWM_Freq_Dudy_Set &rArr; TIM_OC4Init
 </UL>
 <BR>[Calls]<UL><LI><a href="#[5f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;set_led
@@ -433,7 +433,7 @@ Global Symbols
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> app.o(.text)
 </UL>
-<P><STRONG><a name="[33]"></a>self_test</STRONG> (Thumb, 750 bytes, Stack size 24 bytes, comm_task.o(.text))
+<P><STRONG><a name="[33]"></a>self_test</STRONG> (Thumb, 762 bytes, Stack size 24 bytes, comm_task.o(.text))
 <BR><BR>[Stack]<UL><LI>Max Depth = 216<LI>Call Chain = self_test &rArr; init_system_afterWakeUp &rArr; init_task &rArr; UARTInit &rArr; USART_Init &rArr; RCC_GetClocksFreq
 </UL>
 <BR>[Calls]<UL><LI><a href="#[5f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;set_led
@@ -564,8 +564,8 @@ Global Symbols
 <LI><a href="#[42]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
 </UL>
 
-<P><STRONG><a name="[86]"></a>CfgALLPins4StopMode</STRONG> (Thumb, 426 bytes, Stack size 136 bytes, key_power_on_task.o(.text))
-<BR><BR>[Stack]<UL><LI>Max Depth = 156<LI>Call Chain = CfgALLPins4StopMode &rArr; GPIO_Init
+<P><STRONG><a name="[86]"></a>CfgALLPins4StopMode</STRONG> (Thumb, 514 bytes, Stack size 160 bytes, key_power_on_task.o(.text))
+<BR><BR>[Stack]<UL><LI>Max Depth = 180<LI>Call Chain = CfgALLPins4StopMode &rArr; GPIO_Init
 </UL>
 <BR>[Calls]<UL><LI><a href="#[8a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USART_Cmd
 <LI><a href="#[7c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;RCC_AHBPeriphClockCmd
@@ -588,7 +588,7 @@ Global Symbols
 </UL>
 
 <P><STRONG><a name="[4a]"></a>EnterStopMode</STRONG> (Thumb, 36 bytes, Stack size 8 bytes, key_power_on_task.o(.text))
-<BR><BR>[Stack]<UL><LI>Max Depth = 164<LI>Call Chain = EnterStopMode &rArr; CfgALLPins4StopMode &rArr; GPIO_Init
+<BR><BR>[Stack]<UL><LI>Max Depth = 188<LI>Call Chain = EnterStopMode &rArr; CfgALLPins4StopMode &rArr; GPIO_Init
 </UL>
 <BR>[Calls]<UL><LI><a href="#[7d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;RCC_APB1PeriphClockCmd
 <LI><a href="#[8d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PWR_EnterSTOPMode
@@ -607,7 +607,7 @@ Global Symbols
 <LI><a href="#[42]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
 </UL>
 
-<P><STRONG><a name="[2b]"></a>key_power_on_task</STRONG> (Thumb, 434 bytes, Stack size 16 bytes, key_power_on_task.o(.text))
+<P><STRONG><a name="[2b]"></a>key_power_on_task</STRONG> (Thumb, 442 bytes, Stack size 16 bytes, key_power_on_task.o(.text))
 <BR><BR>[Stack]<UL><LI>Max Depth = 208<LI>Call Chain = key_power_on_task &rArr; init_system_afterWakeUp &rArr; init_task &rArr; UARTInit &rArr; USART_Init &rArr; RCC_GetClocksFreq
 </UL>
 <BR>[Calls]<UL><LI><a href="#[5f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;set_led

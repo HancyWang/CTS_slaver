@@ -35,8 +35,10 @@
 //CTS重新定义LED,上面的LED定义可以等修改完代码之后删除掉
 #define LED_PORT GPIOB   //所有的LED灯都是GPIOB
 
-#define LED_GREEN_PWR_PIN  GPIO_Pin_2   //PB2 ,LED1,绿灯
-#define LED_YELLOW_PWR_PIN GPIO_Pin_3  //PB3,LED2,黄灯
+//#define LED_GREEN_PWR_PIN  GPIO_Pin_2   //PB2 ,LED1,绿灯
+//#define LED_YELLOW_PWR_PIN GPIO_Pin_3  //PB3,LED2,黄灯
+#define LED_GREEN_PWR_PIN  GPIO_Pin_3   //PB3 ,LED1,绿灯
+#define LED_YELLOW_PWR_PIN GPIO_Pin_2  //PB2,LED2,黄灯
 #define LED_MODE1_PIN      GPIO_Pin_6   //MODE1,PB6
 #define LED_MODE2_PIN			 GPIO_Pin_4   //MODE2,PB4
 #define LED_MODE3_PIN			 GPIO_Pin_5   //MODE3,PB5

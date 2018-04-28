@@ -335,6 +335,7 @@ void Red_LED_Blink(unsigned char seconds)
 		//do nothing
 	}
 	
+	Delay_ms(500);
 	//иак╦
 	for(uint8_t i=0;i<seconds;i++)
 	{

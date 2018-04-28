@@ -505,8 +505,8 @@ void CfgALLPins4StopMode()
 	
 	GPIO_InitTypeDef GPIO_InitStructure_PB_0;
 	GPIO_InitStructure_PB_0.GPIO_Pin = GPIO_Pin_0;
-  GPIO_InitStructure_PB_0.GPIO_Mode = GPIO_Mode_AN;
-	//GPIO_InitStructure_PB_0.GPIO_Mode = GPIO_Mode_IN;
+  //GPIO_InitStructure_PB_0.GPIO_Mode = GPIO_Mode_AN;
+	GPIO_InitStructure_PB_0.GPIO_Mode = GPIO_Mode_IN;
   GPIO_InitStructure_PB_0.GPIO_PuPd = GPIO_PuPd_NOPULL ;
   GPIO_Init(GPIOB, &GPIO_InitStructure_PB_0);
 	
@@ -527,6 +527,11 @@ void CfgALLPins4StopMode()
 //	RCC_APB2PeriphClockCmd(RCC_APB2Periph_ADC1 , DISABLE);		
 //	RCC_AHBPeriphClockCmd(RCC_AHBPeriph_DMA1 , DISABLE);
 	
+	//关闭串口
+	DMA_Cmd(UART_DMA_RX_CHANNEL, DISABLE);
+	DMA_Cmd(UART_DMA_TX_CHANNEL, DISABLE);
+	USART_Cmd(UART, DISABLE);
+	
 //	//串口IO,PA2,PA3
 	GPIO_InitTypeDef GPIO_InitStructure_PA_2_3;
 	GPIO_InitStructure_PA_2_3.GPIO_Pin = GPIO_Pin_2|GPIO_Pin_3;                       
@@ -537,10 +542,15 @@ void CfgALLPins4StopMode()
 	GPIO_InitStructure_PA_2_3.GPIO_PuPd=GPIO_PuPd_DOWN;
 	GPIO_Init(GPIOA, &GPIO_InitStructure_PA_2_3);
 	
-	//关闭串口
-	DMA_Cmd(UART_DMA_RX_CHANNEL, DISABLE);
-	DMA_Cmd(UART_DMA_TX_CHANNEL, DISABLE);
-	USART_Cmd(UART, DISABLE);
+//	GPIO_InitTypeDef GPIO_InitStructure_PA_2_3;
+//	GPIO_InitStructure_PA_2_3.GPIO_Pin = GPIO_Pin_2|GPIO_Pin_3;                       
+//	GPIO_InitStructure_PA_2_3.GPIO_Speed = GPIO_Speed_50MHz;       
+//	GPIO_InitStructure_PA_2_3.GPIO_Mode = GPIO_Mode_AN;
+////	GPIO_InitStructure_PA_2_3.GPIO_OType=GPIO_OType_PP;
+////	GPIO_InitStructure_PA_2_3.GPIO_PuPd=GPIO_PuPd_UP;
+////	//GPIO_InitStructure_PA_2_3.GPIO_PuPd=GPIO_PuPd_DOWN;
+//	GPIO_Init(GPIOA, &GPIO_InitStructure_PA_2_3);
+	
 	
 	//I2C端口，PA9,PA10
 //	GPIO_InitTypeDef GPIO_InitStructure_UART;

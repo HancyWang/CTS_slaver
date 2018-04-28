@@ -893,7 +893,6 @@ void key_power_on_task(void)
 					mcu_state=POWER_ON;	
 					key_state=KEY_WAKE_UP;		
 					state=LOAD_PARA;
-					//state=WAIT_BEFORE_START;
 					init_PWMState();
 				}
 				else
@@ -901,7 +900,6 @@ void key_power_on_task(void)
 					mcu_state=POWER_OFF;	
 					key_state=KEY_STOP_MODE;
 					state=LOAD_PARA;
-					//state=WAIT_BEFORE_START;
 					init_PWMState();
 				}
 			}
@@ -967,104 +965,5 @@ void key_power_on_task(void)
 		EnterStopMode();
 		init_system_afterWakeUp();
 	}
-
-	/*
-	if(b_KeyWkUP_InterrupHappened)  //判断唤醒按键是否按下，PA8
-	{
-		if(GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_8)==0)
-		{
-			if(Is_timing_Xmillisec(1000,13))
-			{
-				InitKeyWakeUpTiming();
-				//b_Interrupt_KeyWakeUp_Pressed=TRUE;
-				b_KeyWkUP_InterrupHappened=FALSE;
-				
-				b_Is_PCB_PowerOn=!b_Is_PCB_PowerOn;		//每按一次，b_Is_PCB_PowerOn翻转一次状态
-				if(b_Is_PCB_PowerOn==TRUE)
-				{
-					mcu_state=POWER_ON;	
-					key_state=KEY_WAKE_UP;		
-					//state=LOAD_PARA;
-	state=WAIT_BEFORE_START;
-					init_PWMState();
-				}
-				else
-				{
-					mcu_state=POWER_OFF;	
-					key_state=KEY_STOP_MODE;
-					state=LOAD_PARA;
-					init_PWMState();
-					
-					set_led(LED_ID_GREEN,FALSE);
-				}
-			}
-			else
-			{
-				set_led(LED_ID_YELLOW,FALSE);
-				//InitKeyWakeUpTiming();
-			}
-		}
-		else
-		{
-			  //如果不清除，按键计时会累加
-			
-			//if(!b_Is_PCB_PowerOn)是防止关机的时候，一下子就关机了
-			if(!b_Is_PCB_PowerOn)  //开机的时候需要判断，关机的时候b_Is_PCB_PowerOn是TRUE，不执行，必须让按键按2s才关机
-			{
-				EnterStopMode();
-				init_system_afterWakeUp();
-			}
-		}
-	}
-	else
-	{
-		
-		//if(b_usb_charge_bat==TRUE)  //如果正在充电,开关机按键无效
-		if(usb_detect_state==USB_PUSH_IN)
-		{
-			key_state=KEY_UPING; 
-		}
-		else 
-		{
-			if(key_state==KEY_STOP_MODE)
-			{
-				EnterStopMode();
-				init_system_afterWakeUp();
-			}
-		//	
-			//按键被按下，检查电池电压
-			if(key_state==KEY_WAKE_UP)
-			{
-		//		//经过1/2分压之后，电压在1.5v-2.1v之间(2048-2867)，偏差300
-				//GPIO_SetBits(GPIOA,GPIO_Pin_15);
-				//if(RegularConvData_Tab[0]>=2048-300&&RegularConvData_Tab[0]<=2867+300)  //以3v作为参考电压 (2730是以3.3v为参考电压的) 
-				if(b_bat_detected_ok)
-				{
-					//开机
-					set_led(LED_ID_GREEN,TRUE);
-					
-					if(mode==1)
-					{	
-						set_led(LED_ID_MODE1,TRUE); 
-					}
-					else if(mode==2)
-					{
-						set_led(LED_ID_MODE2,TRUE);   
-					}
-					else if(mode==3)
-					{
-						set_led(LED_ID_MODE3,TRUE);  
-					}
-					else
-					{
-						//do nothing
-					}
-					key_state=KEY_UPING;
-				}
-			}
-		}
-	}
-*/
-	
 	os_delay_ms(KEY_LED_TASK_ID, KEY_LED_PERIOD);
 }

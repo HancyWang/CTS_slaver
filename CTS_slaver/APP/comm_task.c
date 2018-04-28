@@ -699,8 +699,7 @@ void PaintPWM(unsigned char num,unsigned char* buffer)
 //	{
 ////		ResetAllState();
 //		mcu_state=POWER_OFF;
-//	//	state=LOAD_PARA;
-	//state=WAIT_BEFORE_START;
+//		state=LOAD_PARA;
 //		*p_pwm_state=PWM_START;
 //		*p_PWM_period_cnt=0;
 //		*p_PWM_waitBetween_cnt=0;
@@ -742,8 +741,7 @@ void PaintPWM(unsigned char num,unsigned char* buffer)
 							Motor_PWM_Freq_Dudy_Set(3,100,0);
 							//参数初始化，重新来
 							state=LOAD_PARA;
-//							state=WAIT_BEFORE_START;
-							//state=GET_MODE;
+
 							init_PWMState();
 							
 							Set_ReleaseGas_flag();
@@ -757,8 +755,7 @@ void PaintPWM(unsigned char num,unsigned char* buffer)
 							//参数初始化，重新来
 							 //闪灯，进入低功耗
 							state=LOAD_PARA;
-//							state=WAIT_BEFORE_START;
-							//state=GET_MODE;
+
 							init_PWMState();
 							
 							//橙色LED闪3s
@@ -783,8 +780,7 @@ void PaintPWM(unsigned char num,unsigned char* buffer)
 						Motor_PWM_Freq_Dudy_Set(3,100,0);
 						//参数初始化，重新来
 						state=LOAD_PARA;
-//						state=WAIT_BEFORE_START;
-						//state=GET_MODE;
+
 						init_PWMState();
 						//Set_ReleaseGas_flag();
 					}
@@ -1013,7 +1009,7 @@ void get_switch_mode()
 				self_tet_state=SELF_TEST_DELAY_BEFORE_START;
 				init_PWMState();
 				state=LOAD_PARA;
-//				state=WAIT_BEFORE_START;
+
 				Motor_PWM_Freq_Dudy_Set(1,100,0);
 				Motor_PWM_Freq_Dudy_Set(2,100,0);
 				Motor_PWM_Freq_Dudy_Set(3,100,0);
@@ -1030,7 +1026,7 @@ void get_switch_mode()
 					
 		//			init_PWMState();
 		//			//state=LOAD_PARA;
-					//state=WAIT_BEFORE_START;
+				
 		//			Motor_PWM_Freq_Dudy_Set(1,100,0);
 		//			Motor_PWM_Freq_Dudy_Set(2,100,0);
 		//			Motor_PWM_Freq_Dudy_Set(3,100,0);
@@ -1097,7 +1093,7 @@ void get_switch_mode()
 					//b_switch_mode_changed=TRUE;
 					init_PWMState();
 					state=LOAD_PARA;
-//					state=WAIT_BEFORE_START;
+
 					Motor_PWM_Freq_Dudy_Set(1,100,0);
 					Motor_PWM_Freq_Dudy_Set(2,100,0);  //必须写两次，否则就出问题
 					Motor_PWM_Freq_Dudy_Set(2,100,0);
@@ -1168,7 +1164,7 @@ void usb_charge_battery()
 				mcu_state=POWER_ON;	
 				//key_state=KEY_WAKE_UP;  		
 				state=LOAD_PARA;
-//				state=WAIT_BEFORE_START;
+
 				init_PWMState();
 			}
 		}
@@ -1257,265 +1253,9 @@ void usb_charge_battery()
 	{
 		set_led(LED_ID_GREEN,TRUE);
 	}
-	
-	/*	
-		static uint8_t pushIn_Cnt;
-//	static uint8_t pullUp_Cnt;
-	
-		//set_led(LED_YELLOW_PWR_PIN,TRUE);
-		if(GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_0)==1)
-		{
-			if(pushIn_Cnt==10)  //10*20=200ms
-			{
-				pushIn_Cnt=0;
-				usb_detect_state=USB_INSERTED;  //USB稳定的插入了,不在进入状态机进行检测USB的状态
-				usb_charging_state=USB_CHECK_CHARG; //USB稳定的插入了，开始检测充电 
-				
-				//怎么区分
-				//1.系统正在运行 
-				//2.系统在睡觉,相当于按键唤醒一样，初始化状态
-				if(b_Is_PCB_PowerOn)
-				{   
-					//将正在运行的波形停掉，初始化
-					Motor_PWM_Freq_Dudy_Set(1,100,0);
-					Motor_PWM_Freq_Dudy_Set(2,100,0);
-					Motor_PWM_Freq_Dudy_Set(3,100,0);
-					Motor_PWM_Freq_Dudy_Set(4,100,0);
-					Motor_PWM_Freq_Dudy_Set(5,4000,0);
-					//state=LOAD_PARA;
-					
-					state=WAIT_BEFORE_START;
-					init_PWMState();
-				}
-				else
-				{
-					b_Is_PCB_PowerOn=TRUE;
-					mcu_state=POWER_ON;	
-					key_state=KEY_WAKE_UP;		
-					//state=LOAD_PARA;
-					state=WAIT_BEFORE_START;
-					init_PWMState();
-				}
-#if 0
-//				b_Is_PCB_PowerOn=TRUE;
-//				
-//				if(b_Is_PCB_PowerOn)
-//				{
-//					mcu_state=POWER_ON;	
-//					key_state=KEY_WAKE_UP;		
-//					//state=LOAD_PARA;
-//state=WAIT_BEFORE_START;
-//					init_PWMState();
-//				}
-////				else
-////				{
-////					mcu_state=POWER_OFF;	
-////					key_state=KEY_STOP_MODE;
-////					state=LOAD_PARA;
-////					init_PWMState();
-////				}
-#endif
-			}
-			else
-			{
-				pushIn_Cnt++;
-			}
-		}
-		else
-		{
-			pushIn_Cnt=0;
-			if(!b_Is_PCB_PowerOn)  
-			{
-				usb_detect_state=USB_FAIL_INSERT;  //USB唤醒系统失败
-			}
-		}
-	}
-	
-	if(usb_detect_state==USB_FAIL_INSERT) //usb唤醒失败，进入低功耗模式
-	{
-		EnterStopMode();
-		init_system_afterWakeUp();
-	}
-		
-	if(usb_detect_state==USB_PULL_UP)
-	{
-		EnterStopMode();
-		init_system_afterWakeUp();
-	}
-	
-	if(usb_charging_state==USB_CHECK_CHARG)
-	{
-		//set_led(LED_ID_GREEN,TRUE);
-		if(GPIO_ReadInputDataBit(GPIOA,GPIO_Pin_5)==1&&GPIO_ReadInputDataBit(GPIOA,GPIO_Pin_4)==0)  //充电中
-		{
-			usb_charging_state=USB_CHARGING;
-			//led_beep_ID=3;
-			
-			//usb_charging_state=USB_CHARGE_FAULT;
-		}
-		else if(GPIO_ReadInputDataBit(GPIOA,GPIO_Pin_5)==0&&GPIO_ReadInputDataBit(GPIOA,GPIO_Pin_4)==1)  //充满了
-		{
-			//这个情况要考虑从 10变到01的时间，不是瞬间就变过来的
-			usb_charging_state=USB_CHARGED_FULL;
-		}
-		else if(GPIO_ReadInputDataBit(GPIOA,GPIO_Pin_5)==1&&GPIO_ReadInputDataBit(GPIOA,GPIO_Pin_4)==1)  //故障
-		{
-			usb_charging_state=USB_CHARGE_FAULT;
-			
-//			usb_charging_state=USB_CHARGING;
-//			led_beep_ID=3;
-		}
-		else
-		{
-			//usb_charging_state=USB_CHARGE_NONE;
-		}
-	}
-	
-	if(usb_charging_state==USB_CHARGING)
-	{
-		static BOOL b_charge_flag=TRUE;
-		
-		set_led(LED_ID_YELLOW,FALSE); 
-		set_led(LED_ID_MODE1,FALSE); 
-		set_led(LED_ID_MODE2,FALSE); 
-		set_led(LED_ID_MODE3,FALSE); 
-		
-		if(b_charge_flag)
-		{
-			if(Is_timing_Xmillisec(1000,12)) 
-			{
-				set_led(LED_ID_GREEN,TRUE);
-				b_charge_flag=FALSE;
-			}
-		}
-		else
-		{
-			if(Is_timing_Xmillisec(1000,12))
-			{
-				set_led(LED_ID_GREEN,FALSE);
-				b_charge_flag=TRUE;
-			}
-		}
-	}
-	
-	if(usb_charging_state==USB_CHARGED_FULL)
-	{
-		set_led(LED_ID_GREEN,TRUE);
-	}
-	
-	*/
-	#if 0
-	/*
-	if(b_usb_charge_bat)
-	{
-		//PA5,    BAT_STBY
-		//PA4,    BAT_CHARGE
-		static BOOL b_charge_flag=TRUE;
-		
-		if(GPIO_ReadInputDataBit(GPIOA,GPIO_Pin_5)==1&&GPIO_ReadInputDataBit(GPIOA,GPIO_Pin_4)==0)  //充电中
-		{
-			usb_charging_state=USB_CHARGING;
-			//led_beep_ID=3;
-			
-			//usb_charging_state=USB_CHARGE_FAULT;
-		}
-		else if(GPIO_ReadInputDataBit(GPIOA,GPIO_Pin_5)==0&&GPIO_ReadInputDataBit(GPIOA,GPIO_Pin_4)==1)  //充满了
-		{
-			//这个情况要考虑从 10变到01的时间，不是瞬间就变过来的
-			usb_charging_state=USB_CHARGED_FULL;
-		}
-		else if(GPIO_ReadInputDataBit(GPIOA,GPIO_Pin_5)==1&&GPIO_ReadInputDataBit(GPIOA,GPIO_Pin_4)==1)  //故障
-		{
-			usb_charging_state=USB_CHARGE_FAULT;
-			
-//			usb_charging_state=USB_CHARGING;
-//			led_beep_ID=3;
-		}
-		else
-		{
-			//usb_charging_state=USB_CHARGE_NONE;
-		}
-		
-		if(usb_charging_state==USB_CHARGING)
-		{
-			set_led(LED_ID_YELLOW,FALSE); 
-			set_led(LED_ID_MODE1,FALSE); 
-			set_led(LED_ID_MODE2,FALSE); 
-			set_led(LED_ID_MODE3,FALSE); 
-			
-			if(b_charge_flag)
-			{
-				if(Is_timing_Xmillisec(1000,12)) 
-				{
-					set_led(LED_ID_GREEN,TRUE);
-					b_charge_flag=FALSE;
-				}
-			}
-			else
-			{
-				if(Is_timing_Xmillisec(1000,12))
-				{
-					set_led(LED_ID_GREEN,FALSE);
-					b_charge_flag=TRUE;
-				}
-			}
-		}
-		else if(usb_charging_state==USB_CHARGED_FULL)
-		{
-			set_led(LED_ID_GREEN,TRUE);
-			b_charge_flag=TRUE;
-		}
-		else
-		{
-			//do nothing
-		}
-	}
-	*/
-	#endif
+
 	os_delay_ms(TASK_USB_CHARGE_BAT, 20);
 }
-
-//BOOL b_usb_push_in=FALSE;
-//BOOL b_usb_pull_up=FALSE;
-
-//void process_interrupt()
-//{
-//	//在这个任务中处理中断
-//	if(b_usb_intterruptHappened==TRUE)  //有可能是上拉，也有可能是下拉
-//	{
-////		b_KeyWkUP_InterrupHappened=FALSE;
-//		if(GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_0)==1) //高电平表示插入了USB,上拉
-//		{
-//			//处理USB插入
-////			b_usb_push_in=TRUE;
-//			usb_detect_state=USB_PUSH_IN;
-//		}
-//		else if(GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_0)==0)  //低电平表示拔出了USB，下拉
-//		{
-//			//处理USB拔出
-//			//b_usb_pull_up=TRUE;
-//			usb_detect_state=USB_PULL_UP;
-//		}
-//		else
-//		{
-//			//do nothing
-//		}
-//		
-//		//新增，明天验证一下, //意思是判断了上拉下拉之后就不再进入这个函数，而是去
-//		//usb_charge_battery验证USB插拔是否有效
-//		b_usb_intterruptHappened=FALSE;  
-//	}
-//	
-//	if(b_KeyWkUP_InterrupHappened==TRUE)
-//	{
-//		//b_usb_intterruptHappened=FALSE;
-//		key_state=KEY_DOWNING;
-////		b_KeyWkUP_InterrupHappened=FALSE;
-//	}
-//	os_delay_ms(TASK_PROCESS_INTERRUPT, 20);
-//}
-
-
 
 void self_test()
 {
@@ -2418,7 +2158,6 @@ void check_selectedMode_ouputPWM()
 					Red_LED_Blink(3);
 					
 					state=LOAD_PARA;
-//					state=WAIT_BEFORE_START;
 					pwm1_state=PWM_START;
 					pwm2_state=PWM_START;
 					pwm3_state=PWM_START;

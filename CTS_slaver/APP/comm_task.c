@@ -65,7 +65,7 @@ static BOOL PWM2_timing_flag=TRUE;
 static BOOL PWM3_timing_flag=TRUE;
 static BOOL PWM4_timing_flag=TRUE;
 static BOOL PWM5_timing_flag=TRUE;
-static BOOL waitBeforeStart_timing_flag=TRUE;
+ BOOL waitBeforeStart_timing_flag=TRUE;
  BOOL led_bink_timing_flag=TRUE;
  BOOL beep_timing_flag=TRUE;
  BOOL usb_charge_timing_flag=TRUE;
@@ -173,7 +173,7 @@ uint8_t PWM1_serial_cnt=0;
 uint8_t PWM2_serial_cnt=0;
 uint8_t PWM3_serial_cnt=0;
 
-//volatile CHCKMODE_OUTPUT_PWM state=LOAD_PARA;
+//volatile CHCKMODE_OUTPUT_PWM state=WAIT_BEFORE_START;
 CHCKMODE_OUTPUT_PWM state=LOAD_PARA;
 //uint16_t mode;                      
 
@@ -699,7 +699,8 @@ void PaintPWM(unsigned char num,unsigned char* buffer)
 //	{
 ////		ResetAllState();
 //		mcu_state=POWER_OFF;
-//		state=LOAD_PARA;
+//	//	state=LOAD_PARA;
+	//state=WAIT_BEFORE_START;
 //		*p_pwm_state=PWM_START;
 //		*p_PWM_period_cnt=0;
 //		*p_PWM_waitBetween_cnt=0;
@@ -741,6 +742,7 @@ void PaintPWM(unsigned char num,unsigned char* buffer)
 							Motor_PWM_Freq_Dudy_Set(3,100,0);
 							//参数初始化，重新来
 							state=LOAD_PARA;
+//							state=WAIT_BEFORE_START;
 							//state=GET_MODE;
 							init_PWMState();
 							
@@ -755,6 +757,7 @@ void PaintPWM(unsigned char num,unsigned char* buffer)
 							//参数初始化，重新来
 							 //闪灯，进入低功耗
 							state=LOAD_PARA;
+//							state=WAIT_BEFORE_START;
 							//state=GET_MODE;
 							init_PWMState();
 							
@@ -780,6 +783,7 @@ void PaintPWM(unsigned char num,unsigned char* buffer)
 						Motor_PWM_Freq_Dudy_Set(3,100,0);
 						//参数初始化，重新来
 						state=LOAD_PARA;
+//						state=WAIT_BEFORE_START;
 						//state=GET_MODE;
 						init_PWMState();
 						//Set_ReleaseGas_flag();
@@ -1009,6 +1013,7 @@ void get_switch_mode()
 				self_tet_state=SELF_TEST_DELAY_BEFORE_START;
 				init_PWMState();
 				state=LOAD_PARA;
+//				state=WAIT_BEFORE_START;
 				Motor_PWM_Freq_Dudy_Set(1,100,0);
 				Motor_PWM_Freq_Dudy_Set(2,100,0);
 				Motor_PWM_Freq_Dudy_Set(3,100,0);
@@ -1024,7 +1029,8 @@ void get_switch_mode()
 					switch_mode_cnt=0;
 					
 		//			init_PWMState();
-		//			state=LOAD_PARA;
+		//			//state=LOAD_PARA;
+					//state=WAIT_BEFORE_START;
 		//			Motor_PWM_Freq_Dudy_Set(1,100,0);
 		//			Motor_PWM_Freq_Dudy_Set(2,100,0);
 		//			Motor_PWM_Freq_Dudy_Set(3,100,0);
@@ -1091,6 +1097,7 @@ void get_switch_mode()
 					//b_switch_mode_changed=TRUE;
 					init_PWMState();
 					state=LOAD_PARA;
+//					state=WAIT_BEFORE_START;
 					Motor_PWM_Freq_Dudy_Set(1,100,0);
 					Motor_PWM_Freq_Dudy_Set(2,100,0);  //必须写两次，否则就出问题
 					Motor_PWM_Freq_Dudy_Set(2,100,0);
@@ -1161,6 +1168,7 @@ void usb_charge_battery()
 				mcu_state=POWER_ON;	
 				//key_state=KEY_WAKE_UP;  		
 				state=LOAD_PARA;
+//				state=WAIT_BEFORE_START;
 				init_PWMState();
 			}
 		}
@@ -1274,7 +1282,9 @@ void usb_charge_battery()
 					Motor_PWM_Freq_Dudy_Set(3,100,0);
 					Motor_PWM_Freq_Dudy_Set(4,100,0);
 					Motor_PWM_Freq_Dudy_Set(5,4000,0);
-					state=LOAD_PARA;
+					//state=LOAD_PARA;
+					
+					state=WAIT_BEFORE_START;
 					init_PWMState();
 				}
 				else
@@ -1282,7 +1292,8 @@ void usb_charge_battery()
 					b_Is_PCB_PowerOn=TRUE;
 					mcu_state=POWER_ON;	
 					key_state=KEY_WAKE_UP;		
-					state=LOAD_PARA;
+					//state=LOAD_PARA;
+					state=WAIT_BEFORE_START;
 					init_PWMState();
 				}
 #if 0
@@ -1292,7 +1303,8 @@ void usb_charge_battery()
 //				{
 //					mcu_state=POWER_ON;	
 //					key_state=KEY_WAKE_UP;		
-//					state=LOAD_PARA;
+//					//state=LOAD_PARA;
+//state=WAIT_BEFORE_START;
 //					init_PWMState();
 //				}
 ////				else
@@ -2063,37 +2075,36 @@ void DetectPalm()
 		//if(usb_detect_state==USB_NOT_DETECT)
 		//else
 		{
-			if(b_Motor_Ready2Shake)
-			{
-				if(b_Motor_shake)
-				{
-					static uint8_t nMotorShake_Cnt=0;
-					if(nMotorShake_Cnt==25)
-					{
-						nMotorShake_Cnt=0;
-						b_Motor_Ready2Shake=FALSE;
-						Motor_PWM_Freq_Dudy_Set(1,100,0);
-						Motor_PWM_Freq_Dudy_Set(2,100,0);
-						Motor_PWM_Freq_Dudy_Set(3,100,0);
-						b_Palm_check_complited=TRUE;   //新增的
-					}
-					else
-					{
-						Motor_PWM_Freq_Dudy_Set(1,100,80);
-						Motor_PWM_Freq_Dudy_Set(2,100,80);
-						Motor_PWM_Freq_Dudy_Set(2,100,80);
-						Motor_PWM_Freq_Dudy_Set(3,100,80);
-						nMotorShake_Cnt++;
-					}
-				}
-			}
-			
-			
 			//if(b_Is_PCB_PowerOn)
 			//if(b_Is_PCB_PowerOn&&!b_usb_charge_bat)  //Power on之后才能做检测手掌的任务
 			//if(mcu_state==POWER_ON&&!b_usb_charge_bat)
 			if(mcu_state==POWER_ON)
-			{			
+			{		
+				if(b_Motor_Ready2Shake)
+				{
+					if(b_Motor_shake)
+					{
+						static uint8_t nMotorShake_Cnt=0;
+						if(nMotorShake_Cnt==25)
+						{
+							nMotorShake_Cnt=0;
+							b_Motor_Ready2Shake=FALSE;
+							Motor_PWM_Freq_Dudy_Set(1,100,0);
+							Motor_PWM_Freq_Dudy_Set(2,100,0);
+							Motor_PWM_Freq_Dudy_Set(3,100,0);
+							b_Palm_check_complited=TRUE;   //新增的
+						}
+						else
+						{
+							Motor_PWM_Freq_Dudy_Set(1,100,80);
+							Motor_PWM_Freq_Dudy_Set(2,100,80);
+							Motor_PWM_Freq_Dudy_Set(2,100,80);
+							Motor_PWM_Freq_Dudy_Set(3,100,80);
+							nMotorShake_Cnt++;
+						}
+					}
+				}
+				
 				if(GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_13)==0)
 				{
 					if(detectPalm_cnt*KEY_LED_PERIOD==2*1000)
@@ -2176,11 +2187,20 @@ void check_selectedMode_ouputPWM()
 				FlashRead(FLASH_WRITE_START_ADDR,tmp,len);
 				memcpy(buffer,tmp,PARAMETER_BUF_LEN);
 				CheckFlashData(buffer);
-				state=GET_MODE;
-				cycle_cnt=buffer[0];  //获取cycle的数值
-				--cycle_cnt; // 因为state=GET_MODE，后面的代码会全部执行一次，相当于已经执行过一次cycle了，所以这里要减1
+				state=WAIT_BEFORE_START;
 			}
 			
+			if(state==WAIT_BEFORE_START)  //开始预备输出PWM波形
+			{
+				if(Is_timing_Xmillisec(buffer[1]*1000,6))
+				{
+					cycle_cnt=buffer[0];  //获取cycle的数值
+					--cycle_cnt; // 因为state=GET_MODE，后面的代码会全部执行一次，相当于已经执行过一次cycle了，所以这里要减1
+					//state=LOAD_PARA;
+					state=GET_MODE;
+				} 
+			}
+
 			if(state!=IDLE)
 			{
 				if(state==GET_CYCLE_CNT)
@@ -2242,7 +2262,8 @@ void check_selectedMode_ouputPWM()
 					//pressure_result=900;
 					if(pressure_result<=70*5)  //这里应该是<=5mmgH就往下运行，5mmgH是固定值，目的是检测ballom中的气体，没有气体才能输出PWM
 					{
-						state=PREV_OUTPUT_PWM;
+						//state=PREV_OUTPUT_PWM;
+						state=OUTPUT_PWM;
 					}
 					else
 					{
@@ -2255,33 +2276,33 @@ void check_selectedMode_ouputPWM()
 					}
 				}
 				
-				//5.检测压力Ok,则预备输出波形，先定时waitBeforeStart这么长时间
-				if(state==PREV_OUTPUT_PWM)  //开始预备输出PWM波形
-				{
-		//			//如果不加if(b_Is_PCB_PowerOn==FALSE)会导致开关重新开机waitbeforestart定时不到想要的秒数
-		//			if(b_Is_PCB_PowerOn==FALSE)
-		//			{
-		//				PWM_waitBeforeStart_cnt=0;
-		//			}
-		//			else
-					{
-	//					if((PWM_waitBeforeStart_cnt)*CHECK_MODE_OUTPUT_PWM==buffer[1]*1000)
-	//					{
-	//						PWM_waitBeforeStart_cnt=0;
-	//						state=OUTPUT_PWM;
-	//					}
-	//					else
-	//					{
-	//						PWM_waitBeforeStart_cnt++;					
-	//					}
-						
-						
-						if(Is_timing_Xmillisec(buffer[1]*1000,6))
-						{
-							state=OUTPUT_PWM;
-						}
-					}  
-				}
+//				//5.检测压力Ok,则预备输出波形，先定时waitBeforeStart这么长时间
+//				if(state==PREV_OUTPUT_PWM)  //开始预备输出PWM波形
+//				{
+//		//			//如果不加if(b_Is_PCB_PowerOn==FALSE)会导致开关重新开机waitbeforestart定时不到想要的秒数
+//		//			if(b_Is_PCB_PowerOn==FALSE)
+//		//			{
+//		//				PWM_waitBeforeStart_cnt=0;
+//		//			}
+//		//			else
+//					{
+//	//					if((PWM_waitBeforeStart_cnt)*CHECK_MODE_OUTPUT_PWM==buffer[1]*1000)
+//	//					{
+//	//						PWM_waitBeforeStart_cnt=0;
+//	//						state=OUTPUT_PWM;
+//	//					}
+//	//					else
+//	//					{
+//	//						PWM_waitBeforeStart_cnt++;					
+//	//					}
+//						
+//						
+//						if(Is_timing_Xmillisec(buffer[1]*1000,6))
+//						{
+//							state=OUTPUT_PWM;
+//						}
+//					}  
+//				}
 				
 				//6.开始输出波形
 				if(state==OUTPUT_PWM) //按照设定的参数，输出PWM1,PWM2,PWM3
@@ -2382,7 +2403,8 @@ void check_selectedMode_ouputPWM()
 	//						else	
 	//						{
 	//							checkPressAgain_cnt=0;
-	//							state=LOAD_PARA;
+	//							//state=LOAD_PARA;
+	//state=WAIT_BEFORE_START;
 	//						}
 	//					}
 	//				}
@@ -2396,6 +2418,7 @@ void check_selectedMode_ouputPWM()
 					Red_LED_Blink(3);
 					
 					state=LOAD_PARA;
+//					state=WAIT_BEFORE_START;
 					pwm1_state=PWM_START;
 					pwm2_state=PWM_START;
 					pwm3_state=PWM_START;

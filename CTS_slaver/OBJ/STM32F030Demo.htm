@@ -3,7 +3,7 @@
 <title>Static Call Graph - [..\OBJ\STM32F030Demo.axf]</title></head>
 <body><HR>
 <H1>Static Call Graph for image ..\OBJ\STM32F030Demo.axf</H1><HR>
-<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060422: Last Updated: Sat Apr 28 13:55:04 2018
+<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060422: Last Updated: Sat Apr 28 15:54:01 2018
 <BR><P>
 <H3>Maximum Stack Usage =        924 bytes + Unknown(Functions without stacksize, Cycles, Untraceable Function Pointers)</H3><H3>
 Call chain for Maximum Stack Depth:</H3>
@@ -469,7 +469,7 @@ Global Symbols
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> app.o(.text)
 </UL>
-<P><STRONG><a name="[2f]"></a>DetectPalm</STRONG> (Thumb, 252 bytes, Stack size 24 bytes, comm_task.o(.text))
+<P><STRONG><a name="[2f]"></a>DetectPalm</STRONG> (Thumb, 250 bytes, Stack size 24 bytes, comm_task.o(.text))
 <BR><BR>[Stack]<UL><LI>Max Depth = 84<LI>Call Chain = DetectPalm &rArr; Motor_PWM_Freq_Dudy_Set &rArr; TIM_OC4Init
 </UL>
 <BR>[Calls]<UL><LI><a href="#[5e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_PWM_Freq_Dudy_Set
@@ -478,7 +478,7 @@ Global Symbols
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> app.o(.text)
 </UL>
-<P><STRONG><a name="[2c]"></a>check_selectedMode_ouputPWM</STRONG> (Thumb, 468 bytes, Stack size 480 bytes, comm_task.o(.text))
+<P><STRONG><a name="[2c]"></a>check_selectedMode_ouputPWM</STRONG> (Thumb, 472 bytes, Stack size 480 bytes, comm_task.o(.text))
 <BR><BR>[Stack]<UL><LI>Max Depth = 720<LI>Call Chain = check_selectedMode_ouputPWM &rArr; PaintPWM &rArr; init_system_afterWakeUp &rArr; init_task &rArr; UARTInit &rArr; USART_Init &rArr; RCC_GetClocksFreq
 </UL>
 <BR>[Calls]<UL><LI><a href="#[76]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;FlashRead
@@ -579,7 +579,7 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[4a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;EnterStopMode
 </UL>
 
-<P><STRONG><a name="[8b]"></a>Init_gloab_viriable</STRONG> (Thumb, 228 bytes, Stack size 8 bytes, key_power_on_task.o(.text))
+<P><STRONG><a name="[8b]"></a>Init_gloab_viriable</STRONG> (Thumb, 232 bytes, Stack size 8 bytes, key_power_on_task.o(.text))
 <BR><BR>[Stack]<UL><LI>Max Depth = 8<LI>Call Chain = Init_gloab_viriable
 </UL>
 <BR>[Calls]<UL><LI><a href="#[6e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;init_PWMState
@@ -607,7 +607,7 @@ Global Symbols
 <LI><a href="#[42]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
 </UL>
 
-<P><STRONG><a name="[2b]"></a>key_power_on_task</STRONG> (Thumb, 442 bytes, Stack size 16 bytes, key_power_on_task.o(.text))
+<P><STRONG><a name="[2b]"></a>key_power_on_task</STRONG> (Thumb, 446 bytes, Stack size 16 bytes, key_power_on_task.o(.text))
 <BR><BR>[Stack]<UL><LI>Max Depth = 208<LI>Call Chain = key_power_on_task &rArr; init_system_afterWakeUp &rArr; init_task &rArr; UARTInit &rArr; USART_Init &rArr; RCC_GetClocksFreq
 </UL>
 <BR>[Calls]<UL><LI><a href="#[5f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;set_led

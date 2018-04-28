@@ -104,6 +104,7 @@ extern uint32_t prev_PWM4_os_tick;
 extern uint32_t prev_PWM5_os_tick;
 extern uint16_t checkPressAgain_cnt;
 extern uint8_t wait_cnt;
+extern BOOL waitBeforeStart_timing_flag;
 
 extern BOOL	b_self_test;
 extern BOOL key_self_test_timing_flag;
@@ -761,7 +762,8 @@ void Init_gloab_viriable()
 {
 	init_PWMState();
 	state=LOAD_PARA;
-
+	waitBeforeStart_timing_flag=FALSE;
+//	state=WAIT_BEFORE_START;
 	b_Is_PCB_PowerOn=FALSE;
 	mcu_state=POWER_OFF;
 	key_state=KEY_UPING;
@@ -891,6 +893,7 @@ void key_power_on_task(void)
 					mcu_state=POWER_ON;	
 					key_state=KEY_WAKE_UP;		
 					state=LOAD_PARA;
+					//state=WAIT_BEFORE_START;
 					init_PWMState();
 				}
 				else
@@ -898,6 +901,7 @@ void key_power_on_task(void)
 					mcu_state=POWER_OFF;	
 					key_state=KEY_STOP_MODE;
 					state=LOAD_PARA;
+					//state=WAIT_BEFORE_START;
 					init_PWMState();
 				}
 			}
@@ -980,7 +984,8 @@ void key_power_on_task(void)
 				{
 					mcu_state=POWER_ON;	
 					key_state=KEY_WAKE_UP;		
-					state=LOAD_PARA;
+					//state=LOAD_PARA;
+	state=WAIT_BEFORE_START;
 					init_PWMState();
 				}
 				else

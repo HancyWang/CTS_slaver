@@ -1237,6 +1237,12 @@ void usb_charge_battery()
 			{
 				set_led(LED_ID_GREEN,TRUE);
 				b_charge_flag=FALSE;
+				//判断一下，电池充满了没有
+				if(GPIO_ReadInputDataBit(GPIOA,GPIO_Pin_5)==0&&GPIO_ReadInputDataBit(GPIOA,GPIO_Pin_4)==1)  //充满了
+				{
+					//这个情况要考虑从 10变到01的时间，不是瞬间就变过来的
+					usb_charging_state=USB_CHARGED_FULL;
+				}
 			}
 		}
 		else
@@ -1472,7 +1478,9 @@ void self_test()
 		static uint8_t selfTest_fail_period_H;
 		static uint8_t selfTest_fail_period_L;
 		
-		if(selfTest_fail_Cnt==10)  //闪十次
+		set_led(LED_ID_GREEN,FALSE);
+		
+		if(selfTest_fail_Cnt==5)  //闪十次
 		{
 			selfTest_fail_Cnt=0;
 			b_self_test=FALSE;  
@@ -1497,6 +1505,7 @@ void self_test()
 					set_led(LED_ID_MODE1,TRUE);
 					set_led(LED_ID_MODE2,TRUE);
 					set_led(LED_ID_MODE3,TRUE);
+					set_led(LED_ID_YELLOW,TRUE);
 					Motor_PWM_Freq_Dudy_Set(5,4000,80);
 				}
 			}
@@ -1506,6 +1515,7 @@ void self_test()
 				set_led(LED_ID_MODE1,FALSE);
 				set_led(LED_ID_MODE2,FALSE);
 				set_led(LED_ID_MODE3,FALSE);
+				set_led(LED_ID_YELLOW,FALSE);
 				Motor_PWM_Freq_Dudy_Set(5,4000,0);
 			}
 		}
@@ -1756,6 +1766,54 @@ void led_blink_beep()
 }
 
 
+void LED_Blink_for_Over_heating(uint8_t seconds)
+{
+	//这里必须要关闭PWM,要不然在Delay_ms的时候，PWM还在输出
+	Motor_PWM_Freq_Dudy_Set(1,100,0);
+	Motor_PWM_Freq_Dudy_Set(2,100,0);
+	Motor_PWM_Freq_Dudy_Set(3,100,0);	
+	Motor_PWM_Freq_Dudy_Set(4,100,0);  
+	Motor_PWM_Freq_Dudy_Set(5,4000,0);
+	
+	set_led(LED_ID_GREEN,FALSE);   //关掉电源的绿色LED灯
+	
+	//关闭模式指示灯
+	if(mode==1)
+	{	
+		set_led(LED_ID_MODE1,FALSE); 
+	}
+	else if(mode==2)
+	{
+		set_led(LED_ID_MODE2,FALSE);   
+	}
+	else if(mode==3)
+	{
+		set_led(LED_ID_MODE3,FALSE);  
+	}
+	else
+	{
+		//do nothing
+	}
+	
+	Delay_ms(500);
+	//闪烁
+	for(uint8_t i=0;i<seconds;i++)
+	{
+		set_led(LED_ID_YELLOW,TRUE);
+		set_led(LED_ID_MODE1,TRUE);
+		set_led(LED_ID_MODE2,TRUE);
+		set_led(LED_ID_MODE3,TRUE);
+		Delay_ms(500);
+		set_led(LED_ID_YELLOW,FALSE);
+		set_led(LED_ID_MODE1,FALSE);
+		set_led(LED_ID_MODE2,FALSE);
+		set_led(LED_ID_MODE3,FALSE);
+		Delay_ms(500);
+//		IWDG_Feed();   //喂狗
+	}
+}
+
+
 void Detect_battery_and_tmp()
 {
 	uint16_t result_0;
@@ -1776,8 +1834,11 @@ void Detect_battery_and_tmp()
 		else
 		{
 			b_bat_detected_ok=FALSE;
+			
+			//板子温度过高，3个mode灯闪+yellow led闪，这里要改
 			//橙色LED闪3s，关机
-			Red_LED_Blink(3);
+			//Red_LED_Blink(3);
+			LED_Blink_for_Over_heating(5);
 			
 			mcu_state=POWER_OFF;
 			//进入stop模式
@@ -2114,42 +2175,7 @@ void check_selectedMode_ouputPWM()
 					}
 				}
 					
-					//CTS不需要重新检测60s
-					#if 0
-	//				//对应4，压力检测，如果检测压力不ok，则再次检测压力
-	//				if(state==CHECK_PRESSURE_AGAIN) //再次检测压力
-	//				{
-	//					if(CHECK_MODE_OUTPUT_PWM*checkPressAgain_cnt==60*1000)   //连续60s检测不到，进入POWER_OFF
-	//					{
-	//						checkPressAgain_cnt=0;
-	//						mcu_state=POWER_OFF;
-	//						//state=LOAD_PARA;
-	//						state=GET_MODE;
-	//						set_led(LED_CLOSE);
-	//						
-	//						EnterStopMode();
-	//						init_system_afterWakeUp();
-	//					}
-	//					else
-	//					{
-	//						pressure_result=ADS115_readByte(0x90);
-	//						//特别注意，这里不能用全局变量buffer,而应该用parameter_buf
-	//						//理由：如果进入60s倒计时状态，此时的buffer的值在CHECK_PRESSURE_AGAIN状态已经固定了
-	//						//如果此时上位机更新了参数，parameter_buf[0]会改变，应该用这个变化了的值来判断
-	//						if(pressure_result<parameter_buf[0]*70) 
-	//						{
-	//							checkPressAgain_cnt++;
-	//						}
-	//						else	
-	//						{
-	//							checkPressAgain_cnt=0;
-	//							//state=LOAD_PARA;
-	//state=WAIT_BEFORE_START;
-	//						}
-	//					}
-	//				}
-	#endif
-					
+					//CTS不需要重新检测60s				
 					
 					//对应7，如果检测电池电压小于2.2V，则闪灯
 				if(state==LED_RED_BLINK)

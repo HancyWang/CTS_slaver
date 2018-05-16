@@ -126,6 +126,8 @@ extern uint8_t inflate_cnt;
 extern uint8_t hold_cnt;
 extern uint8_t deflate_cnt;
 
+extern uint8_t sample_cnt;
+extern uint32_t sample_sum;
 //extern BOOL b_start_powerOn_check;
 // BOOL b_KeyWkUP_InterrupHappened=FALSE;
 // BOOL b_usb_intterruptHappened=FALSE;
@@ -134,8 +136,6 @@ typedef enum {
 	NO_KEY,
 	BLUE_CHECK
 }KEY_VAL;
-
-
 
 
 USB_DETECT_STATE usb_detect_state=USB_NOT_DETECT;
@@ -843,6 +843,9 @@ void Init_gloab_viriable()
   inflate_cnt=0;
   hold_cnt=0;
   deflate_cnt=0;
+	
+	sample_cnt=0;
+	sample_sum=0;
 }
 
 

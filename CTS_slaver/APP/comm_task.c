@@ -17,6 +17,16 @@
 #include "hardware.h"
 #include "iwtdg.h"
 
+//每个pressure sensor的rate都不一样，后续的话可以定义一个接口，从flash中读取rate
+//#define PRESSURE_RATE get_pressure_rate
+#define PRESSURE_RATE 70
+#define PRESSURE_SAFETY_THRESHOLD 180
+#define PRESSURE_EMPTY_AIR 5
+//y=ax+b
+#define PRESSURE_SENSOR_VALUE(x) ((PRESSURE_RATE*x)+zero_point_of_pressure_sensor)
+
+extern uint16_t zero_point_of_pressure_sensor;
+
 //全局变量
 CMD_Receive g_CmdReceive;  // 命令接收控制对象
 FIFO_TYPE send_fifo;//發送數據FIFO
@@ -218,7 +228,8 @@ LED_IN_TURN_STATE led_In_Turn_state=LED_IN_TURN_NONE;
 
 //LED_BEEP_STATE led_beep_state=INIT;
 
-
+uint8_t sample_cnt;
+uint32_t sample_sum;
 
 LED_STATE led_state=LED_INIT;
 BEEP_STATE beep_state=BEEP_INIT;
@@ -277,6 +288,55 @@ void init_PWMState(void)
 	PWM2_serial_cnt=0;
 	PWM3_serial_cnt=0;
 }
+
+
+void LED_Blink_for_alert(uint8_t seconds)
+{
+	//这里必须要关闭PWM,要不然在Delay_ms的时候，PWM还在输出
+	Motor_PWM_Freq_Dudy_Set(1,100,0);
+	Motor_PWM_Freq_Dudy_Set(2,100,0);
+	Motor_PWM_Freq_Dudy_Set(3,100,0);	
+	Motor_PWM_Freq_Dudy_Set(4,100,0);  
+	Motor_PWM_Freq_Dudy_Set(5,4000,0);
+	
+	set_led(LED_ID_GREEN,FALSE);   //关掉电源的绿色LED灯
+	
+	//关闭模式指示灯
+	if(mode==1)
+	{	
+		set_led(LED_ID_MODE1,FALSE); 
+	}
+	else if(mode==2)
+	{
+		set_led(LED_ID_MODE2,FALSE);   
+	}
+	else if(mode==3)
+	{
+		set_led(LED_ID_MODE3,FALSE);  
+	}
+	else
+	{
+		//do nothing
+	}
+	
+	Delay_ms(500);
+	//闪烁
+	for(uint8_t i=0;i<seconds;i++)
+	{
+		set_led(LED_ID_YELLOW,TRUE);
+		set_led(LED_ID_MODE1,TRUE);
+		set_led(LED_ID_MODE2,TRUE);
+		set_led(LED_ID_MODE3,TRUE);
+		Delay_ms(500);
+		set_led(LED_ID_YELLOW,FALSE);
+		set_led(LED_ID_MODE1,FALSE);
+		set_led(LED_ID_MODE2,FALSE);
+		set_led(LED_ID_MODE3,FALSE);
+		Delay_ms(500);
+//		IWDG_Feed();   //喂狗
+	}
+}
+
 
 void No_Hand_IN_PLACE()
 {
@@ -721,52 +781,61 @@ void PaintPWM(unsigned char num,unsigned char* buffer)
 			}
 			else
 			{
-				//该功能尚未验证，等PCBA回来在验证
-				if(num==3)  //如果为PWM3,需要判断threshold
-				{
-					uint16_t ret=ADS115_readByte(0x90);
-					//如果读取到的气压值小于设定的值，可以开始输出PWM
-					if(ret<buffer[1+ELEMENTS_CNT*(*p_PWM_serial_cnt)+THRESHOLD]*70)
-					{
-						Motor_PWM_Freq_Dudy_Set(num,buffer[1+ELEMENTS_CNT*(*p_PWM_serial_cnt)+FREQ],buffer[1+ELEMENTS_CNT*(*p_PWM_serial_cnt)+DUTY_CYCLE]);
-						*p_pwm_state=PWM_PERIOD;
-					}
-					else
-					{
-						//if pressure <160 打开阀门，放气4s
-						if(ret<160*70)
-						{
-							Motor_PWM_Freq_Dudy_Set(1,100,0);
-							Motor_PWM_Freq_Dudy_Set(2,100,0);
-							Motor_PWM_Freq_Dudy_Set(3,100,0);
-							//参数初始化，重新来
-							state=LOAD_PARA;
-
-							init_PWMState();
-							
-							Set_ReleaseGas_flag();
-						}
-						else
-						{
-							Set_ReleaseGas_flag();
-							Motor_PWM_Freq_Dudy_Set(1,100,0);
-							Motor_PWM_Freq_Dudy_Set(2,100,0);
-							Motor_PWM_Freq_Dudy_Set(3,100,0);
-							//参数初始化，重新来
-							 //闪灯，进入低功耗
-							state=LOAD_PARA;
-
-							init_PWMState();
-							
-							//橙色LED闪3s
-							Red_LED_Blink(3);
-							EnterStopMode();
-							
-							init_system_afterWakeUp();
-						}   
-					}
-				}
-				else
+				#if 0
+//				if(num==3)  //如果为PWM3,需要判断threshold
+//				{
+//					uint16_t ret=ADS115_readByte(0x90);
+//					//如果读取到的气压值小于设定的值，可以开始输出PWM
+//					//if(ret<buffer[1+ELEMENTS_CNT*(*p_PWM_serial_cnt)+THRESHOLD]*70)
+//					if(ret<PRESSURE_SENSOR_VALUE(buffer[1+ELEMENTS_CNT*(*p_PWM_serial_cnt)+THRESHOLD]))
+//					{
+//						Motor_PWM_Freq_Dudy_Set(num,buffer[1+ELEMENTS_CNT*(*p_PWM_serial_cnt)+FREQ],buffer[1+ELEMENTS_CNT*(*p_PWM_serial_cnt)+DUTY_CYCLE]);
+//						*p_pwm_state=PWM_PERIOD;
+//					}
+//					else
+//					{
+//						//if pressure <160 打开阀门，放气4s
+//						//if(ret<160*70)
+//						if(ret<PRESSURE_SENSOR_VALUE(PRESSURE_SAFETY_THRESHOLD))
+//						{
+//							Motor_PWM_Freq_Dudy_Set(1,100,0);
+//							Motor_PWM_Freq_Dudy_Set(2,100,0);
+//							Motor_PWM_Freq_Dudy_Set(3,100,0);
+//							//参数初始化，重新来
+//							state=LOAD_PARA;
+////							b_Motor_Ready2Shake=TRUE;
+////							b_Palm_check_complited=FALSE;
+////							b_Motor_shake=FALSE;
+////							nMotorShake_Cnt=0;
+//							init_PWMState();
+//							
+//							Set_ReleaseGas_flag();
+//						}
+//						else
+//						{
+//							Set_ReleaseGas_flag();
+//							Motor_PWM_Freq_Dudy_Set(1,100,0);
+//							Motor_PWM_Freq_Dudy_Set(2,100,0);
+//							Motor_PWM_Freq_Dudy_Set(3,100,0);
+//							//参数初始化，重新来
+//							 //闪灯，进入低功耗
+//							state=LOAD_PARA;
+////							b_Motor_Ready2Shake=TRUE;
+////							b_Palm_check_complited=FALSE;
+////							b_Motor_shake=FALSE;
+////							nMotorShake_Cnt=0;
+//							init_PWMState();
+//							
+//							//橙色LED闪3s
+//							Red_LED_Blink(3);
+//							EnterStopMode();
+//							
+//							init_system_afterWakeUp();
+//						}   
+//					}
+//				}
+//				else
+#endif
 				{
 					if(b_release_gas==FALSE)
 					{
@@ -780,7 +849,10 @@ void PaintPWM(unsigned char num,unsigned char* buffer)
 						Motor_PWM_Freq_Dudy_Set(3,100,0);
 						//参数初始化，重新来
 						state=LOAD_PARA;
-
+//						b_Motor_Ready2Shake=TRUE;
+//						b_Palm_check_complited=FALSE;
+//						b_Motor_shake=FALSE;
+//						nMotorShake_Cnt=0;
 						init_PWMState();
 						//Set_ReleaseGas_flag();
 					}
@@ -790,12 +862,81 @@ void PaintPWM(unsigned char num,unsigned char* buffer)
 		
 		if(*p_pwm_state==PWM_PERIOD)   //period
 		{
-			if(Is_timing_Xmillisec(buffer[1+ELEMENTS_CNT*(*p_PWM_serial_cnt)+PERIOD]*1000,num))
+//			if(Is_timing_Xmillisec(buffer[1+ELEMENTS_CNT*(*p_PWM_serial_cnt)+PERIOD]*1000,num))
+//			{
+//				++(*p_PWM_numOfCycle);
+//				*p_pwm_state=PWM_WAIT_BETWEEN;
+//				Motor_PWM_Freq_Dudy_Set(num,buffer[1+ELEMENTS_CNT*(*p_PWM_serial_cnt)+FREQ],0);
+//			}
+			
+			if(num==3)
 			{
-				++(*p_PWM_numOfCycle);
-				*p_pwm_state=PWM_WAIT_BETWEEN;
-				Motor_PWM_Freq_Dudy_Set(num,buffer[1+ELEMENTS_CNT*(*p_PWM_serial_cnt)+FREQ],0);
+				uint16_t ret=ADS115_readByte(0x90);
+				if(ret>=PRESSURE_SENSOR_VALUE(buffer[1+ELEMENTS_CNT*(*p_PWM_serial_cnt)+THRESHOLD]))
+				{
+//					Motor_PWM_Freq_Dudy_Set(num,buffer[1+ELEMENTS_CNT*(*p_PWM_serial_cnt)+FREQ],0);
+//					*p_pwm_state=PWM_PERIOD;
+					if(ret<PRESSURE_SENSOR_VALUE(PRESSURE_SAFETY_THRESHOLD))
+					{
+						Motor_PWM_Freq_Dudy_Set(1,100,0);
+						Motor_PWM_Freq_Dudy_Set(2,100,0);
+						Motor_PWM_Freq_Dudy_Set(3,100,0);
+						//参数初始化，重新来
+						state=LOAD_PARA;
+//						b_Motor_Ready2Shake=TRUE;
+//						b_Palm_check_complited=FALSE;
+//						b_Motor_shake=FALSE;
+//						nMotorShake_Cnt=0;
+						init_PWMState();
+						
+//						GPIO_SetBits(GPIOB,GPIO_Pin_10);  	 //打开电磁阀1
+//						GPIO_SetBits(GPIOB,GPIO_Pin_11);			//打开电磁阀2
+//					//	delay_ms(4000);   //这里不行，要喂狗
+						Set_ReleaseGas_flag();
+					}
+					else   //如果超过安全值
+					{
+						Set_ReleaseGas_flag();
+						Motor_PWM_Freq_Dudy_Set(1,100,0);
+						Motor_PWM_Freq_Dudy_Set(2,100,0);
+						Motor_PWM_Freq_Dudy_Set(3,100,0);
+						//参数初始化，重新来
+						 //闪灯，进入低功耗
+						state=LOAD_PARA;
+//						b_Motor_Ready2Shake=TRUE;
+//						b_Palm_check_complited=FALSE;
+//						b_Motor_shake=FALSE;
+//						nMotorShake_Cnt=0;
+						init_PWMState();
+						
+						//橙色LED闪3s
+					//	Red_LED_Blink(3);      //改成报警闪烁，而不是闪3s
+						LED_Blink_for_alert(5);
+						EnterStopMode();
+						
+						init_system_afterWakeUp();
+					} 
+				}
+				else
+				{
+					if(Is_timing_Xmillisec(buffer[1+ELEMENTS_CNT*(*p_PWM_serial_cnt)+PERIOD]*1000,num))
+					{
+						++(*p_PWM_numOfCycle);
+						*p_pwm_state=PWM_WAIT_BETWEEN;
+						Motor_PWM_Freq_Dudy_Set(num,buffer[1+ELEMENTS_CNT*(*p_PWM_serial_cnt)+FREQ],0);
+					}
+				}
 			}
+			else
+			{
+				if(Is_timing_Xmillisec(buffer[1+ELEMENTS_CNT*(*p_PWM_serial_cnt)+PERIOD]*1000,num))
+				{
+					++(*p_PWM_numOfCycle);
+					*p_pwm_state=PWM_WAIT_BETWEEN;
+					Motor_PWM_Freq_Dudy_Set(num,buffer[1+ELEMENTS_CNT*(*p_PWM_serial_cnt)+FREQ],0);
+				}
+			}		
+			
 		}
 		
 		if(*p_pwm_state==PWM_WAIT_BETWEEN)   //wait between
@@ -1115,6 +1256,10 @@ void ReleaseGas()
 {
 	if(b_release_gas==TRUE)
 	{
+		state=LOAD_PARA;
+		init_PWMState();
+		mcu_state=POWER_OFF;
+		
 		GPIO_SetBits(GPIOB,GPIO_Pin_10);  	 //打开电磁阀1
 		GPIO_SetBits(GPIOB,GPIO_Pin_11);			//打开电磁阀2
 		if(Is_timing_Xmillisec(4000,8))
@@ -1122,6 +1267,7 @@ void ReleaseGas()
 			GPIO_ResetBits(GPIOB,GPIO_Pin_10);
 			GPIO_ResetBits(GPIOB,GPIO_Pin_11);
 			Reset_ReleaseGas_flag();
+			mcu_state=POWER_ON;
 		}
 	}
 	os_delay_ms(TASK_RELEASE_GAS_ID, 50);
@@ -1198,7 +1344,6 @@ void usb_charge_battery()
 		}
 		else if(GPIO_ReadInputDataBit(GPIOA,GPIO_Pin_5)==0&&GPIO_ReadInputDataBit(GPIOA,GPIO_Pin_4)==1)  //充满了
 		{
-			//这个情况要考虑从 10变到01的时间，不是瞬间就变过来的
 			usb_charging_state=USB_CHARGED_FULL;
 		}
 		else if(GPIO_ReadInputDataBit(GPIOA,GPIO_Pin_5)==1&&GPIO_ReadInputDataBit(GPIOA,GPIO_Pin_4)==1)  //故障
@@ -1239,8 +1384,7 @@ void usb_charge_battery()
 				b_charge_flag=FALSE;
 				//判断一下，电池充满了没有
 				if(GPIO_ReadInputDataBit(GPIOA,GPIO_Pin_5)==0&&GPIO_ReadInputDataBit(GPIOA,GPIO_Pin_4)==1)  //充满了
-				{
-					//这个情况要考虑从 10变到01的时间，不是瞬间就变过来的
+				{		
 					usb_charging_state=USB_CHARGED_FULL;
 				}
 			}
@@ -1766,52 +1910,7 @@ void led_blink_beep()
 }
 
 
-void LED_Blink_for_Over_heating(uint8_t seconds)
-{
-	//这里必须要关闭PWM,要不然在Delay_ms的时候，PWM还在输出
-	Motor_PWM_Freq_Dudy_Set(1,100,0);
-	Motor_PWM_Freq_Dudy_Set(2,100,0);
-	Motor_PWM_Freq_Dudy_Set(3,100,0);	
-	Motor_PWM_Freq_Dudy_Set(4,100,0);  
-	Motor_PWM_Freq_Dudy_Set(5,4000,0);
-	
-	set_led(LED_ID_GREEN,FALSE);   //关掉电源的绿色LED灯
-	
-	//关闭模式指示灯
-	if(mode==1)
-	{	
-		set_led(LED_ID_MODE1,FALSE); 
-	}
-	else if(mode==2)
-	{
-		set_led(LED_ID_MODE2,FALSE);   
-	}
-	else if(mode==3)
-	{
-		set_led(LED_ID_MODE3,FALSE);  
-	}
-	else
-	{
-		//do nothing
-	}
-	
-	Delay_ms(500);
-	//闪烁
-	for(uint8_t i=0;i<seconds;i++)
-	{
-		set_led(LED_ID_YELLOW,TRUE);
-		set_led(LED_ID_MODE1,TRUE);
-		set_led(LED_ID_MODE2,TRUE);
-		set_led(LED_ID_MODE3,TRUE);
-		Delay_ms(500);
-		set_led(LED_ID_YELLOW,FALSE);
-		set_led(LED_ID_MODE1,FALSE);
-		set_led(LED_ID_MODE2,FALSE);
-		set_led(LED_ID_MODE3,FALSE);
-		Delay_ms(500);
-//		IWDG_Feed();   //喂狗
-	}
-}
+
 
 
 void Detect_battery_and_tmp()
@@ -1827,18 +1926,86 @@ void Detect_battery_and_tmp()
 	//温度下限不需要
 	if(!b_stop_current_works)  //不充电的时候，才检测电池和温度
 	{
-		if((result_0>=2252&&result_0<=3167)&&((result_1>=950)))
+		//电池电压3.3V-4.2V，>4.2也要报警，防止电压过高损坏器件
+//		if((result_0>=2252&&result_0<=2867)&&((result_1>=950)))
+//		{
+//			b_bat_detected_ok=TRUE;
+//		}
+//		else
+//		{
+//			b_bat_detected_ok=FALSE;
+//			
+//			//板子温度过高，3个mode灯闪+yellow led闪，这里要改
+//			//橙色LED闪3s，关机
+//			//Red_LED_Blink(3);
+//			LED_Blink_for_alert(5);
+//			
+//			mcu_state=POWER_OFF;
+//			//进入stop模式
+//			EnterStopMode();
+//			//唤醒之后重新初始化
+//			init_system_afterWakeUp();
+//		}
+		//开机按下之后，进行一次检测
+		if(b_Is_PCB_PowerOn==FALSE) //这个任务先执行，b_Is_PCB_PowerOn还是FALSE
 		{
-			b_bat_detected_ok=TRUE;
+			if((result_0>=2389&&result_0<=2867))
+			{
+				b_bat_detected_ok=TRUE;
+			}
+			else
+			{
+				b_bat_detected_ok=FALSE;
+				
+				//橙色LED闪3s，关机
+				Red_LED_Blink(5);
+				//LED_Blink_for_alert(5);
+				
+				mcu_state=POWER_OFF;
+				//进入stop模式
+				EnterStopMode();
+				//唤醒之后重新初始化
+				init_system_afterWakeUp();
+			}
 		}
 		else
 		{
-			b_bat_detected_ok=FALSE;
-			
+			//开机工作后，进行采样检测
+			if(sample_cnt==20)
+			{
+				uint16_t sample_avg;
+				sample_avg=sample_sum/=20; 
+				sample_cnt=0;
+				if((sample_avg>=2252&&sample_avg<=2867))
+				{
+					b_bat_detected_ok=TRUE;
+				}
+				else
+				{
+					b_bat_detected_ok=FALSE;
+					
+					//橙色LED闪3s，关机
+					Red_LED_Blink(5);
+					//LED_Blink_for_alert(5);
+					
+					mcu_state=POWER_OFF;
+					//进入stop模式
+					EnterStopMode();
+					//唤醒之后重新初始化
+					init_system_afterWakeUp();
+				}
+			}
+			else
+			{
+				sample_cnt++;
+				sample_sum+=result_0;
+			}
+		}
+		
+		if(result_1<950)
+		{
 			//板子温度过高，3个mode灯闪+yellow led闪，这里要改
-			//橙色LED闪3s，关机
-			//Red_LED_Blink(3);
-			LED_Blink_for_Over_heating(5);
+			LED_Blink_for_alert(5);
 			
 			mcu_state=POWER_OFF;
 			//进入stop模式
@@ -1900,7 +2067,8 @@ void DetectPalm()
 							Motor_PWM_Freq_Dudy_Set(1,100,80);
 							Motor_PWM_Freq_Dudy_Set(2,100,80);
 							Motor_PWM_Freq_Dudy_Set(2,100,80);
-							Motor_PWM_Freq_Dudy_Set(3,100,80);
+							//Motor_PWM_Freq_Dudy_Set(3,100,80);
+							//GPIO_ResetBits(GPIOB,GPIO_Pin_10|GPIO_Pin_11);
 							nMotorShake_Cnt++;
 						}
 					}
@@ -2061,7 +2229,8 @@ void check_selectedMode_ouputPWM()
 					pressure_result=ADS115_readByte(0x90);
 					//if(pressure_result>=buffer[0]*70)  //压力达到threshold，进入输出PWM模式,其中75为斜率，5mmgH对应5*70+700
 					//pressure_result=900;
-					if(pressure_result<=70*5)  //这里应该是<=5mmgH就往下运行，5mmgH是固定值，目的是检测ballom中的气体，没有气体才能输出PWM
+					//if(pressure_result<=70*5)  //这里应该是<=5mmgH就往下运行，5mmgH是固定值，目的是检测ballom中的气体，没有气体才能输出PWM
+					if(pressure_result<=PRESSURE_SENSOR_VALUE(PRESSURE_EMPTY_AIR)) 
 					{
 						//state=PREV_OUTPUT_PWM;
 						state=OUTPUT_PWM;
@@ -2199,10 +2368,6 @@ void check_selectedMode_ouputPWM()
 				//do nothing
 			}
 		}
-		
-
-		
-
 	}
 //	else
 //	{

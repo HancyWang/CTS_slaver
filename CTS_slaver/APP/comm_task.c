@@ -19,7 +19,7 @@
 
 //每个pressure sensor的rate都不一样，后续的话可以定义一个接口，从flash中读取rate
 //#define PRESSURE_RATE get_pressure_rate
-#define PRESSURE_RATE 70
+#define PRESSURE_RATE 20   //测试3PCS,都是20
 #define PRESSURE_SAFETY_THRESHOLD 180
 #define PRESSURE_EMPTY_AIR 5
 //y=ax+b
@@ -209,6 +209,7 @@ BOOL b_stop_current_works=FALSE;
 BOOL b_LED_ON_in_turn=FALSE;
 
 SELF_TEST_STATE self_tet_state=SELF_TEST_NONE;
+//SELF_TEST_STATE self_tet_state=SELF_TEST_DELAY_BEFORE_START; //debug
 LED_IN_TURN_STATE led_In_Turn_state=LED_IN_TURN_NONE;
 
 
@@ -300,7 +301,7 @@ void LED_Blink_for_alert(uint8_t seconds)
 	Motor_PWM_Freq_Dudy_Set(5,4000,0);
 	
 	set_led(LED_ID_GREEN,FALSE);   //关掉电源的绿色LED灯
-	
+	set_led(LED_ID_YELLOW,FALSE);
 	//关闭模式指示灯
 	if(mode==1)
 	{	
@@ -323,12 +324,10 @@ void LED_Blink_for_alert(uint8_t seconds)
 	//闪烁
 	for(uint8_t i=0;i<seconds;i++)
 	{
-		set_led(LED_ID_YELLOW,TRUE);
 		set_led(LED_ID_MODE1,TRUE);
 		set_led(LED_ID_MODE2,TRUE);
 		set_led(LED_ID_MODE3,TRUE);
 		Delay_ms(500);
-		set_led(LED_ID_YELLOW,FALSE);
 		set_led(LED_ID_MODE1,FALSE);
 		set_led(LED_ID_MODE2,FALSE);
 		set_led(LED_ID_MODE3,FALSE);
@@ -1135,6 +1134,10 @@ void FillUpPWMbuffer(uint8_t* dest,uint8_t* src,uint8_t PWMX)
 *******************************************************************************/
 void get_switch_mode()
 {
+//	//TEST
+//	static uint16_t test;
+//	test=ADS115_readByte(0x90);
+	
 	static uint8_t switch_mode_cnt=0;
 	static uint8_t release_btn_cnt=0;
 	
@@ -1288,6 +1291,8 @@ void ReleaseGas()
 
 void usb_charge_battery()
 {
+	
+	
 	//明天试一下这个方法
 	if(usb_detect_state==USB_PUSH_IN)  //刚刚插入USB,
 	{
@@ -1407,8 +1412,24 @@ void usb_charge_battery()
 	os_delay_ms(TASK_USB_CHARGE_BAT, 20);
 }
 
+
+uint16_t diff_of_two_values(uint16_t value1,uint16_t value2)
+{
+	if(value1>value2)
+	{
+		return value1-value2;
+	}
+	else
+	{
+		return value2-value1;
+	}
+}
+
+
+
 void self_test()
 {
+	
 	//b_self_test=TRUE; //debug
 //	static uint8_t current_mode;
 //	if(b_self_test)
@@ -1435,7 +1456,12 @@ void self_test()
 		if(selfTest_delay_Cnt==10)
 		{
 			selfTest_delay_Cnt=0;
-			self_tet_state=SELF_TEST_START;
+//			self_tet_state=SELF_TEST_START;
+			self_tet_state=SELF_TEST_DEFLATE_BEFORE_START;
+			
+			led_In_Turn_state=LED_IN_TURN_MODE1;
+			GPIO_SetBits(GPIOB,GPIO_Pin_10);
+			GPIO_SetBits(GPIOB,GPIO_Pin_11);
 		}
 		else
 		{
@@ -1443,13 +1469,33 @@ void self_test()
 		}
 	}
 	
+	//开始之前要放气
+	if(self_tet_state==SELF_TEST_DEFLATE_BEFORE_START)
+	{
+		static uint8_t deflate_cnt;
+		b_LED_ON_in_turn=TRUE;
+
+		if(deflate_cnt*20==4000)  //4s的放气时间
+		{
+			deflate_cnt=0;
+			GPIO_ResetBits(GPIOB,GPIO_Pin_10);
+			GPIO_ResetBits(GPIOB,GPIO_Pin_11);
+			
+			self_tet_state=SELF_TEST_START;
+		}
+		else
+		{
+			deflate_cnt++;
+		}
+	}
+	
 	if(self_tet_state==SELF_TEST_START)
 	{
-		b_LED_ON_in_turn=TRUE;
+		//b_LED_ON_in_turn=TRUE;
 		self_tet_state=SELF_TEST_INFLATE;
-		led_In_Turn_state=LED_IN_TURN_MODE1;
+//		led_In_Turn_state=LED_IN_TURN_MODE1;
 		
-		Motor_PWM_Freq_Dudy_Set(3,100,90);  //打开PWM3，开始抽气到ballon中
+		Motor_PWM_Freq_Dudy_Set(3,100,60);  //打开PWM3，开始抽气到ballon中
 				//流水灯
 		//1.开电机(pwm3)，充气5s
 		//2.关闭电磁阀持续5s，取样比较
@@ -1515,6 +1561,7 @@ void self_test()
 		{
 			Motor_PWM_Freq_Dudy_Set(3,100,0);  //充气完毕，进入hold阶段，检测是否漏气
 			self_tet_state=SELF_TEST_HOLD;
+			inflate_cnt=0;
 		}
 		else
 		{
@@ -1531,7 +1578,8 @@ void self_test()
 				//记录数据2
 				selfTest_inflate_record_2=ADS115_readByte(0x90);
 				//数据2-数据1
-				if(selfTest_inflate_record_2-selfTest_inflate_record_1<150)  //如果差值小于150，认为有问题
+				if(diff_of_two_values(selfTest_inflate_record_2,selfTest_inflate_record_1)<150)
+				//if(selfTest_inflate_record_2-selfTest_inflate_record_1<150)  //如果差值小于150，认为有问题
 				{
 					Motor_PWM_Freq_Dudy_Set(3,100,0);
 					self_tet_state=SELF_TEST_FAIL;
@@ -1547,6 +1595,7 @@ void self_test()
 		
 		if(hold_cnt*20==5000) //hold住5s
 		{
+			hold_cnt=0;
 			//开启PB10,PB11,放气,进入放气阶段
 			GPIO_SetBits(GPIOB,GPIO_Pin_10);
 			GPIO_SetBits(GPIOB,GPIO_Pin_11);
@@ -1567,7 +1616,8 @@ void self_test()
 				//记录数据2
 				selfTest_hold_record_2=ADS115_readByte(0x90);
 				//数据2-数据1
-				if(selfTest_hold_record_2-selfTest_hold_record_1>60)  //hold阶段，如果差值大于60，认为漏气
+				if(diff_of_two_values(selfTest_hold_record_1,selfTest_hold_record_2)<100)
+				//if(selfTest_hold_record_1-selfTest_hold_record_2>100)  //hold阶段，如果差值大于60，认为漏气
 				{
 					self_tet_state=SELF_TEST_FAIL;
 				}		
@@ -1586,28 +1636,35 @@ void self_test()
 			GPIO_ResetBits(GPIOB,GPIO_Pin_10);
 			GPIO_ResetBits(GPIOB,GPIO_Pin_11);
 			
-			self_tet_state=SELF_TEST_END;
+			
+			deflate_cnt=0;
 		}
 		else
 		{
 			deflate_cnt++;
-		}
-		//检查电磁阀放气，时间尽量长
-		if(deflate_cnt==1)
-		{
-			//记录数据1
-			selfTest_deflate_record_1=ADS115_readByte(0x90);
-		}
-		if(deflate_cnt==200)
-		{
-			//记录数据2
-			selfTest_deflate_record_2=ADS115_readByte(0x90);
-			//数据2-数据1
-			if(selfTest_deflate_record_2-selfTest_deflate_record_1<100)  //如果差值小于100,说明都没放气，电磁阀坏了
+			//检查电磁阀放气，时间尽量长
+			if(deflate_cnt==1)
 			{
-				self_tet_state=SELF_TEST_FAIL;
+				//记录数据1
+				selfTest_deflate_record_1=ADS115_readByte(0x90);
+			}
+			if(deflate_cnt==200)
+			{
+				//记录数据2
+				selfTest_deflate_record_2=ADS115_readByte(0x90);
+				//数据2-数据1
+				if(diff_of_two_values(selfTest_deflate_record_1,selfTest_deflate_record_2)<100)
+				//if(selfTest_deflate_record_1-selfTest_deflate_record_2<100)  //如果差值小于100,说明都没放气，电磁阀坏了
+				{
+					self_tet_state=SELF_TEST_FAIL;
+				}
+				else
+				{
+					self_tet_state=SELF_TEST_END;
+				}
 			}
 		}
+		
 	}
 	
 	if(self_tet_state==SELF_TEST_FAIL)
@@ -1623,6 +1680,7 @@ void self_test()
 		static uint8_t selfTest_fail_period_L;
 		
 		set_led(LED_ID_GREEN,FALSE);
+		set_led(LED_ID_YELLOW,FALSE);
 		
 		if(selfTest_fail_Cnt==5)  //闪十次
 		{
@@ -1649,7 +1707,7 @@ void self_test()
 					set_led(LED_ID_MODE1,TRUE);
 					set_led(LED_ID_MODE2,TRUE);
 					set_led(LED_ID_MODE3,TRUE);
-					set_led(LED_ID_YELLOW,TRUE);
+					//set_led(LED_ID_YELLOW,TRUE);
 					Motor_PWM_Freq_Dudy_Set(5,4000,80);
 				}
 			}
@@ -1659,7 +1717,7 @@ void self_test()
 				set_led(LED_ID_MODE1,FALSE);
 				set_led(LED_ID_MODE2,FALSE);
 				set_led(LED_ID_MODE3,FALSE);
-				set_led(LED_ID_YELLOW,FALSE);
+				//set_led(LED_ID_YELLOW,FALSE);
 				Motor_PWM_Freq_Dudy_Set(5,4000,0);
 			}
 		}
@@ -1724,8 +1782,8 @@ void led_blink_beep()
 //	//没侦测到手
 	static uint16_t nohand_ledCnt=5;
 	static uint16_t nohand_beepCnt=5;
-	static uint16_t nohand_led_tm=200;  //定时200ms
-	static uint16_t nohand_beep_tm=200;
+	static uint16_t nohand_led_tm=500;  //定时200ms
+	static uint16_t nohand_beep_tm=500;
 	
 //	//治疗结束
 	static uint16_t endTreatment_ledCnt=5;
@@ -1753,10 +1811,20 @@ void led_blink_beep()
 				if(delay_cnt==4)  //延迟4*50=200ms
 				{
 					delay_cnt=0;
-				
-					set_led(LED_ID_MODE1,TRUE); 
-					set_led(LED_ID_MODE2,TRUE);
-					set_led(LED_ID_MODE3,TRUE);
+					
+					if(led_beep_ID==2)
+					{
+						set_led(LED_ID_GREEN,TRUE);
+					}
+					else
+					{
+						set_led(LED_ID_MODE1,TRUE); 
+						set_led(LED_ID_MODE2,TRUE);
+						set_led(LED_ID_MODE3,TRUE);
+					}
+//					set_led(LED_ID_MODE1,TRUE); 
+//					set_led(LED_ID_MODE2,TRUE);
+//					set_led(LED_ID_MODE3,TRUE);
 					led_state=LED_ON;
 					
 					Motor_PWM_Freq_Dudy_Set(5,4000,50);
@@ -1814,10 +1882,17 @@ void led_blink_beep()
 			if(Is_timing_Xmillisec((uint32_t)(*p_led_tm),10))  //ON
 			//if(Is_timing_Xmillisec(tm,10))
 			{
-				set_led(LED_ID_MODE1,FALSE); 
-				set_led(LED_ID_MODE2,FALSE);
-				set_led(LED_ID_MODE3,FALSE);
-				
+				if(led_beep_ID==2)
+				{
+					set_led(LED_ID_GREEN,FALSE);
+				}
+				else
+				{
+					set_led(LED_ID_MODE1,FALSE); 
+					set_led(LED_ID_MODE2,FALSE);
+					set_led(LED_ID_MODE3,FALSE);
+				}
+		
 				led_state=LED_OFF;
 				led_bink_cnt++;
 			}
@@ -1836,9 +1911,20 @@ void led_blink_beep()
 				if(Is_timing_Xmillisec((uint32_t)(*p_led_tm),10))  //500ms,OFF
 				//if(Is_timing_Xmillisec((tm),10)) 
 				{
-					set_led(LED_ID_MODE1,TRUE); 
-					set_led(LED_ID_MODE2,TRUE);
-					set_led(LED_ID_MODE3,TRUE);
+//					set_led(LED_ID_MODE1,TRUE); 
+//					set_led(LED_ID_MODE2,TRUE);
+//					set_led(LED_ID_MODE3,TRUE);
+					if(led_beep_ID==2)
+					{
+						set_led(LED_ID_GREEN,TRUE);
+					}
+					else
+					{
+						set_led(LED_ID_MODE1,TRUE); 
+						set_led(LED_ID_MODE2,TRUE);
+						set_led(LED_ID_MODE3,TRUE);
+					}
+					
 					led_state=LED_ON;
 				}
 			}
@@ -1949,7 +2035,8 @@ void Detect_battery_and_tmp()
 		//开机按下之后，进行一次检测
 		if(b_Is_PCB_PowerOn==FALSE) //这个任务先执行，b_Is_PCB_PowerOn还是FALSE
 		{
-			if((result_0>=2389&&result_0<=2867))
+			//if((result_0>=2389&&result_0<=2867))
+			if((result_0>=2389))
 			{
 				b_bat_detected_ok=TRUE;
 			}
@@ -1976,7 +2063,8 @@ void Detect_battery_and_tmp()
 				uint16_t sample_avg;
 				sample_avg=sample_sum/=20; 
 				sample_cnt=0;
-				if((sample_avg>=2252&&sample_avg<=2867))
+//				if((sample_avg>=2252&&sample_avg<=2867))
+				if((sample_avg>=2252))
 				{
 					b_bat_detected_ok=TRUE;
 				}
@@ -2141,6 +2229,7 @@ void check_selectedMode_ouputPWM()
 	
 //	if(mcu_state==POWER_ON)
 	//if(b_palm_checked&&mcu_state==POWER_ON&&b_Palm_check_complited==TRUE&&!b_usb_intterruptHappened)  //USB插上之后不允许出波形
+	
 	if(b_Palm_check_complited==TRUE&&!b_stop_current_works&&!b_self_test)
 	{
 		if(!b_release_gas)
@@ -2157,6 +2246,10 @@ void check_selectedMode_ouputPWM()
 				memcpy(buffer,tmp,PARAMETER_BUF_LEN);
 				CheckFlashData(buffer);
 				state=WAIT_BEFORE_START;
+
+				//先打开电磁阀，wait_before_start的时间用来放气，放气完成后校验sensor
+				GPIO_SetBits(GPIOB,GPIO_Pin_10);  	 //打开电磁阀1
+				GPIO_SetBits(GPIOB,GPIO_Pin_11);			//打开电磁阀2
 			}
 			
 			if(state==WAIT_BEFORE_START)  //开始预备输出PWM波形
@@ -2167,6 +2260,10 @@ void check_selectedMode_ouputPWM()
 					--cycle_cnt; // 因为state=GET_MODE，后面的代码会全部执行一次，相当于已经执行过一次cycle了，所以这里要减1
 					//state=LOAD_PARA;
 					state=GET_MODE;
+					
+					GPIO_ResetBits(GPIOB,GPIO_Pin_10); 
+					GPIO_ResetBits(GPIOB,GPIO_Pin_11); 
+					Calibrate_pressure_sensor(&zero_point_of_pressure_sensor);
 				} 
 			}
 
@@ -2234,6 +2331,7 @@ void check_selectedMode_ouputPWM()
 					{
 						//state=PREV_OUTPUT_PWM;
 						state=OUTPUT_PWM;
+						//Calibrate_pressure_sensor(&zero_point_of_pressure_sensor);
 					}
 					else
 					{
@@ -2245,7 +2343,7 @@ void check_selectedMode_ouputPWM()
 						state=CHECK_PRESSURE;
 					}
 				}
-				
+			#if 0	
 //				//5.检测压力Ok,则预备输出波形，先定时waitBeforeStart这么长时间
 //				if(state==PREV_OUTPUT_PWM)  //开始预备输出PWM波形
 //				{
@@ -2273,6 +2371,7 @@ void check_selectedMode_ouputPWM()
 //						}
 //					}  
 //				}
+				#endif
 				
 				//6.开始输出波形
 				if(state==OUTPUT_PWM) //按照设定的参数，输出PWM1,PWM2,PWM3

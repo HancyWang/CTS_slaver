@@ -85,7 +85,6 @@ void init_task(void)
 	os_create_task(led_blink_beep,OS_TRUE,TASK_LED_BINK_BEEP);
 	os_create_task(usb_charge_battery,OS_TRUE,TASK_USB_CHARGE_BAT);
 	os_create_task(self_test,OS_TRUE,TASK_SELF_TEST);
-//	os_create_task(process_interrupt,OS_TRUE,TASK_PROCESS_INTERRUPT);  //这个任务不需要
 	os_pend_task(INIT_TASK_ID);
 }
 

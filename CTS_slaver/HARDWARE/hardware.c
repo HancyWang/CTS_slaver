@@ -41,7 +41,7 @@
 unsigned short inner_adc_result[SAMPLING_CNT];
  uint16_t RegularConvData_Tab[2]; //电压值(2.2V为临界值),按键模式
 
-int16_t zero_point_of_pressure_sensor;
+uint16_t zero_point_of_pressure_sensor;
 extern uint8_t parameter_buf[PARAMETER_BUF_LEN];
 
 
@@ -336,13 +336,19 @@ void Init_USB_OE()
 
 
 //校验pressure sensor
-void Calibrate_pressure_sensor(int16_t* p_zeroPoint)
+void Calibrate_pressure_sensor(uint16_t* p_zeroPoint)
 {
 	//如果是负压怎么办？应该定义成int16?值会不会变成负数？
 	uint16_t arr[10]={0};
 	uint16_t sum=0;
+	delay_ms(50);
+//	GPIO_SetBits(GPIOB,GPIO_Pin_10);
+//	GPIO_SetBits(GPIOB,GPIO_Pin_11);
+//	
+//	delay_ms(2000); 
+//	GPIO_SetBits(GPIOB,GPIO_Pin_11);
+//	GPIO_SetBits(GPIOB,GPIO_Pin_12);
 	
-	delay_ms(50); //让ADC稳定
 	for(uint8_t i=0;i<10;i++)
 	{
 		arr[i]=ADS115_readByte(0x90);
@@ -427,7 +433,7 @@ void init_hardware()
 //	//初始化ADS115,I2C
 	Init_ADS115();       //PA9,PA10
 
-	Calibrate_pressure_sensor(&zero_point_of_pressure_sensor);
+	//Calibrate_pressure_sensor(&zero_point_of_pressure_sensor);
 //	ADS115_enter_power_down_mode();
 //	//配置中断
 //	CfgWFI();

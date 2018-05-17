@@ -156,40 +156,7 @@
           <Name>-T0</Name>
         </SetRegEntry>
       </TargetDriverDllRegistry>
-      <Breakpoint>
-        <Bp>
-          <Number>0</Number>
-          <Type>0</Type>
-          <LineNumber>469</LineNumber>
-          <EnabledFlag>1</EnabledFlag>
-          <Address>134223024</Address>
-          <ByteObject>0</ByteObject>
-          <HtxType>0</HtxType>
-          <ManyObjects>0</ManyObjects>
-          <SizeOfObject>0</SizeOfObject>
-          <BreakByAccess>0</BreakByAccess>
-          <BreakIfRCount>1</BreakIfRCount>
-          <Filename>C:\Users\Administrator\Desktop\绉绘STM32F030F4P6鍒癝TM32F070C8T6\CTS_slaver\APP\key_power_on_task.c</Filename>
-          <ExecCommand></ExecCommand>
-          <Expression>\\STM32F030Demo\../APP/key_power_on_task.c\469</Expression>
-        </Bp>
-        <Bp>
-          <Number>1</Number>
-          <Type>0</Type>
-          <LineNumber>1173</LineNumber>
-          <EnabledFlag>1</EnabledFlag>
-          <Address>134221212</Address>
-          <ByteObject>0</ByteObject>
-          <HtxType>0</HtxType>
-          <ManyObjects>0</ManyObjects>
-          <SizeOfObject>0</SizeOfObject>
-          <BreakByAccess>0</BreakByAccess>
-          <BreakIfRCount>1</BreakIfRCount>
-          <Filename>C:\Users\Administrator\Desktop\绉绘STM32F030F4P6鍒癝TM32F070C8T6\CTS_slaver\APP\comm_task.c</Filename>
-          <ExecCommand></ExecCommand>
-          <Expression>\\STM32F030Demo\../APP/comm_task.c\1173</Expression>
-        </Bp>
-      </Breakpoint>
+      <Breakpoint/>
       <WatchWindow1>
         <Ww>
           <count>0</count>
@@ -215,6 +182,11 @@
           <count>4</count>
           <WinNumber>1</WinNumber>
           <ItemText>TIM_BDTRInitStruct</ItemText>
+        </Ww>
+        <Ww>
+          <count>5</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>RegularConvData_Tab,0x0A</ItemText>
         </Ww>
       </WatchWindow1>
       <WatchWindow2>

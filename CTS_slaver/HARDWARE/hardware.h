@@ -130,4 +130,6 @@ void Init_ADC1(void);
 
 //I2C
 void Init_ADS115(void);
+
+void Calibrate_pressure_sensor(uint16_t* p_zeroPoint);
 #endif

@@ -511,7 +511,125 @@ void init_system_afterWakeUp()
 //	{
 //		return;
 //	}
-	Init_gloab_viriable();
+	//Init_gloab_viriable();
+	#if 0
+	init_PWMState();
+	state=LOAD_PARA;
+	waitBeforeStart_timing_flag=FALSE;
+//	state=WAIT_BEFORE_START;
+	b_Is_PCB_PowerOn=FALSE;
+	mcu_state=POWER_OFF;
+	//key_state=KEY_UPING;
+
+	//usb_charging_state=USB_CHARGE_NONE;
+
+	//usb_detect_state=USB_NOT_DETECT;
+
+	b_release_gas=FALSE;
+	b_palm_checked=FALSE;
+	b_bat_detected_ok=FALSE;
+
+	b_no_hand_in_place=FALSE;
+	b_end_of_treatment=FALSE;
+
+	detectPalm_cnt=0;
+	noPalm_cnt=0;
+
+
+	led_bink_timing_flag=TRUE;
+	beep_timing_flag=TRUE;
+	usb_charge_timing_flag=TRUE;
+	key_Press_or_Release_timing_flag=TRUE;
+	//static BOOL switch_bnt_timing_flag=TRUE;
+	b_releaseGas_timing_flag=TRUE;
+
+	led_bink_cnt=0;
+	beep_cnt=0;
+	delay_cnt=0;
+
+	b_Motor_Ready2Shake=TRUE;
+	b_Motor_shake=FALSE;
+
+	prev_releaseGas_os_tick=0;
+	prev_ledBlink_os_tick=0;
+	prev_keyPressOrRelease_os_tick=0;
+	prev_usbCharge_os_tick=0;
+	prev_beep_os_tick=0;
+	prev_WaitBeforeStart_os_tick=0;
+	prev_PWM1_os_tick=0;
+	prev_PWM2_os_tick=0;
+	prev_PWM3_os_tick=0;
+	prev_PWM4_os_tick=0;
+	prev_PWM5_os_tick=0;
+	//p_prev_os_tick=NULL;
+
+	key_self_test_timing_flag=TRUE;
+	prev_selfTest_os_tick=0;
+	
+	checkPressAgain_cnt=0;
+	wait_cnt=0;
+
+
+	b_Palm_check_complited=FALSE;
+	
+	b_self_test=FALSE;
+
+	b_usb_push_in=FALSE;
+	b_usb_pull_up=FALSE;
+	b_stop_current_works=FALSE;
+
+	led_beep_ID=0;
+	led_state=LED_INIT;
+	beep_state=BEEP_INIT;
+	
+	self_tet_state=SELF_TEST_NONE;
+  led_In_Turn_state=LED_IN_TURN_NONE;
+	
+	b_LED_ON_in_turn=FALSE;
+	b_check_bnt_release=FALSE;
+	
+	
+	selfTest_delay_Cnt=0;
+  nLED_ON_in_turn=0;
+  inflate_cnt=0;
+  hold_cnt=0;
+  deflate_cnt=0;
+	
+	sample_cnt=0;
+	sample_sum=0;
+	#endif
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	os_ticks = 0;
 	//os_ticks = 4294967290;
 	

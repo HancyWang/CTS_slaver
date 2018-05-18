@@ -104,7 +104,7 @@ int main(void)
 	//Motor_PWM_Init();
 	
 	//Init_sysTick(48);  //48M
-//////	//进入stop模式
+////	//进入stop模式
 	EnterStopMode();
 	//唤醒之后先初始化系统
 	//set_led(LED_ID_MODE1,TRUE);

@@ -3,7 +3,7 @@
 <title>Static Call Graph - [..\OBJ\STM32F030Demo.axf]</title></head>
 <body><HR>
 <H1>Static Call Graph for image ..\OBJ\STM32F030Demo.axf</H1><HR>
-<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060422: Last Updated: Fri May 18 10:55:25 2018
+<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060422: Last Updated: Fri May 18 12:29:53 2018
 <BR><P>
 <H3>Maximum Stack Usage =        924 bytes + Unknown(Functions without stacksize, Cycles, Untraceable Function Pointers)</H3><H3>
 Call chain for Maximum Stack Depth:</H3>
@@ -573,8 +573,7 @@ Global Symbols
 </UL>
 <BR>[Calls]<UL><LI><a href="#[6f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;init_PWMState
 </UL>
-<BR>[Called By]<UL><LI><a href="#[4b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;init_system_afterWakeUp
-<LI><a href="#[4a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;EnterStopMode
+<BR>[Called By]<UL><LI><a href="#[4a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;EnterStopMode
 </UL>
 
 <P><STRONG><a name="[8a]"></a>release_gas_before_sleep</STRONG> (Thumb, 154 bytes, Stack size 24 bytes, key_power_on_task.o(.text))
@@ -589,11 +588,10 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[2b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;key_power_on_task
 </UL>
 
-<P><STRONG><a name="[4b]"></a>init_system_afterWakeUp</STRONG> (Thumb, 30 bytes, Stack size 8 bytes, key_power_on_task.o(.text))
+<P><STRONG><a name="[4b]"></a>init_system_afterWakeUp</STRONG> (Thumb, 26 bytes, Stack size 8 bytes, key_power_on_task.o(.text))
 <BR><BR>[Stack]<UL><LI>Max Depth = 192<LI>Call Chain = init_system_afterWakeUp &rArr; init_task &rArr; UARTInit &rArr; USART_Init &rArr; RCC_GetClocksFreq
 </UL>
-<BR>[Calls]<UL><LI><a href="#[89]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Init_gloab_viriable
-<LI><a href="#[34]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;SystemInit
+<BR>[Calls]<UL><LI><a href="#[34]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;SystemInit
 <LI><a href="#[49]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;os_init
 <LI><a href="#[28]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;init_task
 <LI><a href="#[48]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;delay_init

@@ -3,7 +3,7 @@
 <title>Static Call Graph - [..\OBJ\STM32F030Demo.axf]</title></head>
 <body><HR>
 <H1>Static Call Graph for image ..\OBJ\STM32F030Demo.axf</H1><HR>
-<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060422: Last Updated: Fri May 18 15:34:09 2018
+<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060422: Last Updated: Fri May 18 16:47:08 2018
 <BR><P>
 <H3>Maximum Stack Usage =        924 bytes + Unknown(Functions without stacksize, Cycles, Untraceable Function Pointers)</H3><H3>
 Call chain for Maximum Stack Depth:</H3>
@@ -407,7 +407,7 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[2c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;check_selectedMode_ouputPWM
 </UL>
 
-<P><STRONG><a name="[2d]"></a>get_switch_mode</STRONG> (Thumb, 276 bytes, Stack size 24 bytes, comm_task.o(.text))
+<P><STRONG><a name="[2d]"></a>get_switch_mode</STRONG> (Thumb, 294 bytes, Stack size 24 bytes, comm_task.o(.text))
 <BR><BR>[Stack]<UL><LI>Max Depth = 84<LI>Call Chain = get_switch_mode &rArr; Motor_PWM_Freq_Dudy_Set &rArr; TIM_OC4Init
 </UL>
 <BR>[Calls]<UL><LI><a href="#[5f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;set_led
@@ -430,7 +430,7 @@ Global Symbols
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> app.o(.text)
 </UL>
-<P><STRONG><a name="[32]"></a>usb_charge_battery</STRONG> (Thumb, 440 bytes, Stack size 24 bytes, comm_task.o(.text))
+<P><STRONG><a name="[32]"></a>usb_charge_battery</STRONG> (Thumb, 438 bytes, Stack size 24 bytes, comm_task.o(.text))
 <BR><BR>[Stack]<UL><LI>Max Depth = 216<LI>Call Chain = usb_charge_battery &rArr; init_system_afterWakeUp &rArr; init_task &rArr; UARTInit &rArr; USART_Init &rArr; RCC_GetClocksFreq
 </UL>
 <BR>[Calls]<UL><LI><a href="#[5f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;set_led

@@ -128,6 +128,21 @@ extern uint8_t deflate_cnt;
 
 extern uint8_t sample_cnt;
 extern uint32_t sample_sum;
+
+extern uint8_t deflate_cnt;
+extern uint16_t selfTest_inflate_record_1;
+extern uint16_t selfTest_inflate_record_2;
+
+extern uint16_t selfTest_hold_record_1;
+extern uint16_t selfTest_hold_record_2;
+extern uint16_t selfTest_deflate_record_1;
+extern uint16_t selfTest_deflate_record_2;
+extern uint8_t selfTest_fail_Cnt;
+extern uint8_t selfTest_fail_period_H;
+extern uint8_t selfTest_fail_period_L;
+extern uint8_t selfTest_end_Cnt;
+
+
 //extern BOOL b_start_powerOn_check;
 // BOOL b_KeyWkUP_InterrupHappened=FALSE;
 // BOOL b_usb_intterruptHappened=FALSE;
@@ -468,6 +483,20 @@ void Init_gloab_viriable()
 	
 	sample_cnt=0;
 	sample_sum=0;
+	
+	//自检
+	deflate_cnt=0;
+	selfTest_inflate_record_1=0;
+	selfTest_inflate_record_2=0;
+
+	selfTest_hold_record_1=0;
+	selfTest_hold_record_2=0;
+	selfTest_deflate_record_1=0;
+	selfTest_deflate_record_2=0;
+	selfTest_fail_Cnt=0;
+	selfTest_fail_period_H=0;
+	selfTest_fail_period_L=0;
+	selfTest_end_Cnt=0;
 }
 
 //进入低功耗之前放气4s

@@ -235,6 +235,20 @@ uint32_t sample_sum;
 LED_STATE led_state=LED_INIT;
 BEEP_STATE beep_state=BEEP_INIT;
  uint8_t led_beep_ID=0;
+ 
+ //自检
+  uint8_t deflate_cnt;
+ uint16_t selfTest_inflate_record_1;
+ uint16_t selfTest_inflate_record_2;
+
+ uint16_t selfTest_hold_record_1;
+ uint16_t selfTest_hold_record_2;
+ uint16_t selfTest_deflate_record_1;
+ uint16_t selfTest_deflate_record_2;
+ uint8_t selfTest_fail_Cnt;
+ uint8_t selfTest_fail_period_H;
+ uint8_t selfTest_fail_period_L;
+ uint8_t selfTest_end_Cnt;
 /*******************************************************************************
 *                                内部函数声明
 *******************************************************************************/
@@ -1146,102 +1160,21 @@ void get_switch_mode()
 	//static BOOL b_check_bnt_pressed=FALSE;
 	
 	if(!b_stop_current_works&&mcu_state==POWER_ON&&!b_self_test)  
+	//if(!b_stop_current_works&&mcu_state==POWER_ON) 
 	{
 		if(GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_15)==0)
 		{
-			if(Is_timing_Xmillisec(5000,14))  //长按检测
+			//if(!b_self_test&&!b_Palm_check_complited)
+			//if(!b_Palm_check_complited)
 			{
-				b_self_test=TRUE;
-				self_tet_state=SELF_TEST_DELAY_BEFORE_START;
-				init_PWMState();
-				state=LOAD_PARA;
-
-				Motor_PWM_Freq_Dudy_Set(1,100,0);
-				Motor_PWM_Freq_Dudy_Set(2,100,0);
-				Motor_PWM_Freq_Dudy_Set(3,100,0);
-				Motor_PWM_Freq_Dudy_Set(4,100,0);
-				Motor_PWM_Freq_Dudy_Set(5,100,0);
-			}
-			else
-			{
-				if(switch_mode_cnt==5)
+				if(Is_timing_Xmillisec(5000,14))  //长按检测
 				{
-					//b_check_bnt_pressed=TRUE;
-					b_check_bnt_release=TRUE;
-					switch_mode_cnt=0;
-					
-		//			init_PWMState();
-		//			//state=LOAD_PARA;
-				
-		//			Motor_PWM_Freq_Dudy_Set(1,100,0);
-		//			Motor_PWM_Freq_Dudy_Set(2,100,0);
-		//			Motor_PWM_Freq_Dudy_Set(3,100,0);
-		//			Motor_PWM_Freq_Dudy_Set(4,100,0);
-		//			Motor_PWM_Freq_Dudy_Set(5,100,0);
-				}
-				else
-				{
-					switch_mode_cnt++;
-				}
-			}
-		}
-		else
-		{
-			switch_mode_cnt=0;
-			if(b_check_bnt_release==TRUE)
-			{
-				if(release_btn_cnt==5&&!b_self_test&&!b_LED_ON_in_turn)
-				//if(release_btn_cnt==5&&!b_self_test)
-				//if(release_btn_cnt==5)
-				{
-					//清除Is_timing_Xmillisec(5000,14)中的计数，防止累加而开启自检功能
-					key_self_test_timing_flag=TRUE;
-					prev_selfTest_os_tick=0;
-					
-					
-					release_btn_cnt=0;
-					//b_check_bnt_pressed=FALSE;
-					b_check_bnt_release=FALSE;
-					//切换按键模式
-					if(mode==1)
-					{
-	//					while(1)
-	//					{//验证狗
-	//					}   
-						mode=2;
-						//这里有个问题，为什么不能调用API，一用就影响PWM2?
-						//Motor_PWM_Freq_Dudy_Set(2,100,0);必须写两次，否则就会出现这个问题
-	//					GPIO_SetBits(LED_PORT,LED_ID_MODE1);
-	//					GPIO_ResetBits(LED_PORT,LED_ID_MODE2);		
-						set_led(LED_ID_MODE1,FALSE); //关掉LED1，打开LED2
-						set_led(LED_ID_MODE2,TRUE);
-					}
-					else if(mode==2)
-					{
-						mode=3;
-	//					GPIO_SetBits(LED_PORT,LED_ID_MODE2);
-	//					GPIO_ResetBits(LED_PORT,LED_ID_MODE3);
-						set_led(LED_ID_MODE2,FALSE);   //关掉LED2，打开LED3
-						set_led(LED_ID_MODE3,TRUE);
-					}
-					else if(mode==3)
-					{
-						mode=1;
-	//					GPIO_SetBits(LED_PORT,LED_ID_MODE3);
-	//					GPIO_ResetBits(LED_PORT,LED_ID_MODE1);
-						set_led(LED_ID_MODE3,FALSE);  //关掉LED3，打开LED1
-						set_led(LED_ID_MODE1,TRUE);
-					}
-					else
-					{
-						//do nothing
-					}
-					//b_switch_mode_changed=TRUE;
+					b_self_test=TRUE;
+					self_tet_state=SELF_TEST_DELAY_BEFORE_START;
 					init_PWMState();
 					state=LOAD_PARA;
 
 					Motor_PWM_Freq_Dudy_Set(1,100,0);
-					Motor_PWM_Freq_Dudy_Set(2,100,0);  //必须写两次，否则就出问题
 					Motor_PWM_Freq_Dudy_Set(2,100,0);
 					Motor_PWM_Freq_Dudy_Set(3,100,0);
 					Motor_PWM_Freq_Dudy_Set(4,100,0);
@@ -1249,9 +1182,100 @@ void get_switch_mode()
 				}
 				else
 				{
-					release_btn_cnt++;
+					if(switch_mode_cnt==5)
+					{
+						//b_check_bnt_pressed=TRUE;
+						b_check_bnt_release=TRUE;
+						switch_mode_cnt=0;
+						
+			//			init_PWMState();
+			//			//state=LOAD_PARA;
+					
+			//			Motor_PWM_Freq_Dudy_Set(1,100,0);
+			//			Motor_PWM_Freq_Dudy_Set(2,100,0);
+			//			Motor_PWM_Freq_Dudy_Set(3,100,0);
+			//			Motor_PWM_Freq_Dudy_Set(4,100,0);
+			//			Motor_PWM_Freq_Dudy_Set(5,100,0);
+					}
+					else
+					{
+						switch_mode_cnt++;
+					}
 				}
 			}
+			
+		}
+		else
+		{
+			//if(b_Palm_check_complited)
+			{
+				switch_mode_cnt=0;
+				if(b_check_bnt_release==TRUE)
+				{
+					if(release_btn_cnt==5&&!b_self_test&&!b_LED_ON_in_turn)
+					//if(release_btn_cnt==5&&!b_self_test)
+					//if(release_btn_cnt==5)
+					{
+						//清除Is_timing_Xmillisec(5000,14)中的计数，防止累加而开启自检功能
+						key_self_test_timing_flag=TRUE;
+						prev_selfTest_os_tick=0;
+						
+						
+						release_btn_cnt=0;
+						//b_check_bnt_pressed=FALSE;
+						b_check_bnt_release=FALSE;
+						//切换按键模式
+						if(mode==1)
+						{
+		//					while(1)
+		//					{//验证狗
+		//					}   
+							mode=2;
+							//这里有个问题，为什么不能调用API，一用就影响PWM2?
+							//Motor_PWM_Freq_Dudy_Set(2,100,0);必须写两次，否则就会出现这个问题
+		//					GPIO_SetBits(LED_PORT,LED_ID_MODE1);
+		//					GPIO_ResetBits(LED_PORT,LED_ID_MODE2);		
+							set_led(LED_ID_MODE1,FALSE); //关掉LED1，打开LED2
+							set_led(LED_ID_MODE2,TRUE);
+						}
+						else if(mode==2)
+						{
+							mode=3;
+		//					GPIO_SetBits(LED_PORT,LED_ID_MODE2);
+		//					GPIO_ResetBits(LED_PORT,LED_ID_MODE3);
+							set_led(LED_ID_MODE2,FALSE);   //关掉LED2，打开LED3
+							set_led(LED_ID_MODE3,TRUE);
+						}
+						else if(mode==3)
+						{
+							mode=1;
+		//					GPIO_SetBits(LED_PORT,LED_ID_MODE3);
+		//					GPIO_ResetBits(LED_PORT,LED_ID_MODE1);
+							set_led(LED_ID_MODE3,FALSE);  //关掉LED3，打开LED1
+							set_led(LED_ID_MODE1,TRUE);
+						}
+						else
+						{
+							//do nothing
+						}
+						//b_switch_mode_changed=TRUE;
+						init_PWMState();
+						state=LOAD_PARA;
+
+						Motor_PWM_Freq_Dudy_Set(1,100,0);
+						Motor_PWM_Freq_Dudy_Set(2,100,0);  //必须写两次，否则就出问题
+						Motor_PWM_Freq_Dudy_Set(2,100,0);
+						Motor_PWM_Freq_Dudy_Set(3,100,0);
+						Motor_PWM_Freq_Dudy_Set(4,100,0);
+						Motor_PWM_Freq_Dudy_Set(5,100,0);
+					}
+					else
+					{
+						release_btn_cnt++;
+					}
+				}
+			}
+			
 		}
 	}
 	os_delay_ms(TASK_GET_SWITCH_MODE, 20);
@@ -1429,52 +1453,58 @@ uint16_t diff_of_two_values(uint16_t value1,uint16_t value2)
 
 
 
+//自检
 void self_test()
 {
-	
-	//b_self_test=TRUE; //debug
-//	static uint8_t current_mode;
-//	if(b_self_test)
-//	{
-//		self_tet_state=SELF_TEST_DELAY_BEFORE_START;
-//	}
-	
 	//关闭波形，灯，并做短暂的延时
 	if(self_tet_state==SELF_TEST_DELAY_BEFORE_START)
 	{
-		//关闭模式灯
-		set_led(LED_ID_MODE1,FALSE);
-		set_led(LED_ID_MODE2,FALSE);
-		set_led(LED_ID_MODE3,FALSE);
-		Motor_PWM_Freq_Dudy_Set(1,100,0);
-		Motor_PWM_Freq_Dudy_Set(2,100,0);
-		Motor_PWM_Freq_Dudy_Set(3,100,0);
-		Motor_PWM_Freq_Dudy_Set(4,100,0);
-		Motor_PWM_Freq_Dudy_Set(5,4000,0);
-		
-//		state=LOAD_PARA;
-//		init_PWMState();
-		
-		if(selfTest_delay_Cnt==10)
+////		//如果正在运行(检测到手，就代表开始运行了)，不允许进入自检
+//		if(b_Palm_check_complited)
+//		{
+//			b_self_test=FALSE;
+//			self_tet_state=SELF_TEST_NONE;
+//		}
+//		else
 		{
-			selfTest_delay_Cnt=0;
-//			self_tet_state=SELF_TEST_START;
-			self_tet_state=SELF_TEST_DEFLATE_BEFORE_START;
-			
-			led_In_Turn_state=LED_IN_TURN_MODE1;
-			GPIO_SetBits(GPIOB,GPIO_Pin_10);
-			GPIO_SetBits(GPIOB,GPIO_Pin_11);
+			if(!b_no_hand_in_place&&!b_end_of_treatment) //不允许 1.在60s没侦测到手闪灯 和 2.治疗结束闪灯,进入自检
+			{
+				//关闭模式灯
+				set_led(LED_ID_MODE1,FALSE);
+				set_led(LED_ID_MODE2,FALSE);
+				set_led(LED_ID_MODE3,FALSE);
+				Motor_PWM_Freq_Dudy_Set(1,100,0);
+				Motor_PWM_Freq_Dudy_Set(2,100,0);
+				Motor_PWM_Freq_Dudy_Set(3,100,0);
+				Motor_PWM_Freq_Dudy_Set(4,100,0);
+				Motor_PWM_Freq_Dudy_Set(5,4000,0);
+				
+		//		state=LOAD_PARA;
+		//		init_PWMState();
+				
+				if(selfTest_delay_Cnt==10)
+				{
+					selfTest_delay_Cnt=0;
+		//			self_tet_state=SELF_TEST_START;
+					self_tet_state=SELF_TEST_DEFLATE_BEFORE_START;
+					
+					led_In_Turn_state=LED_IN_TURN_MODE1;
+					GPIO_SetBits(GPIOB,GPIO_Pin_10);
+					GPIO_SetBits(GPIOB,GPIO_Pin_11);
+				}
+				else
+				{
+					selfTest_delay_Cnt++;
+				}
+			}
 		}
-		else
-		{
-			selfTest_delay_Cnt++;
-		}
+
 	}
 	
 	//开始之前要放气
 	if(self_tet_state==SELF_TEST_DEFLATE_BEFORE_START)
 	{
-		static uint8_t deflate_cnt;
+		
 		b_LED_ON_in_turn=TRUE;
 
 		if(deflate_cnt*20==4000)  //4s的放气时间
@@ -1556,9 +1586,6 @@ void self_test()
 	//充气
 	if(self_tet_state==SELF_TEST_INFLATE)
 	{
-		static uint16_t selfTest_inflate_record_1;
-		static uint16_t selfTest_inflate_record_2;
-		
 		if(inflate_cnt*20==5000) //充气5s
 		{
 			Motor_PWM_Freq_Dudy_Set(3,100,0);  //充气完毕，进入hold阶段，检测是否漏气
@@ -1592,9 +1619,6 @@ void self_test()
 	
 	if(self_tet_state==SELF_TEST_HOLD)
 	{
-		static uint16_t selfTest_hold_record_1;
-		static uint16_t selfTest_hold_record_2;
-		
 		if(hold_cnt*20==120000) //hold住5s
 		{
 			hold_cnt=0;
@@ -1629,9 +1653,6 @@ void self_test()
 	
 	if(self_tet_state==SELF_TEST_DEFLATE)
 	{
-		static uint16_t selfTest_deflate_record_1;
-		static uint16_t selfTest_deflate_record_2;
-		
 		if(deflate_cnt*20==5000) //放气5s
 		{
 			//关闭电磁阀PB10,PB11,进入end阶段
@@ -1677,9 +1698,7 @@ void self_test()
 		
 		b_LED_ON_in_turn=FALSE;
 		
-		static uint8_t selfTest_fail_Cnt;
-		static uint8_t selfTest_fail_period_H;
-		static uint8_t selfTest_fail_period_L;
+		
 		
 		set_led(LED_ID_GREEN,FALSE);
 		set_led(LED_ID_YELLOW,FALSE);
@@ -1731,7 +1750,7 @@ void self_test()
 		b_LED_ON_in_turn=FALSE;  //关闭流水灯
 		
 		//灯常亮5s，表示自检ok,然后进入低功耗
-		static uint8_t selfTest_end_Cnt;
+		
 		if(selfTest_end_Cnt*20==5000)  //常亮5s，表示自检ok
 		{
 			b_self_test=FALSE;
@@ -1750,30 +1769,6 @@ void self_test()
 			set_led(LED_ID_MODE2,TRUE);
 			set_led(LED_ID_MODE3,TRUE);
 		}
-		
-		
-	#if 0	
-//		if(mode==1)
-//		{
-//			mode=2;		
-//			set_led(LED_ID_MODE1,FALSE); //关掉LED1，打开LED2
-//			set_led(LED_ID_MODE2,TRUE);
-//		}
-//		else if(mode==2)
-//		{
-//			set_led(LED_ID_MODE2,FALSE);   //关掉LED2，打开LED3
-//			set_led(LED_ID_MODE3,TRUE);
-//		}
-//		else if(mode==3)
-//		{
-//			set_led(LED_ID_MODE3,FALSE);  //关掉LED3，打开LED1
-//			set_led(LED_ID_MODE1,TRUE);
-//		}
-//		else
-//		{
-//			//do nothing
-//		}
-#endif
 	}
 	
 	os_delay_ms(TASK_SELF_TEST, 20);
@@ -2187,19 +2182,23 @@ void DetectPalm()
 					if(noPalm_cnt*KEY_LED_PERIOD==60*1000)  //60s没有侦测到手
 					{
 						noPalm_cnt=0;
-						b_palm_checked=FALSE;
-						//橙色LED闪3s，关机
-						//Red_LED_Blink(3);
-		//				No_Hand_IN_PLACE();
-						b_no_hand_in_place=TRUE;
-						led_beep_ID=1;
-						
-		//				key_state=KEY_UPING;
-						mcu_state=POWER_OFF;
-		//				//进入stop模式
-		//				EnterStopMode();
-		//				//唤醒之后重新初始化
-		//				init_system_afterWakeUp();
+						if(!b_self_test)
+						{
+							b_palm_checked=FALSE;
+							//橙色LED闪3s，关机
+							//Red_LED_Blink(3);
+			//				No_Hand_IN_PLACE();
+							b_no_hand_in_place=TRUE;
+							led_beep_ID=1;
+							
+			//				key_state=KEY_UPING;
+							mcu_state=POWER_OFF;
+			//				//进入stop模式
+			//				EnterStopMode();
+			//				//唤醒之后重新初始化
+			//				init_system_afterWakeUp();
+						}
+
 					}
 					else
 					{
@@ -2231,6 +2230,7 @@ void check_selectedMode_ouputPWM()
 	
 //	if(mcu_state==POWER_ON)
 	//if(b_palm_checked&&mcu_state==POWER_ON&&b_Palm_check_complited==TRUE&&!b_usb_intterruptHappened)  //USB插上之后不允许出波形
+	
 	
 	if(b_Palm_check_complited==TRUE&&!b_stop_current_works&&!b_self_test)
 	{

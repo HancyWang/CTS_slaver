@@ -379,6 +379,122 @@ void EXTI4_15_IRQHandler(void)
 	EXTI_ClearFlag(EXTI_Line8);
 } 
 
+//初始化所有全局变量
+void Init_gloab_viriable()
+{
+	init_PWMState();
+	state=LOAD_PARA;
+	waitBeforeStart_timing_flag=FALSE;
+//	state=WAIT_BEFORE_START;
+	b_Is_PCB_PowerOn=FALSE;
+	mcu_state=POWER_OFF;
+	key_state=KEY_UPING;
+
+	usb_charging_state=USB_CHARGE_NONE;
+
+	usb_detect_state=USB_NOT_DETECT;
+//	b_usb_intterruptHappened=FALSE;
+//	b_KeyWkUP_InterrupHappened=FALSE;
+
+	b_release_gas=FALSE;
+	b_palm_checked=FALSE;
+	b_bat_detected_ok=FALSE;
+
+	b_no_hand_in_place=FALSE;
+	b_end_of_treatment=FALSE;
+
+	detectPalm_cnt=0;
+	noPalm_cnt=0;
+
+
+	led_bink_timing_flag=TRUE;
+	beep_timing_flag=TRUE;
+	usb_charge_timing_flag=TRUE;
+	key_Press_or_Release_timing_flag=TRUE;
+	//static BOOL switch_bnt_timing_flag=TRUE;
+	b_releaseGas_timing_flag=TRUE;
+
+	led_bink_cnt=0;
+	beep_cnt=0;
+	delay_cnt=0;
+
+	b_Motor_Ready2Shake=TRUE;
+	b_Motor_shake=FALSE;
+
+	prev_releaseGas_os_tick=0;
+	prev_ledBlink_os_tick=0;
+	prev_keyPressOrRelease_os_tick=0;
+	prev_usbCharge_os_tick=0;
+	prev_beep_os_tick=0;
+	prev_WaitBeforeStart_os_tick=0;
+	prev_PWM1_os_tick=0;
+	prev_PWM2_os_tick=0;
+	prev_PWM3_os_tick=0;
+	prev_PWM4_os_tick=0;
+	prev_PWM5_os_tick=0;
+	//p_prev_os_tick=NULL;
+
+	key_self_test_timing_flag=TRUE;
+	prev_selfTest_os_tick=0;
+	
+	checkPressAgain_cnt=0;
+	wait_cnt=0;
+
+
+	b_Palm_check_complited=FALSE;
+	
+	b_self_test=FALSE;
+
+	b_usb_push_in=FALSE;
+	b_usb_pull_up=FALSE;
+	b_stop_current_works=FALSE;
+
+	led_beep_ID=0;
+	led_state=LED_INIT;
+	beep_state=BEEP_INIT;
+	
+	self_tet_state=SELF_TEST_NONE;
+  led_In_Turn_state=LED_IN_TURN_NONE;
+	
+	b_LED_ON_in_turn=FALSE;
+	b_check_bnt_release=FALSE;
+	
+	
+	selfTest_delay_Cnt=0;
+  nLED_ON_in_turn=0;
+  inflate_cnt=0;
+  hold_cnt=0;
+  deflate_cnt=0;
+	
+	sample_cnt=0;
+	sample_sum=0;
+}
+
+//进入低功耗之前放气4s
+void release_gas_before_sleep()
+{
+	//放气4s？在进低功耗
+	Motor_PWM_Freq_Dudy_Set(1,100,0);
+	Motor_PWM_Freq_Dudy_Set(2,100,0);
+	Motor_PWM_Freq_Dudy_Set(3,100,0);
+	Motor_PWM_Freq_Dudy_Set(4,100,0);
+	Motor_PWM_Freq_Dudy_Set(5,100,0);
+	
+	set_led(LED_ID_GREEN,FALSE);
+	set_led(LED_ID_YELLOW,FALSE);
+	set_led(LED_ID_MODE1,FALSE);
+	set_led(LED_ID_MODE2,FALSE);
+	set_led(LED_ID_MODE3,FALSE);
+	
+	GPIO_SetBits(GPIOB,GPIO_Pin_10);
+	GPIO_SetBits(GPIOB,GPIO_Pin_11);
+	for(uint8_t i=0;i<4;i++)
+	{
+		delay_ms(1000);
+	}
+	GPIO_ResetBits(GPIOB,GPIO_Pin_10);
+	GPIO_ResetBits(GPIOB,GPIO_Pin_11);
+}
 
 void init_system_afterWakeUp()
 {
@@ -395,7 +511,7 @@ void init_system_afterWakeUp()
 //	{
 //		return;
 //	}
-	
+	Init_gloab_viriable();
 	os_ticks = 0;
 	//os_ticks = 4294967290;
 	
@@ -758,97 +874,6 @@ void CfgALLPins4StopMode()
 	GPIO_Init(GPIOF, &GPIO_InitStructure_PF_0_1);
 }
 
-void Init_gloab_viriable()
-{
-	init_PWMState();
-	state=LOAD_PARA;
-	waitBeforeStart_timing_flag=FALSE;
-//	state=WAIT_BEFORE_START;
-	b_Is_PCB_PowerOn=FALSE;
-	mcu_state=POWER_OFF;
-	key_state=KEY_UPING;
-
-	usb_charging_state=USB_CHARGE_NONE;
-
-	usb_detect_state=USB_NOT_DETECT;
-//	b_usb_intterruptHappened=FALSE;
-//	b_KeyWkUP_InterrupHappened=FALSE;
-
-	b_release_gas=FALSE;
-	b_palm_checked=FALSE;
-	b_bat_detected_ok=FALSE;
-
-	b_no_hand_in_place=FALSE;
-	b_end_of_treatment=FALSE;
-
-	detectPalm_cnt=0;
-	noPalm_cnt=0;
-
-
-	led_bink_timing_flag=TRUE;
-	beep_timing_flag=TRUE;
-	usb_charge_timing_flag=TRUE;
-	key_Press_or_Release_timing_flag=TRUE;
-	//static BOOL switch_bnt_timing_flag=TRUE;
-	b_releaseGas_timing_flag=TRUE;
-
-	led_bink_cnt=0;
-	beep_cnt=0;
-	delay_cnt=0;
-
-	b_Motor_Ready2Shake=TRUE;
-	b_Motor_shake=FALSE;
-
-	prev_releaseGas_os_tick=0;
-	prev_ledBlink_os_tick=0;
-	prev_keyPressOrRelease_os_tick=0;
-	prev_usbCharge_os_tick=0;
-	prev_beep_os_tick=0;
-	prev_WaitBeforeStart_os_tick=0;
-	prev_PWM1_os_tick=0;
-	prev_PWM2_os_tick=0;
-	prev_PWM3_os_tick=0;
-	prev_PWM4_os_tick=0;
-	prev_PWM5_os_tick=0;
-	//p_prev_os_tick=NULL;
-
-	key_self_test_timing_flag=TRUE;
-	prev_selfTest_os_tick=0;
-	
-	checkPressAgain_cnt=0;
-	wait_cnt=0;
-
-
-	b_Palm_check_complited=FALSE;
-	
-	b_self_test=FALSE;
-
-	b_usb_push_in=FALSE;
-	b_usb_pull_up=FALSE;
-	b_stop_current_works=FALSE;
-
-	led_beep_ID=0;
-	led_state=LED_INIT;
-	beep_state=BEEP_INIT;
-	
-	self_tet_state=SELF_TEST_NONE;
-  led_In_Turn_state=LED_IN_TURN_NONE;
-	
-	b_LED_ON_in_turn=FALSE;
-	b_check_bnt_release=FALSE;
-	
-	
-	selfTest_delay_Cnt=0;
-  nLED_ON_in_turn=0;
-  inflate_cnt=0;
-  hold_cnt=0;
-  deflate_cnt=0;
-	
-	sample_cnt=0;
-	sample_sum=0;
-}
-
-
 //进入stop模式，采用中断唤醒
 void EnterStopMode()
 {
@@ -863,7 +888,6 @@ void EnterStopMode()
 //	prev_ledBlink_os_tick=0;
 //	beep_timing_flag=FALSE;
 //	prev_beep_os_tick=0;
-	
 	Init_gloab_viriable();
 	
 	//配置中断
@@ -965,6 +989,7 @@ void key_power_on_task(void)
 	if(key_state==KEY_STOP_MODE)
 	{
 		//sleep_Cnt=0;
+		release_gas_before_sleep();
 		EnterStopMode();
 		init_system_afterWakeUp();
 	}

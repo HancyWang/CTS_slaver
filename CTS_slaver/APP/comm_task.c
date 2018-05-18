@@ -216,7 +216,7 @@ LED_IN_TURN_STATE led_In_Turn_state=LED_IN_TURN_NONE;
  uint8_t selfTest_delay_Cnt;
  uint8_t nLED_ON_in_turn;
  uint8_t inflate_cnt;
- uint8_t hold_cnt;
+ uint16_t hold_cnt;
  uint8_t deflate_cnt;
 //static uint8_t bat_detect_cnt=0;
 
@@ -910,6 +910,8 @@ void PaintPWM(unsigned char num,unsigned char* buffer)
 						
 						//橙色LED闪3s
 					//	Red_LED_Blink(3);      //改成报警闪烁，而不是闪3s
+						GPIO_SetBits(GPIOB,GPIO_Pin_10);
+						GPIO_SetBits(GPIOB,GPIO_Pin_11);  //立马放气
 						LED_Blink_for_alert(5);
 						EnterStopMode();
 						
@@ -1593,7 +1595,7 @@ void self_test()
 		static uint16_t selfTest_hold_record_1;
 		static uint16_t selfTest_hold_record_2;
 		
-		if(hold_cnt*20==5000) //hold住5s
+		if(hold_cnt*20==120000) //hold住5s
 		{
 			hold_cnt=0;
 			//开启PB10,PB11,放气,进入放气阶段
@@ -1611,7 +1613,7 @@ void self_test()
 				//记录数据1
 				selfTest_hold_record_1=ADS115_readByte(0x90);
 			}
-			if(hold_cnt==200)
+			if(hold_cnt==599)
 			{
 				//记录数据2
 				selfTest_hold_record_2=ADS115_readByte(0x90);

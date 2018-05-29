@@ -1732,7 +1732,7 @@ void self_test()
 		self_tet_state=SELF_TEST_INFLATE;
 //		led_In_Turn_state=LED_IN_TURN_MODE1;
 		
-		Motor_PWM_Freq_Dudy_Set(3,100,50);  //打开PWM3，开始抽气到ballon中
+		Motor_PWM_Freq_Dudy_Set(3,100,70);  //打开PWM3，开始抽气到ballon中
 				//流水灯
 		//1.开电机(pwm3)，充气5s
 		//2.关闭电磁阀持续5s，取样比较

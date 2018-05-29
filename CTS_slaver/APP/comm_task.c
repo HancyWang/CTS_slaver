@@ -697,6 +697,7 @@ BOOL Is_timing_Xmillisec(uint32_t n_ms,uint8_t ID)
 			if(os_ticks==os_ticks+n_ms)
 			{
 				*b_timing_flag=TRUE;
+				*p_prev_os_tick=0;
 				return TRUE;
 			}
 		}
@@ -705,6 +706,7 @@ BOOL Is_timing_Xmillisec(uint32_t n_ms,uint8_t ID)
 			if(os_ticks-*p_prev_os_tick>=n_ms)
 			{
 				*b_timing_flag=TRUE;
+				*p_prev_os_tick=0;
 				return TRUE;
 			}
 		}
@@ -2434,7 +2436,7 @@ void check_selectedMode_ouputPWM()
 	if(b_Palm_check_complited==TRUE&&!b_stop_current_works&&!b_self_test)
 	{
 		if(!b_release_gas)
-		//if(!b_release_gas&&!b_usb_charge_bat)   //4s放气，充电，都不允许输出PWM
+//		//if(!b_release_gas&&!b_usb_charge_bat)   //4s放气，充电，都不允许输出PWM
 		{
 			//1.从flash中加载参数到内存
 			if(state==LOAD_PARA)      

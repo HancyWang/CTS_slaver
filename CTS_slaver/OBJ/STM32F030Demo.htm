@@ -3,7 +3,7 @@
 <title>Static Call Graph - [..\OBJ\STM32F030Demo.axf]</title></head>
 <body><HR>
 <H1>Static Call Graph for image ..\OBJ\STM32F030Demo.axf</H1><HR>
-<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060422: Last Updated: Tue May 29 16:56:01 2018
+<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060422: Last Updated: Tue May 29 22:28:59 2018
 <BR><P>
 <H3>Maximum Stack Usage =        940 bytes + Unknown(Functions without stacksize, Cycles, Untraceable Function Pointers)</H3><H3>
 Call chain for Maximum Stack Depth:</H3>
@@ -355,8 +355,8 @@ Global Symbols
 </UL>
 <P><STRONG><a name="[129]"></a>InitKeyWakeUpTiming</STRONG> (Thumb, 14 bytes, Stack size 0 bytes, comm_task.o(.text), UNUSED)
 
-<P><STRONG><a name="[6c]"></a>Is_timing_Xmillisec</STRONG> (Thumb, 228 bytes, Stack size 12 bytes, comm_task.o(.text))
-<BR><BR>[Stack]<UL><LI>Max Depth = 20<LI>Call Chain = Is_timing_Xmillisec &rArr; __ARM_common_switch8
+<P><STRONG><a name="[6c]"></a>Is_timing_Xmillisec</STRONG> (Thumb, 234 bytes, Stack size 16 bytes, comm_task.o(.text))
+<BR><BR>[Stack]<UL><LI>Max Depth = 24<LI>Call Chain = Is_timing_Xmillisec &rArr; __ARM_common_switch8
 </UL>
 <BR>[Calls]<UL><LI><a href="#[6d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__ARM_common_switch8
 </UL>
@@ -368,7 +368,7 @@ Global Symbols
 <LI><a href="#[2e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ReleaseGas
 </UL>
 
-<P><STRONG><a name="[6e]"></a>PaintPWM</STRONG> (Thumb, 1082 bytes, Stack size 56 bytes, comm_task.o(.text))
+<P><STRONG><a name="[6e]"></a>PaintPWM</STRONG> (Thumb, 1084 bytes, Stack size 56 bytes, comm_task.o(.text))
 <BR><BR>[Stack]<UL><LI>Max Depth = 248<LI>Call Chain = PaintPWM &rArr; init_system_afterWakeUp &rArr; init_task &rArr; UARTInit &rArr; USART_Init &rArr; RCC_GetClocksFreq
 </UL>
 <BR>[Calls]<UL><LI><a href="#[5e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_PWM_Freq_Dudy_Set
@@ -420,7 +420,7 @@ Global Symbols
 <BR>[Address Reference Count : 1]<UL><LI> app.o(.text)
 </UL>
 <P><STRONG><a name="[2e]"></a>ReleaseGas</STRONG> (Thumb, 78 bytes, Stack size 24 bytes, comm_task.o(.text))
-<BR><BR>[Stack]<UL><LI>Max Depth = 44<LI>Call Chain = ReleaseGas &rArr; Is_timing_Xmillisec &rArr; __ARM_common_switch8
+<BR><BR>[Stack]<UL><LI>Max Depth = 48<LI>Call Chain = ReleaseGas &rArr; Is_timing_Xmillisec &rArr; __ARM_common_switch8
 </UL>
 <BR>[Calls]<UL><LI><a href="#[71]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;GPIO_SetBits
 <LI><a href="#[72]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;GPIO_ResetBits

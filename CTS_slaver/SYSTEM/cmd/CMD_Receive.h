@@ -16,8 +16,8 @@
 
 typedef enum
 {
-	BUF1_LENGTH = 64,
-	BUF2_LENGTH = 64
+	BUF1_LENGTH = 64+8,
+	BUF2_LENGTH = 64+8
 }BUF_LENGTH;
 
 typedef struct

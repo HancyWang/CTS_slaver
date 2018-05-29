@@ -161,32 +161,17 @@
         <Ww>
           <count>0</count>
           <WinNumber>1</WinNumber>
-          <ItemText>pwm1_buffer</ItemText>
+          <ItemText>selfTest_hold_record_1,0x0A</ItemText>
         </Ww>
         <Ww>
           <count>1</count>
           <WinNumber>1</WinNumber>
-          <ItemText>pwm2_buffer</ItemText>
+          <ItemText>selfTest_hold_record_2,0x0A</ItemText>
         </Ww>
         <Ww>
           <count>2</count>
           <WinNumber>1</WinNumber>
-          <ItemText>pwm3_buffer</ItemText>
-        </Ww>
-        <Ww>
-          <count>3</count>
-          <WinNumber>1</WinNumber>
-          <ItemText>mode</ItemText>
-        </Ww>
-        <Ww>
-          <count>4</count>
-          <WinNumber>1</WinNumber>
-          <ItemText>TIM_BDTRInitStruct</ItemText>
-        </Ww>
-        <Ww>
-          <count>5</count>
-          <WinNumber>1</WinNumber>
-          <ItemText>RegularConvData_Tab,0x0A</ItemText>
+          <ItemText>hold_cnt,0x0A</ItemText>
         </Ww>
       </WatchWindow1>
       <WatchWindow2>

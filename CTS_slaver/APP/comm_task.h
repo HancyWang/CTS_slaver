@@ -16,8 +16,13 @@ typedef unsigned int uint32_t;
 ////434是数据，2是两个校验位
 //#define PARAMETER_BUF_LEN 436
 
-//CTS，452(434+18)数据长度+2个校验位+2字节(为了补齐)=456 
-#define PARAMETER_BUF_LEN 456
+////CTS，452(434+18)数据长度+2个校验位+2字节(为了补齐)=456 
+//#define PARAMETER_BUF_LEN 456
+
+//CTS，470(434+18+18)数据长度+2个校验位=472 
+#define PARAMETER_BUF_LEN 472
+
+//#define _DEBUG   //这个方便调试，正式发布代码的时候不需要这个
 
 //局部变量
 typedef enum
@@ -40,6 +45,7 @@ typedef enum
 {
 	PWM_START,
 	PWM_PERIOD,
+	PWM_DWELL,
 	PWM_WAIT_BETWEEN,
 	PWM_WAIT_AFTER,
 	PWM_OUTPUT_FINISH

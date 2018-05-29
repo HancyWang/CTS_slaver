@@ -37,10 +37,13 @@
 #define COMM_PARAMETER_ID					0x04  //上位机下发的公共信息
 #define GET_FLASH_DATA_1_ID				0x05  //上位机下发的获得flash中参数
 #define GET_FLASH_DATA_2_ID				0x06  //上位机下发的获得flash中参数
+#define GET_FLASH_DATA_3_ID				0x0C
+
 #define IS_RCV_PARA_FINISHED			0x07  //上位机下发的询问数据是否接收完成
 #define SEND_PARA_RCV_RESULT			0x08  //下位机发送接收参数的处理结果
 #define SEND_FLASH_DATA_1_ID      0x09  //由于原始数据太长(434Bytes),分成两帧发
 #define SEND_FLASH_DATA_2_ID      0x0A  
+#define SEND_FLASH_DATA_3_ID      0x0B
 #define MODE1_PWM1_ID							0x11  //上位机下发的MODE1-PWM1
 #define MODE1_PWM2_ID							0x12  //上位机下发的MODE1-PWM1
 #define MODE1_PWM3_ID							0x13  //上位机下发的MODE1-PWM1

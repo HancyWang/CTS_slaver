@@ -76,6 +76,8 @@ void init_task(void)
 
 	os_create_task(TaskDataSend, OS_TRUE, SEND_TASK_ID);
 	os_create_task(CMD_ProcessTask, OS_TRUE, RECEIVE_TASK_ID);
+#ifdef _DEBUG
+#else
 	os_create_task(key_power_on_task, OS_TRUE, KEY_LED_TASK_ID);
 	os_create_task(check_selectedMode_ouputPWM,OS_TRUE,TASK_OUTPUT_PWM);
 	os_create_task(get_switch_mode,OS_TRUE,TASK_GET_SWITCH_MODE);
@@ -85,6 +87,8 @@ void init_task(void)
 	os_create_task(led_blink_beep,OS_TRUE,TASK_LED_BINK_BEEP);
 	os_create_task(usb_charge_battery,OS_TRUE,TASK_USB_CHARGE_BAT);
 	os_create_task(self_test,OS_TRUE,TASK_SELF_TEST);
+#endif
+	
 	os_pend_task(INIT_TASK_ID);
 }
 

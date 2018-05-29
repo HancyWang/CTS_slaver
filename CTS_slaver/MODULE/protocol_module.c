@@ -31,6 +31,7 @@
 /**********************************
 *宏定义
 ***********************************/
+#define PWM3_SIZE 48+6+6
 
 /***********************************
 * 全局变量
@@ -131,9 +132,9 @@ void get_comm_para_to_buf(uint8_t* pdata)
 	check_sum=0;
 	UINT8* pPos=(UINT8*)&parameter_buf;
 	memset(parameter_buf,0,PARAMETER_BUF_LEN);
-	memcpy(pPos,pdata+4,1);
-	memcpy(pPos+1,pdata+5,1);
-	check_sum+=*pPos+*(pPos+1);
+	memcpy(pPos,pdata+4,1);  //拷贝参数cycles到parameter_buf的第一个字节
+	memcpy(pPos+1,pdata+5,1);  //拷贝wait before start到parameter_buf的第二个字节
+	check_sum+=*pPos+*(pPos+1); 
 }
 
 void get_parameter_to_buf_by_frameId(uint8_t* pdata,char frameId)
@@ -152,21 +153,23 @@ void get_parameter_to_buf_by_frameId(uint8_t* pdata,char frameId)
 	int pos_mode1_pwm1=2;   	 //2
 	int pos_mode1_pwm2=50; 		 //2 +6*8
 	int pos_mode1_pwm3=98; 		 //2 +6*8 +6*8
-	int pos_mode2_pwm1=152; 	 //2 +6*8 +6*8 +6*9
-	int pos_mode2_pwm2=200;			//2 +6*8 +6*8 +6*9 +6*8
-	int pos_mode2_pwm3=248;			//2 +6*8 +6*8 +6*9 +6*8 +6*8
-	int pos_mode3_pwm1=302;			//2 +6*8 +6*8 +6*9 +6*8 +6*8 +6*9
-	int pos_mode3_pwm2=350;			//2 +6*8 +6*8 +6*9 +6*8 +6*8 +6*9 +6*8
-	int pos_mode3_pwm3=398;			//2 +6*8 +6*8 +6*9 +6*8 +6*8 +6*9 +6*8 +6*8
+	int pos_mode2_pwm1=158; 	 //2 +6*8 +6*8 +6*10
+	int pos_mode2_pwm2=206;			//2 +6*8 +6*8 +6*10 +6*8
+	int pos_mode2_pwm3=254;			//2 +6*8 +6*8 +6*10 +6*8 +6*8
+	int pos_mode3_pwm1=314;			//2 +6*8 +6*8 +6*10 +6*8 +6*8 +6*10
+	int pos_mode3_pwm2=362;			//2 +6*8 +6*8 +6*10 +6*8 +6*8 +6*10 +6*8
+	int pos_mode3_pwm3=410;			//2 +6*8 +6*8 +6*10 +6*8 +6*8 +6*10 +6*8 +6*8
 	if(0x11==frameId)  //MODE1_PWM1
 	{
-		uint8_t* pstart=pdata+4;
-		uint8_t* pDest=(uint8_t*)(&parameter_buf)+pos_mode1_pwm1;
+		uint8_t* pstart=pdata+4; //跳过帧头的4个字节
+		
+		//目的地址，parameter_buf向后移动两位，get_comm_para_to_buf已经填充了前两位
+		uint8_t* pDest=(uint8_t*)(&parameter_buf)+pos_mode1_pwm1;  
 		char buf[48]={0};
-		for(int i=0;i<48;i++)
+		for(int i=0;i<48;i++)  //拷贝MODE1_PWM1到parameter_buf中
 		{
 			buf[i]=*pstart++;
-			check_sum+=buf[i];
+			check_sum+=buf[i];   //checksum累加
 		}
 		//memcpy(pDest,buf,sizeof(buf));
 		memcpy(pDest,buf,48);
@@ -188,14 +191,17 @@ void get_parameter_to_buf_by_frameId(uint8_t* pdata,char frameId)
 	{
 		uint8_t* pstart=pdata+4;
 		uint8_t* pDest=(uint8_t*)(&parameter_buf)+pos_mode1_pwm3;
-		char buf[48+6]={0};
-		for(int i=0;i<48+6;i++)
+		
+		char buf[PWM3_SIZE]={0};
+//		for(int i=0;i<48+6;i++)
+		for(int i=0;i<PWM3_SIZE;i++)  //PWM3是60字节
 		{
 			buf[i]=*pstart++;
 			check_sum+=buf[i];
 		}
 		//memcpy(pDest,buf,sizeof(buf));
-		memcpy(pDest,buf,48+6);
+//		memcpy(pDest,buf,48+6);
+		memcpy(pDest,buf,PWM3_SIZE);
 	}
 	else if(0x21==frameId)
 	{
@@ -227,14 +233,14 @@ void get_parameter_to_buf_by_frameId(uint8_t* pdata,char frameId)
 	{
 		uint8_t* pstart=pdata+4;
 		uint8_t* pDest=(uint8_t*)(&parameter_buf)+pos_mode2_pwm3;
-		char buf[48+6]={0};
-		for(int i=0;i<48+6;i++)
+		char buf[PWM3_SIZE]={0};
+		for(int i=0;i<PWM3_SIZE;i++)
 		{
 			buf[i]=*pstart++;
 			check_sum+=buf[i];
 		}
 		//memcpy(pDest,buf,sizeof(buf));
-		memcpy(pDest,buf,48+6);
+		memcpy(pDest,buf,PWM3_SIZE);
 	}
 	else if(0x31==frameId)
 	{
@@ -266,21 +272,21 @@ void get_parameter_to_buf_by_frameId(uint8_t* pdata,char frameId)
 	{
 		uint8_t* pstart=pdata+4;
 		uint8_t* pDest=(uint8_t*)(&parameter_buf)+pos_mode3_pwm3;
-		char buf[48+6]={0};
-		for(int i=0;i<48+6;i++)
+		char buf[PWM3_SIZE]={0};
+		for(int i=0;i<PWM3_SIZE;i++)
 		{
 			buf[i]=*pstart++;
 			check_sum+=buf[i];
 		}
 		//memcpy(pDest,buf,sizeof(buf));
-		memcpy(pDest,buf,48+6);
+		memcpy(pDest,buf,PWM3_SIZE);
 		
 		//收到最后一帧数据完成后，写入flash
 		//填充check_sum
 		uint8_t tmp1=(uint8_t)(check_sum>>8);
 		uint8_t tmp2=(uint8_t)(check_sum&0xFF);
-		*(parameter_buf+pos_mode3_pwm3+48+6)=tmp1; //最后一帧长度是54
-		*(parameter_buf+pos_mode3_pwm3+48+6+1)=tmp2;
+		*(parameter_buf+pos_mode3_pwm3+PWM3_SIZE)=tmp1; //最后一帧长度是60
+		*(parameter_buf+pos_mode3_pwm3+PWM3_SIZE+1)=tmp2;
 		//*(parameter_buf+pos_mode3_pwm3+48+6+2)=0x00;  //最后两个字节只是为了补齐
 		//*(parameter_buf+pos_mode3_pwm3+48+6+3)=0x00;
 		//将parameter_buf中的数据写入flash中
@@ -311,7 +317,7 @@ void send_para_rcv_result()
 void send_prameter_fram1_to_PC()
 {
 	//CMD_BUFFER_LENGTH定义为255的时候，PWM2波形老是不见了，也不知道为什么
-	//现在将CMD_BUFFER_LENGTH长度定义为300，就OK了，原因不知道
+	//现在将CMD_BUFFER_LENGTH长度定义为350，就OK了，原因不知道
 	uint8_t buffer[CMD_BUFFER_LENGTH];
 
 	//读取flash数据到buffer中
@@ -327,43 +333,94 @@ void send_prameter_fram1_to_PC()
 	CheckFlashData(parameter_buf);
 	
 	//发送第一帧
-	//公共信息2Bytes, (Mode1-PWM1, Mode1-PWM2, Mode1-PWM3),Mode2-PWM1,Mode2-PWM2
-	buffer[0] = PACK_HEAD_BYTE;       //0xFF
-	//buffer[1] = 0x04+0xF2;            //0xF2=242,数据长度
-	buffer[1] = 0x04+0xF8;            //0xF2=248,数据长度,因为Mode1-PWM3比之前增加了6，所以整体从242增加到了248
+	//公共信息2bytes，MODE1-PWM1,MODE1-PWM2,MODE1-PWM3
+	//一共2+48+48+60=158字节，再加上帧头4字节，校验2字节，总共158+4+2=164，协议规定校验和不算总字节长度
+	//故而buffer[1]=4字节帧头+158字节
+	buffer[0] = PACK_HEAD_BYTE;
+	buffer[1] = 0x04+0x9E; 
 	buffer[2] = MODULE_CMD_TYPE;      //0x00
-	buffer[3] = SEND_FLASH_DATA_1_ID; //0x06
+	buffer[3] = SEND_FLASH_DATA_1_ID; //0x09
 	//填充公共信息
-	buffer[4] = *parameter_buf;       //exhalation threshold，更改为cycles
+	buffer[4] = *parameter_buf;       //cycles
 	buffer[5] = *(parameter_buf+1);   //wait before after
 	
 	unsigned char* pstart=parameter_buf+2;
-	for(int i=2;i<242+6;i++)
+	for(int i=2;i<158;i++)
 	{
 		buffer[i+4]=*pstart++;
 	}
 	CalcCheckSum(buffer);
 	fifoWriteData(&send_fifo, buffer, buffer[1]+2);
+	
+#if 0
+//	//发送第一帧
+//	//公共信息2Bytes, (Mode1-PWM1, Mode1-PWM2, Mode1-PWM3),Mode2-PWM1,Mode2-PWM2
+//	buffer[0] = PACK_HEAD_BYTE;       //0xFF
+//	//buffer[1] = 0x04+0xF2;            //0xF2=242,数据长度
+////	buffer[1] = 0x04+0xF8;            //0xF2=248,数据长度,因为Mode1-PWM3比之前增加了6，所以整体从242增加到了248
+//	buffer[1] = 0x04+0xFE;            //0xF2=254,数据长度,因为Mode1-PWM3比之前增加了6+6，所以整体从242增加到了248+6=254
+//	buffer[2] = MODULE_CMD_TYPE;      //0x00
+//	buffer[3] = SEND_FLASH_DATA_1_ID; //0x06
+//	//填充公共信息
+//	buffer[4] = *parameter_buf;       //exhalation threshold，更改为cycles
+//	buffer[5] = *(parameter_buf+1);   //wait before after
+//	
+//	unsigned char* pstart=parameter_buf+2;
+//	for(int i=2;i<242+6+6;i++)
+//	{
+//		buffer[i+4]=*pstart++;
+//	}
+//	CalcCheckSum(buffer);
+//	fifoWriteData(&send_fifo, buffer, buffer[1]+2);
+#endif
 }
 
 void send_prameter_fram2_to_PC()
 {
 	//发送第二帧
-	//Mode2-PWM3, (Mode3-PWM1,MODE3-PWM2,MODE3-PWM3)
+	//Mode2-PWM1,MODE2-PWM2,MODE2-PWM3
 	uint8_t buffer1[CMD_BUFFER_LENGTH];
 	
 	buffer1[0] = PACK_HEAD_BYTE;       //0xFF
-	//buffer1[1] = 0x04+0xC0;            //0xC0=192，数据长度
-	buffer1[1] = 0x04+0xCC;            //0xC0=192+12，数据长度，Mode2-PWM3和MODE3-PWM3比之前都分别增加了6个字节，所以整体增加12
+	buffer1[1] = 0x04+0x9C;            //0x9C=156
 	buffer1[2] = MODULE_CMD_TYPE;      //0x00
-	buffer1[3] = SEND_FLASH_DATA_2_ID; //0x07
+	buffer1[3] = SEND_FLASH_DATA_2_ID; //0x0A
 	
-	//unsigned char* pstart=parameter_buf+242; //将指针播到第二帧的位置
-	unsigned char* pstart=parameter_buf+248; //将指针播到第二帧的位置
-	//for(int i=242;i<434;i++)
-	for(int i=248;i<452;i++)
+	unsigned char* pstart=parameter_buf+158; //将指针播到第二帧的位置
+	for(int i=158;i<314;i++)
 	{
-		buffer1[i-244]=*pstart++;  //i-244=248-244=4,跳过帧头的4个字节
+		buffer1[i-158+4]=*pstart++;  //跳过帧头的4个字节
+	}
+	CalcCheckSum(buffer1);
+	fifoWriteData(&send_fifo, buffer1, buffer1[1]+2);
+	#if 0
+//	//unsigned char* pstart=parameter_buf+242; //将指针播到第二帧的位置
+//	unsigned char* pstart=parameter_buf+248; //将指针播到第二帧的位置
+//	//for(int i=242;i<434;i++)
+//	for(int i=248;i<452;i++)
+//	{
+//		buffer1[i-244]=*pstart++;  //i-244=248-244=4,跳过帧头的4个字节
+//	}
+//	CalcCheckSum(buffer1);
+//	fifoWriteData(&send_fifo, buffer1, buffer1[1]+2);
+	#endif
+}
+
+void send_prameter_fram3_to_PC()
+{
+	//发送第三帧
+	//Mode3-PWM1,MODE3-PWM2,MODE3-PWM3
+	uint8_t buffer1[CMD_BUFFER_LENGTH];
+	
+	buffer1[0] = PACK_HEAD_BYTE;       //0xFF
+	buffer1[1] = 0x04+0x9C;            //0x9C=156
+	buffer1[2] = MODULE_CMD_TYPE;      //0x00
+	buffer1[3] = SEND_FLASH_DATA_3_ID; //0x0B
+	
+	unsigned char* pstart=parameter_buf+314; //将指针播到第二帧的位置
+	for(int i=314;i<470;i++)
+	{
+		buffer1[i-314+4]=*pstart++;  //跳过帧头的4个字节
 	}
 	CalcCheckSum(buffer1);
 	fifoWriteData(&send_fifo, buffer1, buffer1[1]+2);
@@ -563,6 +620,9 @@ void protocol_module_process(uint8_t* pdata)
 		break;
 	case GET_FLASH_DATA_2_ID:
 		send_prameter_fram2_to_PC();
+		break;
+	case GET_FLASH_DATA_3_ID:
+		send_prameter_fram3_to_PC();
 		break;
 	default:
 		break;

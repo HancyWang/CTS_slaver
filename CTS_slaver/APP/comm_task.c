@@ -314,6 +314,8 @@ void LED_Blink_for_alert(uint8_t seconds)
 	Motor_PWM_Freq_Dudy_Set(4,100,0);  
 	Motor_PWM_Freq_Dudy_Set(5,4000,0);
 	
+	GPIO_SetBits(GPIOB,GPIO_Pin_10);
+	GPIO_SetBits(GPIOB,GPIO_Pin_11);
 	set_led(LED_ID_GREEN,FALSE);   //关掉电源的绿色LED灯
 	set_led(LED_ID_YELLOW,FALSE);
 	//关闭模式指示灯
@@ -388,6 +390,8 @@ void Red_LED_Blink(unsigned char seconds)
 	Motor_PWM_Freq_Dudy_Set(4,100,0);  
 	Motor_PWM_Freq_Dudy_Set(5,4000,0);
 	
+	GPIO_SetBits(GPIOB,GPIO_Pin_10);
+	GPIO_SetBits(GPIOB,GPIO_Pin_11);
 	set_led(LED_ID_GREEN,FALSE);   //关掉电源的绿色LED灯
 	
 	//关闭模式指示灯
@@ -1825,7 +1829,7 @@ void self_test()
 	
 	if(self_tet_state==SELF_TEST_HOLD)
 	{
-		if(hold_cnt*20==30000) //hold住120000ms=120s/60s=2min
+		if(hold_cnt*20==30000) //hold 30秒
 		{
 			hold_cnt=0;
 			//开启PB10,PB11,放气,进入放气阶段
@@ -2488,7 +2492,6 @@ void check_selectedMode_ouputPWM()
 						state=GET_MODE;  //进入再次循环
 						cycle_cnt--;
 					}
-					
 				}
 				
 				//2.获得开关对应的模式

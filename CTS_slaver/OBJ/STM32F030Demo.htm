@@ -3,7 +3,7 @@
 <title>Static Call Graph - [..\OBJ\STM32F030Demo.axf]</title></head>
 <body><HR>
 <H1>Static Call Graph for image ..\OBJ\STM32F030Demo.axf</H1><HR>
-<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060422: Last Updated: Tue May 29 22:57:07 2018
+<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060422: Last Updated: Wed May 30 09:12:05 2018
 <BR><P>
 <H3>Maximum Stack Usage =        940 bytes + Unknown(Functions without stacksize, Cycles, Untraceable Function Pointers)</H3><H3>
 Call chain for Maximum Stack Depth:</H3>
@@ -448,7 +448,7 @@ Global Symbols
 <BR><BR>[Called By]<UL><LI><a href="#[33]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;self_test
 </UL>
 
-<P><STRONG><a name="[33]"></a>self_test</STRONG> (Thumb, 888 bytes, Stack size 24 bytes, comm_task.o(.text))
+<P><STRONG><a name="[33]"></a>self_test</STRONG> (Thumb, 906 bytes, Stack size 24 bytes, comm_task.o(.text))
 <BR><BR>[Stack]<UL><LI>Max Depth = 216<LI>Call Chain = self_test &rArr; init_system_afterWakeUp &rArr; init_task &rArr; UARTInit &rArr; USART_Init &rArr; RCC_GetClocksFreq
 </UL>
 <BR>[Calls]<UL><LI><a href="#[5f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;set_led
@@ -463,7 +463,7 @@ Global Symbols
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> app.o(.text)
 </UL>
-<P><STRONG><a name="[31]"></a>led_blink_beep</STRONG> (Thumb, 562 bytes, Stack size 24 bytes, comm_task.o(.text))
+<P><STRONG><a name="[31]"></a>led_blink_beep</STRONG> (Thumb, 564 bytes, Stack size 24 bytes, comm_task.o(.text))
 <BR><BR>[Stack]<UL><LI>Max Depth = 216<LI>Call Chain = led_blink_beep &rArr; init_system_afterWakeUp &rArr; init_task &rArr; UARTInit &rArr; USART_Init &rArr; RCC_GetClocksFreq
 </UL>
 <BR>[Calls]<UL><LI><a href="#[5f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;set_led

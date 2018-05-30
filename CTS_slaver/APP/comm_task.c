@@ -1853,6 +1853,9 @@ void self_test()
 				{
 					self_tet_state=SELF_TEST_FAIL;
 					hold_cnt=0;
+					//自测fail了也要把气给放掉
+					GPIO_SetBits(GPIOB,GPIO_Pin_10);
+					GPIO_SetBits(GPIOB,GPIO_Pin_11);
 				}		
 			}
 		}

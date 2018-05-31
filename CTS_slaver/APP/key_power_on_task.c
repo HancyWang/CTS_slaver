@@ -387,6 +387,8 @@ void EXTI4_15_IRQHandler(void)
 		if(usb_detect_state==USB_NOT_DETECT&&!b_self_test)  
 		{
 			key_state=KEY_DOWNING;
+			//Motor_PWM_Init();
+//			Reset_Timing_Parameter();
 		}
 		//b_KeyWkUP_InterrupHappened=TRUE;
 	//	set_led(LED_ID_YELLOW,TRUE); //debug
@@ -397,6 +399,7 @@ void EXTI4_15_IRQHandler(void)
 //初始化所有全局变量
 void Init_gloab_viriable()
 {
+	Reset_Timing_Parameter();
 	init_PWMState();
 	state=LOAD_PARA;
 	waitBeforeStart_timing_flag=FALSE;
@@ -502,12 +505,12 @@ void Init_gloab_viriable()
 //进入低功耗之前放气4s
 void release_gas_before_sleep()
 {
-	//放气4s？在进低功耗
-	Motor_PWM_Freq_Dudy_Set(1,100,0);
-	Motor_PWM_Freq_Dudy_Set(2,100,0);
-	Motor_PWM_Freq_Dudy_Set(3,100,0);
-	Motor_PWM_Freq_Dudy_Set(4,100,0);
-	Motor_PWM_Freq_Dudy_Set(5,100,0);
+//	//放气4s？在进低功耗
+//	Motor_PWM_Freq_Dudy_Set(1,100,0);
+//	Motor_PWM_Freq_Dudy_Set(2,100,0);
+//	Motor_PWM_Freq_Dudy_Set(3,100,0);
+//	Motor_PWM_Freq_Dudy_Set(4,100,0);
+//	Motor_PWM_Freq_Dudy_Set(5,100,0);
 	
 	set_led(LED_ID_GREEN,FALSE);
 	set_led(LED_ID_YELLOW,FALSE);
@@ -1056,6 +1059,9 @@ void key_power_on_task(void)
 	{
 		if(GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_8)==0)
 		{
+//			Motor_PWM_Freq_Dudy_Set(1,100,0);
+//			Motor_PWM_Freq_Dudy_Set(2,100,0);
+//			Motor_PWM_Freq_Dudy_Set(3,100,0);
 			if(wakeup_Cnt==50)
 			{
 				wakeup_Cnt=0;
@@ -1136,9 +1142,42 @@ void key_power_on_task(void)
 	if(key_state==KEY_STOP_MODE)
 	{
 		//sleep_Cnt=0;
+		//放气4s？在进低功耗
+		Motor_PWM_Freq_Dudy_Set(1,100,0);
+		Motor_PWM_Freq_Dudy_Set(2,100,0);
+		Motor_PWM_Freq_Dudy_Set(3,100,0);
+		Motor_PWM_Freq_Dudy_Set(1,100,0);
+		Motor_PWM_Freq_Dudy_Set(2,100,0);
+		Motor_PWM_Freq_Dudy_Set(3,100,0);
+//		Motor_PWM_Freq_Dudy_Set(4,100,0);
+//		Motor_PWM_Freq_Dudy_Set(5,100,0);
+		
 		release_gas_before_sleep();
 		EnterStopMode();
 		init_system_afterWakeUp();
+		
+//		static uint8_t stop_cnt;
+//		if(stop_cnt==1)
+//		{
+//			stop_cnt=0;
+//			release_gas_before_sleep();
+//			EnterStopMode();
+//			init_system_afterWakeUp();
+//		}
+//		else
+//		{
+//			Motor_PWM_Freq_Dudy_Set(1,100,0);
+//			Motor_PWM_Freq_Dudy_Set(2,100,0);
+//			Motor_PWM_Freq_Dudy_Set(3,100,0);
+//			Motor_PWM_Freq_Dudy_Set(1,100,0);
+//			Motor_PWM_Freq_Dudy_Set(2,100,0);
+//			Motor_PWM_Freq_Dudy_Set(3,100,0);
+//			stop_cnt++;
+//			
+//			pwm1_state=PWM_NONE;
+//			pwm2_state=PWM_NONE;
+//			pwm3_state=PWM_NONE;
+//		}
 	}
 	os_delay_ms(KEY_LED_TASK_ID, KEY_LED_PERIOD);
 }

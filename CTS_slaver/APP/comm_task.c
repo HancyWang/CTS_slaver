@@ -70,8 +70,8 @@ BOOL b_end_of_treatment=FALSE;
  uint32_t detectPalm_cnt=0;
  uint32_t noPalm_cnt=0;
 
-static BOOL PWM1_timing_flag=TRUE;
-static BOOL PWM2_timing_flag=TRUE; 
+ BOOL PWM1_timing_flag=TRUE;
+ BOOL PWM2_timing_flag=TRUE; 
  BOOL PWM3_timing_flag=TRUE;
 static BOOL PWM4_timing_flag=TRUE;
 static BOOL PWM5_timing_flag=TRUE;
@@ -149,9 +149,9 @@ uint8_t mode=1;
 //	PWM_OUTPUT_FINISH
 //}PWM_STATE;
 
-PWM_STATE pwm1_state=PWM_START;
-PWM_STATE pwm2_state=PWM_START;
-PWM_STATE pwm3_state=PWM_START;
+PWM_STATE pwm1_state=PWM_NONE;
+PWM_STATE pwm2_state=PWM_NONE;
+PWM_STATE pwm3_state=PWM_NONE;
 
 //static uint16_t* p_PWM3_threshold; //只有PWM3才有threshold
 static PWM_STATE* p_pwm_state;
@@ -277,9 +277,9 @@ void init_PWMState(void)
 	waitBeforeStart_timing_flag=TRUE;
 	//switch_bnt_timing_flag=TRUE;
 	
-	pwm1_state=PWM_START;
-	pwm2_state=PWM_START;
-	pwm3_state=PWM_START;
+	pwm1_state=PWM_NONE;
+	pwm2_state=PWM_NONE;
+	pwm3_state=PWM_NONE;
 
 	PWM_waitBeforeStart_cnt=0;
 
@@ -307,12 +307,17 @@ void init_PWMState(void)
 
 void LED_Blink_for_alert(uint8_t seconds)
 {
+	//注意：Motor1,2,3的关闭就是不能写在这里面。。。不然就会出现
+	//开机只有Motor1在转的问题，不知道为什么
 	//这里必须要关闭PWM,要不然在Delay_ms的时候，PWM还在输出
-	Motor_PWM_Freq_Dudy_Set(1,100,0);
-	Motor_PWM_Freq_Dudy_Set(2,100,0);
-	Motor_PWM_Freq_Dudy_Set(3,100,0);	
-	Motor_PWM_Freq_Dudy_Set(4,100,0);  
-	Motor_PWM_Freq_Dudy_Set(5,4000,0);
+//	Motor_PWM_Freq_Dudy_Set(1,100,0);
+//	Motor_PWM_Freq_Dudy_Set(2,100,0);
+//	Motor_PWM_Freq_Dudy_Set(3,100,0);	
+//	Motor_PWM_Freq_Dudy_Set(4,100,0);  
+//	Motor_PWM_Freq_Dudy_Set(5,4000,0);
+	
+	
+	//Reset_Timing_Parameter();
 	
 	GPIO_SetBits(GPIOB,GPIO_Pin_10);
 	GPIO_SetBits(GPIOB,GPIO_Pin_11);
@@ -337,6 +342,7 @@ void LED_Blink_for_alert(uint8_t seconds)
 	}
 	
 	Delay_ms(500);
+
 	//闪烁
 	for(uint8_t i=0;i<seconds;i++)
 	{
@@ -625,6 +631,46 @@ void InitKeyWakeUpTiming()
 	key_Press_or_Release_timing_flag=TRUE;
 	prev_keyPressOrRelease_os_tick=0;
 }
+
+void Reset_Timing_Parameter()
+{
+	PWM1_timing_flag=TRUE;
+	prev_PWM1_os_tick=0;;
+	
+	PWM2_timing_flag=TRUE;
+	prev_PWM2_os_tick=0;;
+	
+	PWM3_timing_flag=TRUE;
+	prev_PWM3_os_tick=0;;
+	
+	PWM4_timing_flag=TRUE;
+	prev_PWM4_os_tick=0;;
+
+	PWM5_timing_flag=TRUE;
+	prev_PWM5_os_tick=0;
+
+	waitBeforeStart_timing_flag=TRUE;
+	prev_WaitBeforeStart_os_tick=0;
+
+	b_releaseGas_timing_flag=TRUE;
+	prev_releaseGas_os_tick=0;
+
+	led_bink_timing_flag=TRUE;
+	prev_ledBlink_os_tick=0;;
+										 
+	beep_timing_flag=TRUE;
+	prev_beep_os_tick=0;
+	
+	usb_charge_timing_flag=TRUE;
+	prev_usbCharge_os_tick=0;
+
+	key_Press_or_Release_timing_flag=TRUE;
+	prev_keyPressOrRelease_os_tick=0;
+	
+	key_self_test_timing_flag=TRUE;
+	prev_selfTest_os_tick=0;
+}
+
 
 //定时x毫秒,n_ms最大就255s，255000
 BOOL Is_timing_Xmillisec(uint32_t n_ms,uint8_t ID)
@@ -928,37 +974,36 @@ void PaintPWM(unsigned char num,unsigned char* buffer)
 					}
 					else   //如果超过安全值
 					{
-						Set_ReleaseGas_flag();
+						*p_pwm_state=PWM_OVER_SAFTY_THRESHOLD;
+						
 						Motor_PWM_Freq_Dudy_Set(1,100,0);
 						Motor_PWM_Freq_Dudy_Set(2,100,0);
 						Motor_PWM_Freq_Dudy_Set(3,100,0);
-						//参数初始化，重新来
-						 //闪灯，进入低功耗
-						state=LOAD_PARA;
-//						b_Motor_Ready2Shake=TRUE;
-//						b_Palm_check_complited=FALSE;
-//						b_Motor_shake=FALSE;
-//						nMotorShake_Cnt=0;
-						init_PWMState();
 						
-						//橙色LED闪3s
-					//	Red_LED_Blink(3);      //改成报警闪烁，而不是闪3s
 						GPIO_SetBits(GPIOB,GPIO_Pin_10);
 						GPIO_SetBits(GPIOB,GPIO_Pin_11);  //立马放气
-						LED_Blink_for_alert(5);
-						EnterStopMode();
-						
-						init_system_afterWakeUp();
 					} 
 				}
 				else
 				{
-					if(Is_timing_Xmillisec(buffer[1+ELEMENTS_CNT*(*p_PWM_serial_cnt)+PERIOD]*1000,num))
+//					if(pwm3_state==PWM_OVER_SAFTY_THRESHOLD)
+//					{
+//						PWM1_timing_flag=TRUE;
+//						prev_PWM1_os_tick=0;
+
+//						PWM2_timing_flag=TRUE;
+//						prev_PWM2_os_tick=0;
+//					}
+//					else
 					{
-						++(*p_PWM_numOfCycle);
-						*p_pwm_state=PWM_WAIT_BETWEEN;
-						Motor_PWM_Freq_Dudy_Set(num,buffer[1+ELEMENTS_CNT*(*p_PWM_serial_cnt)+FREQ],0);
+						if(Is_timing_Xmillisec(buffer[1+ELEMENTS_CNT*(*p_PWM_serial_cnt)+PERIOD]*1000,num))
+						{
+							++(*p_PWM_numOfCycle);
+							*p_pwm_state=PWM_WAIT_BETWEEN;
+							Motor_PWM_Freq_Dudy_Set(num,buffer[1+ELEMENTS_CNT*(*p_PWM_serial_cnt)+FREQ],0);
+						}
 					}
+					
 				}
 			}
 			else  //PWM1和PWM2
@@ -970,7 +1015,18 @@ void PaintPWM(unsigned char num,unsigned char* buffer)
 					Motor_PWM_Freq_Dudy_Set(num,buffer[1+ELEMENTS_CNT*(*p_PWM_serial_cnt)+FREQ],0);
 				}
 			}		
+		}
+		
+		if(*p_pwm_state==PWM_OVER_SAFTY_THRESHOLD)
+		{
+			//参数初始化，重新来
+			state=LOAD_PARA;
+			init_PWMState();
 			
+			LED_Blink_for_alert(5);
+			
+			EnterStopMode();
+			init_system_afterWakeUp();
 		}
 		
 		if(*p_pwm_state==PWM_DWELL) //只有PWM3才有DWELL
@@ -985,6 +1041,20 @@ void PaintPWM(unsigned char num,unsigned char* buffer)
 				//Motor_PWM_Freq_Dudy_Set(num,buffer[1+ELEMENTS_CNT*(*p_PWM_serial_cnt)+FREQ],0);
 				GPIO_SetBits(GPIOB,GPIO_Pin_10); //打开valve放气
 				GPIO_SetBits(GPIOB,GPIO_Pin_11);
+			}
+			else 
+			{
+				if(ADS115_readByte(0x90)>=PRESSURE_SENSOR_VALUE(PRESSURE_SAFETY_THRESHOLD))
+				{
+					*p_pwm_state=PWM_OVER_SAFTY_THRESHOLD;
+
+					Motor_PWM_Freq_Dudy_Set(1,100,0);
+					Motor_PWM_Freq_Dudy_Set(2,100,0);
+					Motor_PWM_Freq_Dudy_Set(3,100,0);
+
+					GPIO_SetBits(GPIOB,GPIO_Pin_10);
+					GPIO_SetBits(GPIOB,GPIO_Pin_11);  //立马放气
+				}
 			}
 		}
 		
@@ -2297,14 +2367,44 @@ void Detect_battery_and_tmp()
 		
 		if(result_1<950)
 		{
-			//板子温度过高，3个mode灯闪+yellow led闪，这里要改
-			LED_Blink_for_alert(5);
+//			Motor_PWM_Freq_Dudy_Set(1,100,0);
+//			Motor_PWM_Freq_Dudy_Set(2,100,0);
+//			Motor_PWM_Freq_Dudy_Set(3,100,0);	
+//			
+//			LED_Blink_for_alert(5);
+
+//			mcu_state=POWER_OFF;
+//			//进入stop模式
+//			EnterStopMode();
+//			//唤醒之后重新初始化
+//			init_system_afterWakeUp();
 			
-			mcu_state=POWER_OFF;
-			//进入stop模式
-			EnterStopMode();
-			//唤醒之后重新初始化
-			init_system_afterWakeUp();
+			
+			static uint8_t n_over_tmperature;
+			//板子温度过高，3个mode灯闪+yellow led闪，这里要改
+			if(n_over_tmperature==1)
+			{
+				n_over_tmperature=0;
+				LED_Blink_for_alert(5);
+			
+				mcu_state=POWER_OFF;
+				//进入stop模式
+				EnterStopMode();
+				//唤醒之后重新初始化
+				init_system_afterWakeUp();
+			}
+			else
+			{
+				Motor_PWM_Freq_Dudy_Set(1,100,0);
+				Motor_PWM_Freq_Dudy_Set(2,100,0);
+				Motor_PWM_Freq_Dudy_Set(3,100,0);	
+//				init_PWMState();
+//				mcu_state=POWER_OFF;
+				pwm1_state=PWM_NONE;
+				pwm2_state=PWM_NONE;
+				pwm3_state=PWM_NONE;
+				n_over_tmperature++;
+			}
 		}
 	}
 
@@ -2357,9 +2457,12 @@ void DetectPalm()
 						}
 						else
 						{
+							//Motor_PWM_Freq_Dudy_Set(1,100,80);
+//							Motor_PWM_Init();
 							Motor_PWM_Freq_Dudy_Set(1,100,80);
 							Motor_PWM_Freq_Dudy_Set(2,100,80);
 							Motor_PWM_Freq_Dudy_Set(2,100,80);
+							
 							//Motor_PWM_Freq_Dudy_Set(3,100,80);
 							//GPIO_ResetBits(GPIOB,GPIO_Pin_10|GPIO_Pin_11);
 							nMotorShake_Cnt++;
@@ -2545,6 +2648,9 @@ void check_selectedMode_ouputPWM()
 						//state=PREV_OUTPUT_PWM;
 						state=OUTPUT_PWM;
 						//Calibrate_pressure_sensor(&zero_point_of_pressure_sensor);
+						pwm1_state=PWM_START;
+						pwm2_state=PWM_START;
+						pwm3_state=PWM_START;
 					}
 					else
 					{
@@ -2626,9 +2732,10 @@ void check_selectedMode_ouputPWM()
 					}		
 					else
 					{
-						PaintPWM(3,pwm3_buffer);
+//						PaintPWM(3,pwm3_buffer);
 						PaintPWM(1,pwm1_buffer); 
 						PaintPWM(2,pwm2_buffer);
+						PaintPWM(3,pwm3_buffer);
 						
 					}
 				}

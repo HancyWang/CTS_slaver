@@ -43,9 +43,11 @@ typedef enum
 
 typedef enum
 {
+	PWM_NONE,
 	PWM_START,
 	PWM_PERIOD,
 	PWM_DWELL,
+	PWM_OVER_SAFTY_THRESHOLD,
 	PWM_WAIT_BETWEEN,
 	PWM_WAIT_AFTER,
 	PWM_OUTPUT_FINISH
@@ -122,4 +124,5 @@ void usb_charge_battery(void);
 void InitKeyWakeUpTiming(void);
 void self_test(void);
 void process_interrupt(void);
+void Reset_Timing_Parameter(void);
 #endif

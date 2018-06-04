@@ -249,6 +249,8 @@ BEEP_STATE beep_state=BEEP_INIT;
  uint8_t selfTest_fail_period_H;
  uint8_t selfTest_fail_period_L;
  uint8_t selfTest_end_Cnt;
+ 
+ BOOL b_detect_hand_before_system_running=TRUE;
 /*******************************************************************************
 *                                内部函数声明
 *******************************************************************************/
@@ -843,9 +845,9 @@ void PaintPWM(unsigned char num,unsigned char* buffer)
 //		mcu_state=POWER_OFF;
 //		state=LOAD_PARA;
 //		*p_pwm_state=PWM_START;
-//		*p_PWM_period_cnt=0;
-//		*p_PWM_waitBetween_cnt=0;
-//		*p_PWM_waitAfter_cnt=0;
+////		*p_PWM_period_cnt=0;
+////		*p_PWM_waitBetween_cnt=0;
+////		*p_PWM_waitAfter_cnt=0;
 //		*p_PWM_numOfCycle=0;
 //		*p_PWM_serial_cnt=0;
 //		//PWM_waitBeforeStart_cnt=0;
@@ -2330,7 +2332,16 @@ void Detect_battery_and_tmp()
 	os_delay_ms(TASK_DETECT_BATTERY_ID, 50);
 }
 
- 
+void reset_hand_detect_state()
+{
+	detectPalm_cnt=0;
+	noPalm_cnt=0;
+	b_Motor_Ready2Shake=TRUE;
+	b_Motor_shake=FALSE;
+	b_palm_checked=FALSE;
+	//还有么？
+}	
+
 //侦测手掌任务
 void DetectPalm()
 {
@@ -2345,21 +2356,14 @@ void DetectPalm()
 		noPalm_cnt=0;
 	}
 	else
-	//if(!b_stop_current_works)  
 	{
-//		if(usb_detect_state==USB_INSERTED)
-//		{
-//			detectPalm_cnt=0;
-//			noPalm_cnt=0;
-//		}
-		//if(usb_detect_state==USB_NOT_DETECT)
-		//else
-		{
-			//if(b_Is_PCB_PowerOn)
-			//if(b_Is_PCB_PowerOn&&!b_usb_charge_bat)  //Power on之后才能做检测手掌的任务
-			//if(mcu_state==POWER_ON&&!b_usb_charge_bat)
-			if(mcu_state==POWER_ON)
-			{		
+		if(mcu_state==POWER_ON)
+		{		
+			//1.如果是刚开机，侦测手  
+			if(b_detect_hand_before_system_running)
+			//if(TRUE)
+			{
+				//马达震一下，表示侦测到手了
 				if(b_Motor_Ready2Shake)
 				{
 					if(b_Motor_shake)
@@ -2391,13 +2395,12 @@ void DetectPalm()
 				
 				if(GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_13)==0)
 				{
-					if(detectPalm_cnt*KEY_LED_PERIOD==2*1000)
+					if(detectPalm_cnt*KEY_LED_PERIOD==2*1000)  //持续2s检测手在位，则表示手侦测到了
 					{
 						detectPalm_cnt=0;
 						noPalm_cnt=0;
 						
 						b_palm_checked=TRUE;
-		//					key_state=KEY_UPING;
 						mcu_state=POWER_ON;
 						b_Motor_shake=TRUE;
 					}
@@ -2409,24 +2412,17 @@ void DetectPalm()
 				else
 				{
 					detectPalm_cnt=0;
-					if(noPalm_cnt*KEY_LED_PERIOD==20*1000)  //60s没有侦测到手
+					if(noPalm_cnt*KEY_LED_PERIOD==20*1000)  //刚开机的时候没有侦测到手，留的时间量是20s
 					{
 						noPalm_cnt=0;
 						if(!b_self_test)
 						{
 							b_palm_checked=FALSE;
-							//橙色LED闪3s，关机
-							//Red_LED_Blink(3);
-			//				No_Hand_IN_PLACE();
+
 							b_no_hand_in_place=TRUE;
 							led_beep_ID=1;
 							
-			//				key_state=KEY_UPING;
 							mcu_state=POWER_OFF;
-			//				//进入stop模式
-			//				EnterStopMode();
-			//				//唤醒之后重新初始化
-			//				init_system_afterWakeUp();
 						}
 
 					}
@@ -2436,7 +2432,41 @@ void DetectPalm()
 					}
 				}
 			}
+			//2.如果是已经开机，并且PWM已经输出了，这个时候手突然消失(持续1s认为消失)
+			else
+			{
+				if(GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_13)==1) //如果没有侦测到手掌
+				{
+					if(noPalm_cnt*KEY_LED_PERIOD==200)  //200ms内没侦测到就认为手消失了
+					{
+						noPalm_cnt=0;
+						//关闭波形输出
+						Motor_PWM_Freq_Dudy_Set(1,100,0);
+						Motor_PWM_Freq_Dudy_Set(2,100,0);
+						Motor_PWM_Freq_Dudy_Set(3,100,0);
+						
+						GPIO_SetBits(GPIOB,GPIO_Pin_10);  	 
+						GPIO_SetBits(GPIOB,GPIO_Pin_11);
+						
+						b_Palm_check_complited=FALSE;
+						state=LOAD_PARA;
+						init_PWMState();
+						b_detect_hand_before_system_running=TRUE;
+						
+						
+					}
+					else
+					{
+						noPalm_cnt++;
+					}
+				}
+				else
+				{
+					noPalm_cnt=0;
+				}
+			}
 		}
+		
 	}
 	
 	
@@ -2483,8 +2513,12 @@ void check_selectedMode_ouputPWM()
 				//先打开电磁阀，wait_before_start的时间用来放气，放气完成后校验sensor
 				GPIO_SetBits(GPIOB,GPIO_Pin_10);  	 //打开电磁阀1
 				GPIO_SetBits(GPIOB,GPIO_Pin_11);			//打开电磁阀2
+				
+				b_detect_hand_before_system_running=FALSE;  //系统运行起来之后，需要运行另外一套手掌检测的方法
+				reset_hand_detect_state();
 			}
 			
+			//执行wait before start
 			if(state==WAIT_BEFORE_START)  //开始预备输出PWM波形
 			{
 				if(Is_timing_Xmillisec(buffer[1]*1000,6))
@@ -2492,7 +2526,9 @@ void check_selectedMode_ouputPWM()
 					cycle_cnt=buffer[0];  //获取cycle的数值
 					--cycle_cnt; // 因为state=GET_MODE，后面的代码会全部执行一次，相当于已经执行过一次cycle了，所以这里要减1
 					//state=LOAD_PARA;
-					state=GET_MODE;
+					//state=GET_MODE;
+					
+					state=CPY_PARA_TO_BUFFER;
 					
 					GPIO_ResetBits(GPIOB,GPIO_Pin_10); 
 					GPIO_ResetBits(GPIOB,GPIO_Pin_11); 
@@ -2512,17 +2548,17 @@ void check_selectedMode_ouputPWM()
 					}
 					else
 					{
-						state=GET_MODE;  //进入再次循环
+						state=CPY_PARA_TO_BUFFER;
 						cycle_cnt--;
 					}
 				}
 				
-				//2.获得开关对应的模式
-				if(state==GET_MODE)    //flash参数加载内存之后，获取开关对应的模式
-				{
-					//mode=GetModeSelected();  //得到模式
-					state=CPY_PARA_TO_BUFFER;
-				}
+//				//2.获得开关对应的模式
+//				if(state==GET_MODE)    //flash参数加载内存之后，获取开关对应的模式
+//				{
+//					//mode=GetModeSelected();  //得到模式
+//					state=CPY_PARA_TO_BUFFER;
+//				}
 				
 				//3.根据选择的模式将数据拷贝到pwm_buffer
 				if(state==CPY_PARA_TO_BUFFER)  //根据选择的模式，将para填充到pwm_buffer中
@@ -2572,7 +2608,7 @@ void check_selectedMode_ouputPWM()
 						pwm2_state=PWM_START;
 						pwm3_state=PWM_START;
 					}
-					else
+					else //如果大于5mmgH,直接放气
 					{
 						//state=CHECK_PRESSURE_AGAIN;
 						
@@ -2612,18 +2648,16 @@ void check_selectedMode_ouputPWM()
 //				}
 				#endif
 				
-				//6.开始输出波形
+				//5.开始输出波形
 				if(state==OUTPUT_PWM) //按照设定的参数，输出PWM1,PWM2,PWM3
 				{			
 					if(pwm1_state==PWM_OUTPUT_FINISH&&pwm2_state==PWM_OUTPUT_FINISH&&pwm3_state==PWM_OUTPUT_FINISH)
 					{
-						PWM1_serial_cnt=0;
-						PWM2_serial_cnt=0;
-						PWM3_serial_cnt=0;
-						//state=CHECK_BAT_VOL;
+//						PWM1_serial_cnt=0;
+//						PWM2_serial_cnt=0;
+//						PWM3_serial_cnt=0;
 						state=GET_CYCLE_CNT;  //输出完一轮后就去cycle减一
 						init_PWMState();
-						
 						
 						//如果运行完毕
 						if(cycle_cnt==0)  

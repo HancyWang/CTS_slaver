@@ -142,6 +142,7 @@ extern uint8_t selfTest_fail_period_H;
 extern uint8_t selfTest_fail_period_L;
 extern uint8_t selfTest_end_Cnt;
 
+extern BOOL b_detect_hand_before_system_running;
 
 //extern BOOL b_start_powerOn_check;
 // BOOL b_KeyWkUP_InterrupHappened=FALSE;
@@ -399,6 +400,7 @@ void EXTI4_15_IRQHandler(void)
 //初始化所有全局变量
 void Init_gloab_viriable()
 {
+	b_detect_hand_before_system_running=TRUE;
 	Reset_Timing_Parameter();
 	init_PWMState();
 	state=LOAD_PARA;

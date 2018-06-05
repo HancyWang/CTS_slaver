@@ -163,17 +163,17 @@ static uint8_t* p_PWM_serial_cnt;
 
 uint16_t PWM_waitBeforeStart_cnt=0;
 
-uint16_t PWM1_period_cnt=0;
-uint16_t PWM2_period_cnt=0;
-uint16_t PWM3_period_cnt=0;
+//uint16_t PWM1_period_cnt=0;
+//uint16_t PWM2_period_cnt=0;
+//uint16_t PWM3_period_cnt=0;
 
-uint16_t PWM1_waitBetween_cnt=0;
-uint16_t PWM2_waitBetween_cnt=0;
-uint16_t PWM3_waitBetween_cnt=0;
+//uint16_t PWM1_waitBetween_cnt=0;
+//uint16_t PWM2_waitBetween_cnt=0;
+//uint16_t PWM3_waitBetween_cnt=0;
 
-uint16_t PWM1_waitAfter_cnt=0;
-uint16_t PWM2_waitAfter_cnt=0;
-uint16_t PWM3_waitAfter_cnt=0;
+//uint16_t PWM1_waitAfter_cnt=0;
+//uint16_t PWM2_waitAfter_cnt=0;
+//uint16_t PWM3_waitAfter_cnt=0;
 
 uint8_t PWM1_numOfCycle=0;
 uint8_t PWM2_numOfCycle=0;
@@ -251,6 +251,9 @@ BEEP_STATE beep_state=BEEP_INIT;
  uint8_t selfTest_end_Cnt;
  
  BOOL b_detect_hand_before_system_running=TRUE;
+// BOOL b_stop_motors=FALSE;
+uint16_t wait_between_total_cnt=0;
+ uint8_t value=0;
 /*******************************************************************************
 *                                内部函数声明
 *******************************************************************************/
@@ -285,17 +288,17 @@ void init_PWMState(void)
 
 	PWM_waitBeforeStart_cnt=0;
 
-	PWM1_period_cnt=0;
-	PWM2_period_cnt=0;
-	PWM3_period_cnt=0;
+//	PWM1_period_cnt=0;
+//	PWM2_period_cnt=0;
+//	PWM3_period_cnt=0;
 
-	PWM1_waitBetween_cnt=0;
-	PWM2_waitBetween_cnt=0;
-	PWM3_waitBetween_cnt=0;
+//	PWM1_waitBetween_cnt=0;
+//	PWM2_waitBetween_cnt=0;
+//	PWM3_waitBetween_cnt=0;
 
-	PWM1_waitAfter_cnt=0;
-	PWM2_waitAfter_cnt=0;
-	PWM3_waitAfter_cnt=0;
+//	PWM1_waitAfter_cnt=0;
+//	PWM2_waitAfter_cnt=0;
+//	PWM3_waitAfter_cnt=0;
 
 	PWM1_numOfCycle=0;
 	PWM2_numOfCycle=0;
@@ -306,6 +309,64 @@ void init_PWMState(void)
 	PWM3_serial_cnt=0;
 }
 
+//定制：马达的运行必须配合Pump,停止马达
+void stop_motors_base_on_Pump(uint16_t num)
+{
+//	b_stop_motors=TRUE;	
+	
+	pwm1_state=PWM_NONE;  //将PWM1和PWM2的状态置为NONE,不让它运行
+	pwm2_state=PWM_NONE;
+}
+
+void start_motors_base_on_pump(uint16_t num)
+{
+//	b_stop_motors=FALSE;
+	//定时时间也要初始化
+	prev_PWM1_os_tick=0;
+	prev_PWM2_os_tick=0;
+	
+	PWM1_timing_flag=TRUE;
+	PWM2_timing_flag=TRUE; 
+	
+	pwm1_state=PWM_START;
+	pwm2_state=PWM_START;
+
+//	PWM1_period_cnt=0;
+//	PWM2_period_cnt=0;
+
+//	PWM1_waitBetween_cnt=0;
+//	PWM2_waitBetween_cnt=0;
+
+//	PWM1_waitAfter_cnt=0;
+//	PWM2_waitAfter_cnt=0;
+
+	PWM1_numOfCycle=0;
+	PWM2_numOfCycle=0;
+
+//	PWM1_serial_cnt=0;
+//	PWM2_serial_cnt=0;
+	switch(num)
+	{
+		case 3:
+			PWM1_serial_cnt=1;
+			PWM2_serial_cnt=1;
+			break;
+		case 6:
+			PWM1_serial_cnt=2;
+			PWM2_serial_cnt=2;
+			break;
+		case 9:
+			PWM1_serial_cnt=3;
+			PWM2_serial_cnt=3;
+			break;
+//		case 12:
+//			PWM1_serial_cnt=1;
+//			PWM2_serial_cnt=1;
+//			break;
+		default:
+			break;	
+	}
+}
 
 void LED_Blink_for_alert(uint8_t seconds)
 {
@@ -599,8 +660,11 @@ void TaskDataSend (void)
     UINT16  len;
 		
 		//protocol_module_send_exp_flag(1);
-
+#ifdef _DEBUG
+#else
 		if(mcu_state==POWER_ON)
+#endif
+		
 		{
 			//循環
 			len = fifoReadData(&send_fifo, send_data_buf, SEND_DATA_BUF_LENGTH);
@@ -781,6 +845,38 @@ BOOL Is_timing_Xmillisec(uint32_t n_ms,uint8_t ID)
 	return FALSE;
 }
 
+void judge_total_PWM3_wait_between_cnt(uint8_t value)
+{
+	if(value==3&&PWM3_serial_cnt==0)
+	{
+		wait_between_total_cnt=3;
+	}
+	else if(value==3&&PWM3_serial_cnt==1)
+	{
+		wait_between_total_cnt=6;
+	}
+	else if(value==3&&PWM3_serial_cnt==2)
+	{
+		wait_between_total_cnt=9;
+	}
+//	else if(value==2&&PWM3_serial_cnt==3)
+//	{
+//		wait_between_total_cnt=3;
+//	}
+	else if(value==1&&PWM3_serial_cnt==4)
+	{
+		wait_between_total_cnt=12;
+	}
+//	else if(value==1&&PWM3_serial_cnt==5)
+//	{
+//		wait_between_total_cnt=3;
+//	}
+	else
+	{
+		//do nothing
+	}
+}
+
 /*******************************************************************************
 * 函数名称 : PaintPWM
 * 功能描述 : 画PWM
@@ -857,11 +953,23 @@ void PaintPWM(unsigned char num,unsigned char* buffer)
 	{
 		if(*p_pwm_state==PWM_START)
 		{
-			if(*p_PWM_serial_cnt>buffer[0]-1)  //判断serial是否全部输出完毕
+			//if(*p_PWM_serial_cnt>buffer[0]-1)  //判断serial是否全部输出完毕
+			if(PWM3_serial_cnt>buffer[0]-1)  //PWM3输出完毕就算完了，不用管PWM1和PWM2
 			{
-				Motor_PWM_Freq_Dudy_Set(num,buffer[1+ELEMENTS_CNT*(*p_PWM_serial_cnt)+FREQ],0);
-				*p_pwm_state=PWM_OUTPUT_FINISH;
-				*p_PWM_serial_cnt=0;
+				Motor_PWM_Freq_Dudy_Set(1,100,0);
+				Motor_PWM_Freq_Dudy_Set(2,100,0);
+				Motor_PWM_Freq_Dudy_Set(3,100,0);
+				
+				pwm1_state=PWM_OUTPUT_FINISH;
+				pwm2_state=PWM_OUTPUT_FINISH;
+				pwm3_state=PWM_OUTPUT_FINISH;
+				
+				PWM1_serial_cnt=0;
+				PWM2_serial_cnt=0;
+				PWM3_serial_cnt=0;
+//				Motor_PWM_Freq_Dudy_Set(num,buffer[1+ELEMENTS_CNT*(*p_PWM_serial_cnt)+FREQ],0);
+//				*p_pwm_state=PWM_OUTPUT_FINISH;
+//				*p_PWM_serial_cnt=0;
 			}
 			else
 			{
@@ -876,8 +984,7 @@ void PaintPWM(unsigned char num,unsigned char* buffer)
 						//新增：放气的时候马达不能停止，所以屏蔽下面两行代码
 //						Motor_PWM_Freq_Dudy_Set(1,100,0);
 //						Motor_PWM_Freq_Dudy_Set(2,100,0);
-						
-						
+
 						Motor_PWM_Freq_Dudy_Set(3,100,0);
 						//参数初始化，重新来
 						state=LOAD_PARA;
@@ -980,6 +1087,7 @@ void PaintPWM(unsigned char num,unsigned char* buffer)
 			
 			if(Is_timing_Xmillisec(buffer[1+ELEMENTS_CNT*(*p_PWM_serial_cnt)+DWELL]*1000,num))
 			{
+				wait_between_total_cnt++; //在dwell->wait between切换的时候，来计算有多少个
 				++(*p_PWM_numOfCycle);
 				*p_pwm_state=PWM_WAIT_BETWEEN;
 				//Motor_PWM_Freq_Dudy_Set(num,buffer[1+ELEMENTS_CNT*(*p_PWM_serial_cnt)+FREQ],0);
@@ -1007,8 +1115,34 @@ void PaintPWM(unsigned char num,unsigned char* buffer)
 		{
 			if(*p_PWM_numOfCycle==buffer[1+ELEMENTS_CNT*(*p_PWM_serial_cnt)+NUM_OF_CYCLES])
 			{
+				//注意：这部分的逻辑是定制的，没有通用性
+				//后续根据Ilan的要求，可能还会变化
+				
+				if(num==3)
+				{
+					
+					value=buffer[1+ELEMENTS_CNT*(*p_PWM_serial_cnt)+NUM_OF_CYCLES];
+				
+					judge_total_PWM3_wait_between_cnt(value);
+					//wait_between_total_cnt++;
+					if(wait_between_total_cnt==3||wait_between_total_cnt==6||wait_between_total_cnt==9||wait_between_total_cnt==12)
+					{
+						//停止马达
+						Motor_PWM_Freq_Dudy_Set(1,100,0);
+						Motor_PWM_Freq_Dudy_Set(2,100,0);
+						//Motor_PWM_Freq_Dudy_Set(2,100,0);
+						//强行将PWM1和PWM2拨到下一个serial,没运行完的部分直接咔嚓，参数初始化
+						stop_motors_base_on_Pump(wait_between_total_cnt);
+					}
+					else
+					{
+						//do nothing
+					}
+				}
+
 				*p_pwm_state=PWM_WAIT_AFTER;
 				*p_PWM_numOfCycle=0;
+				
 			}
 			else
 			{
@@ -1016,12 +1150,18 @@ void PaintPWM(unsigned char num,unsigned char* buffer)
 				{
 					if(Is_timing_Xmillisec(buffer[1+ELEMENTS_CNT*(*p_PWM_serial_cnt)+WAIT_BETWEEN]*1000,num))
 					{
+						if(wait_between_total_cnt==4||wait_between_total_cnt==7||wait_between_total_cnt==10)
+						{
+						start_motors_base_on_pump(wait_between_total_cnt);
+						}
+						
 						b_release_gas=FALSE;
 						GPIO_ResetBits(GPIOB,GPIO_Pin_10);
 						GPIO_ResetBits(GPIOB,GPIO_Pin_11);
 						
 						Motor_PWM_Freq_Dudy_Set(num,buffer[1+ELEMENTS_CNT*(*p_PWM_serial_cnt)+FREQ],buffer[1+ELEMENTS_CNT*(*p_PWM_serial_cnt)+DUTY_CYCLE]); 
 						*p_pwm_state=PWM_PERIOD;
+						
 					}
 					else
 					{
@@ -1059,20 +1199,31 @@ void PaintPWM(unsigned char num,unsigned char* buffer)
 				}
 				else
 				{
-					GPIO_SetBits(GPIOB,GPIO_Pin_10);  	 //打开电磁阀1
-					GPIO_SetBits(GPIOB,GPIO_Pin_11);			//打开电磁阀2
+//					GPIO_SetBits(GPIOB,GPIO_Pin_10);  	 //打开电磁阀1
+//					GPIO_SetBits(GPIOB,GPIO_Pin_11);			//打开电磁阀2
 				}
 			}
 			else
 			{
-				if(Is_timing_Xmillisec(buffer[1+ELEMENTS_CNT*(*p_PWM_serial_cnt)+WAIT_AFTER]*1000,num))
+				if(wait_between_total_cnt==3||wait_between_total_cnt==6||wait_between_total_cnt==9||wait_between_total_cnt==12)
 				{
 					state=OUTPUT_PWM;
 					*p_PWM_numOfCycle=0;
 					Motor_PWM_Freq_Dudy_Set(num,buffer[1+ELEMENTS_CNT*(*p_PWM_serial_cnt)+FREQ],0);
-					++(*p_PWM_serial_cnt);
+					//++(*p_PWM_serial_cnt);
 					*p_pwm_state=PWM_START;
-					//*p_PWM_waitAfter_cnt=0;
+				}
+				else
+				{
+					if(Is_timing_Xmillisec(buffer[1+ELEMENTS_CNT*(*p_PWM_serial_cnt)+WAIT_AFTER]*1000,num))
+					{
+						state=OUTPUT_PWM;
+						*p_PWM_numOfCycle=0;
+						Motor_PWM_Freq_Dudy_Set(num,buffer[1+ELEMENTS_CNT*(*p_PWM_serial_cnt)+FREQ],0);
+						++(*p_PWM_serial_cnt);
+						*p_pwm_state=PWM_START;
+						//*p_PWM_waitAfter_cnt=0;
+					}
 				}
 			}
 		}
@@ -2453,7 +2604,6 @@ void DetectPalm()
 						init_PWMState();
 						b_detect_hand_before_system_running=TRUE;
 						
-						
 					}
 					else
 					{
@@ -2486,17 +2636,13 @@ void check_selectedMode_ouputPWM()
 //	pressure_result=ADS115_readByte(0x90);
 	//这里添加一个状态基，获取cycle_cnt;
 	static uint8_t cycle_cnt=0;
-	#if 0
-//	cycle_cnt=3;//buffer[0],cycle time
-	
-//	if(mcu_state==POWER_ON)
-	//if(b_palm_checked&&mcu_state==POWER_ON&&b_Palm_check_complited==TRUE&&!b_usb_intterruptHappened)  //USB插上之后不允许出波形
-	#endif
-	
+#ifdef _DEBUG
+#else
 	if(b_Palm_check_complited==TRUE&&!b_stop_current_works&&!b_self_test)
+#endif
+	
 	{
 		if(!b_release_gas)
-//		//if(!b_release_gas&&!b_usb_charge_bat)   //4s放气，充电，都不允许输出PWM
 		{
 			//1.从flash中加载参数到内存
 			if(state==LOAD_PARA)      
@@ -2518,15 +2664,13 @@ void check_selectedMode_ouputPWM()
 				reset_hand_detect_state();
 			}
 			
-			//执行wait before start
+			//2.执行wait before start
 			if(state==WAIT_BEFORE_START)  //开始预备输出PWM波形
 			{
 				if(Is_timing_Xmillisec(buffer[1]*1000,6))
 				{
 					cycle_cnt=buffer[0];  //获取cycle的数值
 					--cycle_cnt; // 因为state=GET_MODE，后面的代码会全部执行一次，相当于已经执行过一次cycle了，所以这里要减1
-					//state=LOAD_PARA;
-					//state=GET_MODE;
 					
 					state=CPY_PARA_TO_BUFFER;
 					
@@ -2543,7 +2687,6 @@ void check_selectedMode_ouputPWM()
 					if(cycle_cnt==0)
 					{
 						state=IDLE;
-						//state=CHECK_BAT_VOL;
 						cycle_cnt=buffer[0];
 					}
 					else
@@ -2552,13 +2695,6 @@ void check_selectedMode_ouputPWM()
 						cycle_cnt--;
 					}
 				}
-				
-//				//2.获得开关对应的模式
-//				if(state==GET_MODE)    //flash参数加载内存之后，获取开关对应的模式
-//				{
-//					//mode=GetModeSelected();  //得到模式
-//					state=CPY_PARA_TO_BUFFER;
-//				}
 				
 				//3.根据选择的模式将数据拷贝到pwm_buffer
 				if(state==CPY_PARA_TO_BUFFER)  //根据选择的模式，将para填充到pwm_buffer中
@@ -2588,6 +2724,9 @@ void check_selectedMode_ouputPWM()
 					FillUpPWMbuffer(pwm1_buffer,pwm_buffer,1);
 					FillUpPWMbuffer(pwm2_buffer,pwm_buffer+48,2);
 					FillUpPWMbuffer(pwm3_buffer,pwm_buffer+96,3);
+					
+					//这里加一个校验，看看number 0f cycles是不是3-3-3-2-1-1
+					
 					state=CHECK_PRESSURE;
 				}
 				
@@ -2618,44 +2757,12 @@ void check_selectedMode_ouputPWM()
 						state=CHECK_PRESSURE;
 					}
 				}
-			#if 0	
-//				//5.检测压力Ok,则预备输出波形，先定时waitBeforeStart这么长时间
-//				if(state==PREV_OUTPUT_PWM)  //开始预备输出PWM波形
-//				{
-//		//			//如果不加if(b_Is_PCB_PowerOn==FALSE)会导致开关重新开机waitbeforestart定时不到想要的秒数
-//		//			if(b_Is_PCB_PowerOn==FALSE)
-//		//			{
-//		//				PWM_waitBeforeStart_cnt=0;
-//		//			}
-//		//			else
-//					{
-//	//					if((PWM_waitBeforeStart_cnt)*CHECK_MODE_OUTPUT_PWM==buffer[1]*1000)
-//	//					{
-//	//						PWM_waitBeforeStart_cnt=0;
-//	//						state=OUTPUT_PWM;
-//	//					}
-//	//					else
-//	//					{
-//	//						PWM_waitBeforeStart_cnt++;					
-//	//					}
-//						
-//						
-//						if(Is_timing_Xmillisec(buffer[1]*1000,6))
-//						{
-//							state=OUTPUT_PWM;
-//						}
-//					}  
-//				}
-				#endif
 				
 				//5.开始输出波形
 				if(state==OUTPUT_PWM) //按照设定的参数，输出PWM1,PWM2,PWM3
 				{			
 					if(pwm1_state==PWM_OUTPUT_FINISH&&pwm2_state==PWM_OUTPUT_FINISH&&pwm3_state==PWM_OUTPUT_FINISH)
 					{
-//						PWM1_serial_cnt=0;
-//						PWM2_serial_cnt=0;
-//						PWM3_serial_cnt=0;
 						state=GET_CYCLE_CNT;  //输出完一轮后就去cycle减一
 						init_PWMState();
 						
@@ -2693,54 +2800,6 @@ void check_selectedMode_ouputPWM()
 						
 					}
 				}
-#if 0
-//				//7.波形输出完毕，检测电池电压
-//				if(state==CHECK_BAT_VOL) 
-//				{
-//					//现在没有PCBA,电池电压检测的功能先屏蔽
-//					
-//	//					uint16_t result;
-//	//					result=RegularConvData_Tab[0]; //电压值
-//	//					if(result<2730) //如果电压小于2.2v,（基准3.3v）
-//	//					{
-//	//						//闪灯，进入POWER_OFF
-//	//						state=LED_RED_BLINK;
-//	//						cycle_cnt=buffer[0]; //加了低功耗之后，这句可以去掉
-//	//					}
-//	//					else
-//					{
-//						//state=LOAD_PARA;
-//						//state=GET_CYCLE_CNT;
-//						//state=GET_MODE;
-//						state=IDLE;
-//						pwm1_state=PWM_START;
-//						pwm2_state=PWM_START;
-//						pwm3_state=PWM_START;
-//					}
-//				}
-								
-					
-//					//对应7，如果检测电池电压小于2.2V，则闪灯
-//				if(state==LED_RED_BLINK)
-//				{
-//					Motor_PWM_Freq_Dudy_Set(1,100,0);
-//					Motor_PWM_Freq_Dudy_Set(2,100,0);
-//					Motor_PWM_Freq_Dudy_Set(3,100,0);	
-//					Motor_PWM_Freq_Dudy_Set(4,100,0);  
-//					Motor_PWM_Freq_Dudy_Set(5,4000,0);
-//					//橙色LED闪3s
-//					Red_LED_Blink(5);
-//					
-//					state=LOAD_PARA;
-//					pwm1_state=PWM_START;
-//					pwm2_state=PWM_START;
-//					pwm3_state=PWM_START;
-//					mcu_state=POWER_OFF;
-//					
-//					EnterStopMode();
-//					init_system_afterWakeUp();
-//				}
-#endif
 			}
 			else
 			{
@@ -2769,7 +2828,11 @@ void check_selectedMode_ouputPWM()
 *******************************************************************************/
 void CMD_ProcessTask (void)
 {
+#ifdef _DEBUG
+#else
 	if(mcu_state==POWER_ON)
+#endif
+	
 	{
 		//循環
 		ReceiveData(&g_CmdReceive);//接收数据到缓冲区

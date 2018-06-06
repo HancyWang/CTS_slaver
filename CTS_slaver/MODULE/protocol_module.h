@@ -59,6 +59,8 @@
 #define FLASH_START_ADDR   				((uint32_t)0x08000000) //flash开始地址
 #define FLASH_END_ADDR						((uint32_t)0x08004000) //flash结束地址
 #define FLASH_WRITE_START_ADDR		((uint32_t)0x08000000+1024*30) //开始写入的开始地址
+//注意070cb的page size是2K
+#define FLASH_ADDR_RECORD_CYCLES	((uint32_t)0x08000000+1024*32) //记录测试的圈数，这个仅仅是为了测试电池电量能支撑多少圈
 #define FLASH_WRITE_END_ADDR      ((uint32_t)0x08004000)  //flash写入的结束地址
 
 void FlashRead(uint32_t addr, uint32_t *p_data, uint16_t len);

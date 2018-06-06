@@ -78,6 +78,7 @@ void init_task(void)
 	os_create_task(CMD_ProcessTask, OS_TRUE, RECEIVE_TASK_ID);
 #ifdef _DEBUG
 	os_create_task(check_selectedMode_ouputPWM,OS_TRUE,TASK_OUTPUT_PWM);
+	os_create_task(DetectPalm, OS_TRUE, TASK_DETECT_PALM_ID);
 #else
 	os_create_task(key_power_on_task, OS_TRUE, KEY_LED_TASK_ID);
 	os_create_task(get_switch_mode,OS_TRUE,TASK_GET_SWITCH_MODE);

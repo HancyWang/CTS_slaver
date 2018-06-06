@@ -254,6 +254,17 @@ BEEP_STATE beep_state=BEEP_INIT;
 // BOOL b_stop_motors=FALSE;
 uint16_t wait_between_total_cnt=0;
  uint8_t value=0;
+ 
+//*********************debug*******************
+//cycles_record，仅仅是用来测试的，正式的版本不需要这个
+#ifdef _DEBUG_TEST_CYCLES
+//分别记录：跑的圈数,os_ticks(每跑完一圈记录一次当前时间),os_ticks(跑到没电的时候记录时间)
+uint32_t debug_cycles_record[3]={0}; 
+//uint32_t debug_cycle_cnt=0; 
+#else
+#endif
+//*********************debug*******************
+
 /*******************************************************************************
 *                                内部函数声明
 *******************************************************************************/
@@ -2434,6 +2445,11 @@ void Detect_battery_and_tmp()
 					//橙色LED闪3s，关机
 					Red_LED_Blink(5);
 					//LED_Blink_for_alert(5);
+#ifdef _DEBUG_TEST_CYCLES
+					debug_cycles_record[2]=os_ticks;  //记录关机前的时间
+					FlashWrite(FLASH_ADDR_RECORD_CYCLES,(uint8_t*)debug_cycles_record,3);
+#else
+#endif					
 					
 					mcu_state=POWER_OFF;
 					//进入stop模式
@@ -2656,9 +2672,13 @@ void check_selectedMode_ouputPWM()
 				CheckFlashData(buffer);
 				state=WAIT_BEFORE_START;
 
+#ifdef _DEBUG_TEST_CYCLES
+#else
 				//先打开电磁阀，wait_before_start的时间用来放气，放气完成后校验sensor
 				GPIO_SetBits(GPIOB,GPIO_Pin_10);  	 //打开电磁阀1
 				GPIO_SetBits(GPIOB,GPIO_Pin_11);			//打开电磁阀2
+#endif
+				
 				
 				b_detect_hand_before_system_running=FALSE;  //系统运行起来之后，需要运行另外一套手掌检测的方法
 				reset_hand_detect_state();
@@ -2667,7 +2687,11 @@ void check_selectedMode_ouputPWM()
 			//2.执行wait before start
 			if(state==WAIT_BEFORE_START)  //开始预备输出PWM波形
 			{
+#ifdef _DEBUG_TEST_CYCLES
+				if(Is_timing_Xmillisec(5*buffer[1]*1000,6))  //测试cycles时，扩大5倍，5*240(4min)=20min
+#else
 				if(Is_timing_Xmillisec(buffer[1]*1000,6))
+#endif
 				{
 					cycle_cnt=buffer[0];  //获取cycle的数值
 					--cycle_cnt; // 因为state=GET_MODE，后面的代码会全部执行一次，相当于已经执行过一次cycle了，所以这里要减1
@@ -2686,8 +2710,16 @@ void check_selectedMode_ouputPWM()
 				{
 					if(cycle_cnt==0)
 					{
+#ifdef _DEBUG_TEST_CYCLES
+						state=LOAD_PARA;
+					
+						debug_cycles_record[0]++;
+						debug_cycles_record[1]=os_ticks;
+						FlashWrite(FLASH_ADDR_RECORD_CYCLES,(uint8_t*)debug_cycles_record,3);
+#else
 						state=IDLE;
 						cycle_cnt=buffer[0];
+#endif
 					}
 					else
 					{
@@ -2766,29 +2798,15 @@ void check_selectedMode_ouputPWM()
 						state=GET_CYCLE_CNT;  //输出完一轮后就去cycle减一
 						init_PWMState();
 						
+						
 						//如果运行完毕
 						if(cycle_cnt==0)  
 						{
+#ifdef _DEBUG_TEST_CYCLES     //测试cycle的过程不允许结束治疗
+#else
 							b_end_of_treatment=TRUE;
 							led_beep_ID=2;
-							#if 0
-//							//加一个BEEP，表示治疗完成  
-//							for(uint8_t i=0;i<3;i++)
-//							{
-//								Motor_PWM_Freq_Dudy_Set(5,4000,50);
-//								delay_ms(1000);
-//								Motor_PWM_Freq_Dudy_Set(5,4000,0);
-//								delay_ms(1000);
-//							}
-//								//橙色LED闪3s，关机
-//							//Red_LED_Blink(3);
-//						
-//							mcu_state=POWER_OFF;
-//							//进入stop模式
-//							EnterStopMode();
-//							//唤醒之后重新初始化
-//							init_system_afterWakeUp();
-							#endif
+#endif
 						}
 					}		
 					else

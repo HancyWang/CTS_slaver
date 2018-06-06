@@ -16,6 +16,13 @@
 #include "stm32f0xx_dma.h"
 #include "iwtdg.h"
 
+//#ifdef _DEBUG_TEST_CYCLES
+//#include "protocol_module.h"
+//extern CHCKMODE_OUTPUT_PWM state;
+//extern uint16_t FlashWrite(uint32_t addr, uint8_t *p_data, uint16_t len);
+//extern uint32_t debug_cycles_record[3];
+//#else
+//#endif
 
  const uint8_t default_parameter_buf[PARAMETER_BUF_LEN] = {
 #if 1
@@ -90,7 +97,7 @@
 0x36,170,1,100,90,10,4,1,1,3,
 
 //Checksum
-0x36,0x45
+0x36,0xB7
 		#endif
 	};
 
@@ -104,6 +111,16 @@ int main(void)
 	
 	os_init();
 	//Motor_PWM_Init();
+	
+//#ifdef _DEBUG_TEST_CYCLES
+//	debug_cycles_record[0]=0;
+//	debug_cycles_record[1]=0;
+//	debug_cycles_record[2]=0;
+//	FlashWrite(FLASH_ADDR_RECORD_CYCLES,(uint8_t*)debug_cycles_record,3);
+//	state=LOAD_PARA;
+//#else
+//#endif
+	
 	
 #ifdef _DEBUG
 #else

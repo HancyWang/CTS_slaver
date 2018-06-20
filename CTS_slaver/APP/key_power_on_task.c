@@ -525,7 +525,7 @@ void release_gas_before_sleep()
 	
 	GPIO_SetBits(GPIOB,GPIO_Pin_10);
 	GPIO_SetBits(GPIOB,GPIO_Pin_11);
-	for(uint8_t i=0;i<4;i++)
+	for(uint8_t i=0;i<2;i++)
 	{
 		delay_ms(1000);
 	}

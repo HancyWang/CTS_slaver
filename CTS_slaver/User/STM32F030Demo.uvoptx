@@ -161,22 +161,32 @@
         <Ww>
           <count>0</count>
           <WinNumber>1</WinNumber>
-          <ItemText>parameter_buf</ItemText>
+          <ItemText>PWM3_serial_cnt,0x0A</ItemText>
         </Ww>
         <Ww>
           <count>1</count>
           <WinNumber>1</WinNumber>
-          <ItemText>buffer</ItemText>
+          <ItemText>wait_between_total_cnt,0x0A</ItemText>
         </Ww>
         <Ww>
           <count>2</count>
           <WinNumber>1</WinNumber>
-          <ItemText>prev_PWM3_os_tick,0x0A</ItemText>
+          <ItemText>wait_between_total_cnt,0x0A</ItemText>
         </Ww>
         <Ww>
           <count>3</count>
           <WinNumber>1</WinNumber>
-          <ItemText>os_ticks,0x0A</ItemText>
+          <ItemText>default_parameter_buf,0x0A</ItemText>
+        </Ww>
+        <Ww>
+          <count>4</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>RegularConvData_Tab,0x0A</ItemText>
+        </Ww>
+        <Ww>
+          <count>5</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>RegularConvData_Tab</ItemText>
         </Ww>
       </WatchWindow1>
       <WatchWindow2>
@@ -185,12 +195,22 @@
           <WinNumber>2</WinNumber>
           <ItemText>prev_PWM3_os_tick,0x0A</ItemText>
         </Ww>
+        <Ww>
+          <count>1</count>
+          <WinNumber>2</WinNumber>
+          <ItemText>wait_between_total_cnt,0x0A</ItemText>
+        </Ww>
+        <Ww>
+          <count>2</count>
+          <WinNumber>2</WinNumber>
+          <ItemText>debug_cycles_record,0x0A</ItemText>
+        </Ww>
       </WatchWindow2>
       <MemoryWindow1>
         <Mm>
           <WinNumber>1</WinNumber>
           <SubType>0</SubType>
-          <ItemText>0x08000000+1024*30</ItemText>
+          <ItemText>0x08000000+1024*32</ItemText>
           <AccSizeX>0</AccSizeX>
         </Mm>
       </MemoryWindow1>

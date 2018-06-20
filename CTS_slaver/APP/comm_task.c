@@ -215,7 +215,7 @@ LED_IN_TURN_STATE led_In_Turn_state=LED_IN_TURN_NONE;
 
  uint8_t selfTest_delay_Cnt;
  uint8_t nLED_ON_in_turn;
- uint8_t inflate_cnt;
+ uint16_t inflate_cnt;
  uint16_t hold_cnt;
  uint8_t deflate_cnt;
 //static uint8_t bat_detect_cnt=0;
@@ -1702,8 +1702,6 @@ void ReleaseGas()
 
 void usb_charge_battery()
 {
-	
-	
 	//明天试一下这个方法
 	if(usb_detect_state==USB_PUSH_IN)  //刚刚插入USB,
 	{
@@ -1751,14 +1749,17 @@ void usb_charge_battery()
 	if(usb_charging_state==USB_CHECK_CHARG)
 	{
 		//set_led(LED_ID_GREEN,TRUE);
-		if(GPIO_ReadInputDataBit(GPIOA,GPIO_Pin_5)==1&&GPIO_ReadInputDataBit(GPIOA,GPIO_Pin_4)==0)  //充电中
+		//PCB的charge和stdby两个信号layout反了，重layout来不及了，现在在软件上调换位置
+//		if(GPIO_ReadInputDataBit(GPIOA,GPIO_Pin_5)==1&&GPIO_ReadInputDataBit(GPIOA,GPIO_Pin_4)==0)  //充电中
+		if(GPIO_ReadInputDataBit(GPIOA,GPIO_Pin_5)==0&&GPIO_ReadInputDataBit(GPIOA,GPIO_Pin_4)==1)  //充电中
 		{
 			usb_charging_state=USB_CHARGING;
 			//led_beep_ID=3;
 			
 			//usb_charging_state=USB_CHARGE_FAULT;
 		}
-		else if(GPIO_ReadInputDataBit(GPIOA,GPIO_Pin_5)==0&&GPIO_ReadInputDataBit(GPIOA,GPIO_Pin_4)==1)  //充满了
+//		else if(GPIO_ReadInputDataBit(GPIOA,GPIO_Pin_5)==0&&GPIO_ReadInputDataBit(GPIOA,GPIO_Pin_4)==1)  //充满了
+		else if(GPIO_ReadInputDataBit(GPIOA,GPIO_Pin_5)==1&&GPIO_ReadInputDataBit(GPIOA,GPIO_Pin_4)==0)  //充满了
 		{
 			usb_charging_state=USB_CHARGED_FULL;
 		}
@@ -1799,7 +1800,8 @@ void usb_charge_battery()
 				set_led(LED_ID_GREEN,TRUE);
 				b_charge_flag=FALSE;
 				//判断一下，电池充满了没有
-				if(GPIO_ReadInputDataBit(GPIOA,GPIO_Pin_5)==0&&GPIO_ReadInputDataBit(GPIOA,GPIO_Pin_4)==1)  //充满了
+//				if(GPIO_ReadInputDataBit(GPIOA,GPIO_Pin_5)==0&&GPIO_ReadInputDataBit(GPIOA,GPIO_Pin_4)==1)  //充满了
+				if(GPIO_ReadInputDataBit(GPIOA,GPIO_Pin_5)==1&&GPIO_ReadInputDataBit(GPIOA,GPIO_Pin_4)==0)  //充满了
 				{		
 					usb_charging_state=USB_CHARGED_FULL;
 				}
@@ -1971,7 +1973,7 @@ void self_test()
 	//充气
 	if(self_tet_state==SELF_TEST_INFLATE)
 	{
-		if(inflate_cnt*20==5000) //充气5s
+		if(inflate_cnt*20==8000) //充气8s
 		{
 			Motor_PWM_Freq_Dudy_Set(3,100,0);  //充气完毕，进入hold阶段，检测是否漏气
 			self_tet_state=SELF_TEST_HOLD;
@@ -1987,7 +1989,7 @@ void self_test()
 				//记录数据1
 				selfTest_inflate_record_1=ADS115_readByte(0x90);
 			}
-			if(inflate_cnt==200)
+			if(inflate_cnt==399)
 			{
 				//记录数据2
 				selfTest_inflate_record_2=ADS115_readByte(0x90);
@@ -2386,7 +2388,7 @@ void Detect_battery_and_tmp()
 	uint16_t result_1;
 	result_0=RegularConvData_Tab[0];  //对应的是电池电压检测
 	result_1=RegularConvData_Tab[1];  //对应的是温度检测
-	
+
 	//检测电池电压以及板子温度
 	//温度上限为60度，系数为0.302,  0.302*10K=3020ohm ,对应电压为3*(3020/(10k+3020))=0.695v
 	//0.695/3*4096=950,如果小于950，表示温度超过了60度
@@ -2427,7 +2429,7 @@ void Detect_battery_and_tmp()
 			if(sample_cnt==20)
 			{
 				uint16_t sample_avg;
-				sample_avg=sample_sum/=20; 
+				sample_avg=(sample_sum/=20); 
 				sample_cnt=0;
 				if((sample_avg>=2252))
 				{
@@ -2678,8 +2680,6 @@ void check_selectedMode_ouputPWM()
 				GPIO_SetBits(GPIOB,GPIO_Pin_10);  	 //打开电磁阀1
 				GPIO_SetBits(GPIOB,GPIO_Pin_11);			//打开电磁阀2
 #endif
-				
-				
 				b_detect_hand_before_system_running=FALSE;  //系统运行起来之后，需要运行另外一套手掌检测的方法
 				reset_hand_detect_state();
 			}

@@ -54,6 +54,11 @@
 #define MODE3_PWM2_ID							0x32  //上位机下发的MODE1-PWM1
 #define MODE3_PWM3_ID							0x33  //上位机下发的MODE1-PWM1
 
+#define CAL_SENSOR_MMGH_1         0x50  //上位机下发的mmgh的值1
+#define CAL_SENSOR_MMGH_2         0x51	//上位机下发的mmgh的值2
+#define CAL_SENSOR_MMGH_3         0x52	//上位机下发的mmgh的值3
+#define CAL_SENSOR_SEND_TO_PC     0x60  //下位机回传值给上位机
+
 //定义上位机写入flash的起始地址
 #define FLASH_PAGE_SIZE      			((uint16_t)0x400)  //flash一页的大小为1K
 #define FLASH_START_ADDR   				((uint32_t)0x08000000) //flash开始地址
@@ -62,6 +67,8 @@
 //注意070cb的page size是2K
 #define FLASH_ADDR_RECORD_CYCLES	((uint32_t)0x08000000+1024*32) //记录测试的圈数，这个仅仅是为了测试电池电量能支撑多少圈
 #define FLASH_WRITE_END_ADDR      ((uint32_t)0x08004000)  //flash写入的结束地址
+
+#define FLASH_PRESSURE_RATE_ADDR  ((uint32_t)0x08000000+1024*26) //开始写入的开始地址
 
 void FlashRead(uint32_t addr, uint32_t *p_data, uint16_t len);
 uint32_t FlashReadWord(uint32_t addr);

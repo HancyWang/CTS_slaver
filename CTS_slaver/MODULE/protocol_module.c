@@ -28,6 +28,7 @@
 #include "key_power_on_task.h"
 
 #include "common.h"
+#include "i2c.h"
 /**********************************
 *宏定义
 ***********************************/
@@ -48,6 +49,18 @@ extern UINT16 check_sum;
 //extern uint8_t send_exp_train_data_status;s
 extern MCU_STATE mcu_state;
 extern uint16_t RegularConvData_Tab[2];
+
+
+uint8_t arr_mmgH_value[3];
+uint16_t arr_adc_value[3];
+
+typedef struct POINT
+{
+	uint8_t mmgh_value;
+	uint16_t adc_value;
+}POINT;
+
+extern uint16_t zero_point_of_pressure_sensor;
 /***********************************
 * 局部变量
 ***********************************/
@@ -536,7 +549,84 @@ uint8_t FlashReadByte(uint32_t addr)
 //		return 3; //返回模式3
 //	}
 //}
+uint32_t cal_pressure_rate(POINT point_1,POINT point_2,POINT point_3)
+{
+	uint16_t rate1=abs(point_2.adc_value-point_1.adc_value)/abs(point_2.mmgh_value-point_1.mmgh_value);
+	uint16_t rate2=abs(point_3.adc_value-point_1.adc_value)/abs(point_3.mmgh_value-point_1.mmgh_value);
+	return (rate1+rate2)/2;
+}
 
+void send_cal_reslut_2_PC()
+{
+	uint8_t buffer[4+9+2+2];
+	POINT point_1;
+	POINT point_2;
+	POINT point_3;
+	
+	//1.发送给上位机
+	buffer[0] = PACK_HEAD_BYTE;       //0xFF
+	buffer[1] = 0x04+11;            
+	buffer[2] = MODULE_CMD_TYPE;      //0x00
+	buffer[3] = CAL_SENSOR_SEND_TO_PC; //0x60
+	
+	point_1.mmgh_value=arr_mmgH_value[0];
+	point_1.adc_value=arr_adc_value[0];
+
+	point_2.mmgh_value=arr_mmgH_value[1];
+	point_2.adc_value=arr_adc_value[1];
+
+	point_3.mmgh_value=arr_mmgH_value[2];
+	point_3.adc_value=arr_adc_value[2];
+
+	 
+	//填数值1
+	buffer[4]=point_1.mmgh_value;
+	buffer[5]=point_1.adc_value/256;
+	buffer[6]=point_1.adc_value%256;
+
+	//填数值2
+	buffer[7]=point_2.mmgh_value;
+	buffer[8]=point_2.adc_value/256;
+	buffer[9]=point_2.adc_value%256;
+
+	//填数值3
+	buffer[10]=point_3.mmgh_value;
+	buffer[11]=point_3.adc_value/256;
+	buffer[12]=point_3.adc_value%256;
+
+	buffer[buffer[1]-1]=((uint16_t)zero_point_of_pressure_sensor)%256;
+	buffer[buffer[1]-2]=((uint16_t)zero_point_of_pressure_sensor)/256;
+	CalcCheckSum(buffer);
+	fifoWriteData(&send_fifo, buffer, buffer[1]+2);
+	
+	//2.将斜率存起来
+	//计算斜率
+	uint32_t rate=cal_pressure_rate(point_1,point_2,point_3);
+	FlashWrite(FLASH_PRESSURE_RATE_ADDR,(uint8_t*)&rate,1);
+}
+
+void calibrate_sensor_by_ID(uint8_t* pdata,uint8_t ID)
+{
+	switch(ID)
+	{
+		case 1:
+			arr_mmgH_value[0]=*(pdata+4);
+			arr_adc_value[0]=ADS115_readByte(0x90);
+			break;
+		case 2:
+			arr_mmgH_value[1]=*(pdata+4);
+			arr_adc_value[1]=ADS115_readByte(0x90);
+			break;
+		case 3:
+			arr_mmgH_value[2]=*(pdata+4);
+			arr_adc_value[2]=ADS115_readByte(0x90);
+			
+			send_cal_reslut_2_PC();
+			break;
+		default:
+			break;
+	}
+}
 
 //解析上位机命令
 void protocol_module_process(uint8_t* pdata)
@@ -624,6 +714,17 @@ void protocol_module_process(uint8_t* pdata)
 	case GET_FLASH_DATA_3_ID:
 		send_prameter_fram3_to_PC();
 		break;
+	
+	case CAL_SENSOR_MMGH_1:   //新增的专门用来校验sensor
+		calibrate_sensor_by_ID(pdata,1);
+		break;
+	case CAL_SENSOR_MMGH_2:
+		calibrate_sensor_by_ID(pdata,2);
+		break;
+	case CAL_SENSOR_MMGH_3:
+		calibrate_sensor_by_ID(pdata,3);  //在3中回传值
+		break;
+	
 	default:
 		break;
 	}

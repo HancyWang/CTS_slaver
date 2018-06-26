@@ -28,3 +28,4 @@
 ..\obj\protocol_module.o: ..\STM32F03x_FWLib\inc\stm32f0xx_flash.h
 ..\obj\protocol_module.o: ..\APP\key_power_on_task.h
 ..\obj\protocol_module.o: ..\APP\common.h
+..\obj\protocol_module.o: ..\APP\i2c.h

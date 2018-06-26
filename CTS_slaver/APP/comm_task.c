@@ -19,13 +19,14 @@
 
 //每个pressure sensor的rate都不一样，后续的话可以定义一个接口，从flash中读取rate
 //#define PRESSURE_RATE get_pressure_rate
-#define PRESSURE_RATE 20   //测试3PCS,都是20
+//#define PRESSURE_RATE 20   //测试3PCS,都是20
+#define PRESSURE_RATE (FlashReadWord(FLASH_PRESSURE_RATE_ADDR))
 #define PRESSURE_SAFETY_THRESHOLD 180
 #define PRESSURE_EMPTY_AIR 5
 //y=ax+b
-#define PRESSURE_SENSOR_VALUE(x) ((PRESSURE_RATE*x)+zero_point_of_pressure_sensor)
+#define PRESSURE_SENSOR_VALUE(x) (((PRESSURE_RATE*x)+zero_point_of_pressure_sensor))
 
-extern uint16_t zero_point_of_pressure_sensor;
+extern int16_t zero_point_of_pressure_sensor;
 
 //全局变量
 CMD_Receive g_CmdReceive;  // 命令接收控制对象

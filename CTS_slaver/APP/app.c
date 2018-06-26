@@ -44,6 +44,7 @@ extern uint8_t send_buf[SEND_BUF_LEN];
 
 extern BOOL b_Is_PCB_PowerOn;
 
+extern int16_t zero_point_of_pressure_sensor;
 //保存數據
 //extern FIFO_TYPE train_store_fifo;
 //extern STORE_HEAD exp_store_head;
@@ -67,6 +68,10 @@ void init_task(void)
 	//初始化硬件
 	init_hardware();	
 	Motor_PWM_Init();
+	
+#ifdef _DEBUG
+	Calibrate_pressure_sensor(&zero_point_of_pressure_sensor);
+#endif
 	
 	//初始化通信相关
 	fifoInit(&send_fifo,send_buf,SEND_BUF_LEN);

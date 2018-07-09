@@ -20,11 +20,13 @@
 //每个pressure sensor的rate都不一样，后续的话可以定义一个接口，从flash中读取rate
 //#define PRESSURE_RATE get_pressure_rate
 //#define PRESSURE_RATE 20   //测试3PCS,都是20
-#define PRESSURE_RATE (FlashReadWord(FLASH_PRESSURE_RATE_ADDR))
+//#define PRESSURE_RATE (FlashReadWord(FLASH_PRESSURE_RATE_ADDR))
+uint32_t pressure_rate;
 #define PRESSURE_SAFETY_THRESHOLD 180
 #define PRESSURE_EMPTY_AIR 5
 //y=ax+b
-#define PRESSURE_SENSOR_VALUE(x) (((PRESSURE_RATE*x)+zero_point_of_pressure_sensor))
+//uint32_t PRESSURE_SENSOR_VALUE;
+//#define PRESSURE_SENSOR_VALUE(x) ((PRESSURE_RATE*x)+zero_point_of_pressure_sensor)
 
 extern int16_t zero_point_of_pressure_sensor;
 
@@ -1016,11 +1018,13 @@ void PaintPWM(unsigned char num,unsigned char* buffer)
 			if(num==3)  //PWM3
 			{
 				uint16_t ret=ADS115_readByte(0x90);
-				if(ret>=PRESSURE_SENSOR_VALUE(buffer[1+ELEMENTS_CNT*(*p_PWM_serial_cnt)+THRESHOLD]))
+				//PRESSURE_SENSOR_VALUE=buffer[1+ELEMENTS_CNT*(*p_PWM_serial_cnt)+THRESHOLD]*pressure_rate+zero_point_of_pressure_sensor;
+				if(ret>=((pressure_rate*buffer[1+ELEMENTS_CNT*(*p_PWM_serial_cnt)+THRESHOLD])+zero_point_of_pressure_sensor))
+				//if(ret>=PRESSURE_SENSOR_VALUE)
 				{
 //					Motor_PWM_Freq_Dudy_Set(num,buffer[1+ELEMENTS_CNT*(*p_PWM_serial_cnt)+FREQ],0);
 //					*p_pwm_state=PWM_PERIOD;
-					if(ret<PRESSURE_SENSOR_VALUE(PRESSURE_SAFETY_THRESHOLD))
+					if(ret<(pressure_rate*PRESSURE_SAFETY_THRESHOLD+zero_point_of_pressure_sensor))
 					{
 						#if 0
 //						Motor_PWM_Freq_Dudy_Set(1,100,0);
@@ -1108,7 +1112,7 @@ void PaintPWM(unsigned char num,unsigned char* buffer)
 			}
 			else 
 			{
-				if(ADS115_readByte(0x90)>=PRESSURE_SENSOR_VALUE(PRESSURE_SAFETY_THRESHOLD))
+				if(ADS115_readByte(0x90)>=(pressure_rate*PRESSURE_SAFETY_THRESHOLD+zero_point_of_pressure_sensor))
 				{
 					*p_pwm_state=PWM_OVER_SAFTY_THRESHOLD;
 
@@ -2675,6 +2679,8 @@ void check_selectedMode_ouputPWM()
 				CheckFlashData(buffer);
 				state=WAIT_BEFORE_START;
 
+				pressure_rate=FlashReadWord(FLASH_PRESSURE_RATE_ADDR);
+				//PRESSURE_RATE=20;
 #ifdef _DEBUG_TEST_CYCLES
 #else
 				//先打开电磁阀，wait_before_start的时间用来放气，放气完成后校验sensor
@@ -2771,7 +2777,7 @@ void check_selectedMode_ouputPWM()
 					//pressure_result=900;
 					//if(pressure_result<=70*5)  
 					//这里应该是<=5mmgH就往下运行，5mmgH是固定值，目的是检测ballom中的气体，没有气体才能输出PWM
-					if(pressure_result<=PRESSURE_SENSOR_VALUE(PRESSURE_EMPTY_AIR)) 
+					if(pressure_result<=(pressure_rate*PRESSURE_EMPTY_AIR+zero_point_of_pressure_sensor)) 
 					{
 						//state=PREV_OUTPUT_PWM;
 						state=OUTPUT_PWM;

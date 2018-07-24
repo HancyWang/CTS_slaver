@@ -40,8 +40,11 @@
 #define LED_GREEN_PWR_PIN  GPIO_Pin_3   //PB3 ,LED1,ÂÌµÆ
 #define LED_YELLOW_PWR_PIN GPIO_Pin_2  //PB2,LED2,»ÆµÆ
 #define LED_MODE1_PIN      GPIO_Pin_6   //MODE1,PB6
-#define LED_MODE2_PIN			 GPIO_Pin_4   //MODE2,PB4
-#define LED_MODE3_PIN			 GPIO_Pin_5   //MODE3,PB5
+//#define LED_MODE2_PIN			 GPIO_Pin_4   //MODE2,PB4
+//#define LED_MODE3_PIN			 GPIO_Pin_5   //MODE3,PB5
+#define LED_MODE2_PIN			 GPIO_Pin_5   //MODE2,PB5
+#define LED_MODE3_PIN			 GPIO_Pin_4   //MODE3,PB4
+
 
 //°´¼ü
 #define KEY_DETECT_PIN    GPIO_Pin_0

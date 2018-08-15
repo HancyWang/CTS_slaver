@@ -1,5 +1,5 @@
 Dependencies for Project 'STM32F030Demo', Target 'Stm32f030demo': (DO NOT MODIFY !)
-F (.\main.c)(0x5B567E36)(--c99 -c --cpu Cortex-M0 -g -O3 --apcs=interwork -I ..\APP -I ..\OS -I ..\CORE -I ..\HARDWARE -I ..\MODULE -I ..\STM32F03x_FWLib\inc -I ..\STM32F03x_FWLib\src -I ..\User -I ..\SYSTEM -I ..\SYSTEM\cmd -I ..\SYSTEM\fifo-I.\RTE\_Stm32f030demo-ID:\Keil_v5\ARM\PACK\ARM\CMSIS\5.0.1\CMSIS\Include-ID:\Keil_v5\ARM\PACK\Keil\STM32F0xx_DFP\1.5.0\Device\Include-D__UVISION_VERSION="523" -D_RTE_ -DSTM32F070xB -DUSE_STDPERIPH_DRIVER -DSTM32F0XX-o ..\obj\main.o --omf_browse ..\obj\main.crf --depend ..\obj\main.d)
+F (.\main.c)(0x5B73D92A)(--c99 -c --cpu Cortex-M0 -g -O3 --apcs=interwork -I ..\APP -I ..\OS -I ..\CORE -I ..\HARDWARE -I ..\MODULE -I ..\STM32F03x_FWLib\inc -I ..\STM32F03x_FWLib\src -I ..\User -I ..\SYSTEM -I ..\SYSTEM\cmd -I ..\SYSTEM\fifo-I.\RTE\_Stm32f030demo-ID:\Keil_v5\ARM\PACK\ARM\CMSIS\5.0.1\CMSIS\Include-ID:\Keil_v5\ARM\PACK\Keil\STM32F0xx_DFP\1.5.0\Device\Include-D__UVISION_VERSION="523" -D_RTE_ -DSTM32F070xB -DUSE_STDPERIPH_DRIVER -DSTM32F0XX-o ..\obj\main.o --omf_browse ..\obj\main.crf --depend ..\obj\main.d)
 I (stm32f0xx.h)(0x5A74C6B0)
 I (..\CORE\core_cm0.h)(0x5A9F9B3D)
 I (D:\Keil_v5\ARM\ARMCC\include\stdint.h)(0x57F606B8)

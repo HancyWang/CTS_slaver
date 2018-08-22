@@ -1263,7 +1263,7 @@ void ResetParameter(unsigned char* buffer)
 
 void CheckFlashData(unsigned char* buffer)
 {
-	uint16_t j=0;
+	 uint16_t j=0;
 	//如果数据出错就用默认的数据
 	if(buffer[0]<1||buffer[0]>255) //cycles
 	{
@@ -1273,7 +1273,7 @@ void CheckFlashData(unsigned char* buffer)
 	//buffer[1]不需要检测，它的范围为0-255
 	for(int i=0;i<54;i++)  //一共54个serial
 	{
-		j++;                 //1.跳过第一个
+		j++;                 //1.跳过第一个 类似0x11,0x12之类
 		if(buffer[2+j++]>1) //2.enable
 		{
 			ResetParameter(buffer);
@@ -1285,7 +1285,7 @@ void CheckFlashData(unsigned char* buffer)
 //			j++;
 //		}
 		//MODE1_PWM3(98,158),MODE2_PWM3(254,314),MODE3_PWM3(410,470)
-		if((j>=96&&j<=156)||(j>=252&&j<=312)||(j>=408&&j<=468))  //3.threshold
+		if((j>=98-2&&j<=158-2)||(j>=254-2&&j<=314-2)||(j>=410-2&&j<=470-2))  //3.threshold
 		{
 			j++;
 		}
@@ -1307,7 +1307,7 @@ void CheckFlashData(unsigned char* buffer)
 			return;
 		}
 		//MODE1_PWM3(98,158),MODE2_PWM3(254,314),MODE3_PWM3(410,470)
-		if((j>=96&&j<=156)||(j>=252&&j<=312)||(j>=408&&j<=468))  //6.dwell
+		if((j>=98-2&&j<=158-2)||(j>=254-2&&j<=314-2)||(j>=410-2&&j<=470-2))  //6.dwell
 		{
 			j++;
 		}
@@ -1321,6 +1321,7 @@ void CheckFlashData(unsigned char* buffer)
 		j++;                                  //7.wait between
 		j++;																	//8.wait after
 	}
+	j=0;
 }
 
 
@@ -2690,12 +2691,14 @@ void check_selectedMode_ouputPWM()
 			//1.从flash中加载参数到内存
 			if(state==LOAD_PARA)      
 			{
+				
 				uint8_t len=PARAMETER_BUF_LEN/4;  
 				uint32_t tmp[PARAMETER_BUF_LEN/4]={0};   		
-				
+				//FlashWrite(FLASH_WRITE_START_ADDR,(uint8_t*)tmp,PARAMETER_BUF_LEN/4);//debug
 				//读取flash数据到buffer中
 				FlashRead(FLASH_WRITE_START_ADDR,tmp,len);
 				memcpy(buffer,tmp,PARAMETER_BUF_LEN);
+				
 				CheckFlashData(buffer);
 				state=WAIT_BEFORE_START;
 

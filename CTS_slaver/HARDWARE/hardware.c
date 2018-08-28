@@ -107,10 +107,11 @@ void init_tim(void)
   NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
   NVIC_Init(&NVIC_InitStructure);
  
-  TIM_TimeBaseStructure.TIM_Period = SystemCoreClock/OS_TICKS_PER_SEC;           // 自动重装载寄存器周期的值(计数值) 
+  TIM_TimeBaseStructure.TIM_Period = SystemCoreClock/OS_TICKS_PER_SEC-1;           // 自动重装载寄存器周期的值(计数值) 
   TIM_TimeBaseStructure.TIM_Prescaler = 0;	//时钟预分频数 
   TIM_TimeBaseStructure.TIM_ClockDivision = 0;			//向上计数模式
   TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
+	TIM_TimeBaseStructure.TIM_RepetitionCounter=0;
 
   TIM_TimeBaseInit(TIM16, &TIM_TimeBaseStructure);
 

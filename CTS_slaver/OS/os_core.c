@@ -28,7 +28,7 @@ void os_start(void)
       if(task_array[index].run_en == OS_TRUE)//运行标志是否有效
       {
           if(task_array[index].delay_start + task_array[index].delay_period \
-                  < os_ticks)//延時時間到
+                  <= os_ticks)//延時時間到
           {
               task_array[index].delay_start = 0;
 

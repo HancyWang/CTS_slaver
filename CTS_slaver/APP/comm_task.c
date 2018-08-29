@@ -1677,6 +1677,10 @@ void get_switch_mode()
 
 void ReleaseGas()
 {
+	if(!b_Is_PCB_PowerOn)
+	{
+		return;
+	}
 	if(b_release_gas==TRUE)
 	{
 //		state=LOAD_PARA;
@@ -2523,6 +2527,10 @@ void reset_hand_detect_state()
 //侦测手掌任务
 void DetectPalm()
 {
+	if(!b_Is_PCB_PowerOn)
+	{
+		return;
+	}
 	//正在运行过程中，如果插入了USB，必须清除计数状态
 	//假设在进行60s检测手掌时，已经到了30s,如果不清除，系统唤醒的时候还记得是30s
 	//USB_PUSH_IN

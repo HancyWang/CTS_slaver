@@ -54,7 +54,7 @@ static void Motor_PWM_GPIO_Config(void)
   GPIO_InitTypeDef GPIO_InitStructure;
 	
   /* GPIOA and GPIOB clock enable */
-  RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOA|RCC_AHBPeriph_GPIOB|RCC_AHBPeriph_GPIOF, ENABLE); 
+  RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOA|RCC_AHBPeriph_GPIOB, ENABLE); 
 /* TIM3CLK enable*/
   RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM3, ENABLE); 	//PWM1
 	/* TIM17CLK enable*/
@@ -103,12 +103,11 @@ static void Motor_PWM_Config(void)  //分频
 	TIM_OCInitTypeDef  TIM_OCInitStructure;
 	TIM_BDTRInitTypeDef TIM_BDTRInitStruct;
 	
-//	/* TIM3CLK enable*/
-//  RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM3, ENABLE); 	
-//	/* TIM17CLK enable*/
-//  RCC_APB2PeriphClockCmd(RCC_APB2Periph_TIM17, ENABLE); 	
-//	/* TIM14CLK enable*/
-//  RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM14, ENABLE); 	
+	TIM_Cmd(TIM3, DISABLE);                   //使能定时器3	
+	TIM_Cmd(TIM14, DISABLE);                   //使能定时器14
+	TIM_Cmd(TIM17, DISABLE);                   //使能定时器17
+	TIM_Cmd(TIM1, DISABLE);
+	TIM_Cmd(TIM15, DISABLE);
 	
 
 	//TIM3定时周期为
@@ -117,6 +116,7 @@ static void Motor_PWM_Config(void)  //分频
   TIM_TimeBaseStructure.TIM_Prescaler = 1000-1;	    //1000预分频
   TIM_TimeBaseStructure.TIM_ClockDivision = TIM_CKD_DIV1 ;	//设置时钟分频系数：不分频(这里用不到)
   TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;  //向上计数模式
+  TIM_TimeBaseStructure.TIM_RepetitionCounter=0;
   TIM_TimeBaseInit(TIM3, &TIM_TimeBaseStructure);
 	TIM_TimeBaseInit(TIM17, &TIM_TimeBaseStructure);
 	TIM_TimeBaseInit(TIM14, &TIM_TimeBaseStructure);
@@ -166,7 +166,7 @@ static void Motor_PWM_Config(void)  //分频
 	TIM_ARRPreloadConfig(TIM15, ENABLE);
 	
   /* TIM3 enable counter */
-  TIM_Cmd(TIM3, ENABLE);                   //使能定时器3	
+	TIM_Cmd(TIM3, ENABLE);                   //使能定时器3	
 	TIM_Cmd(TIM14, ENABLE);                   //使能定时器14
 	TIM_Cmd(TIM17, ENABLE);                   //使能定时器17
 	TIM_Cmd(TIM1, ENABLE);
@@ -213,6 +213,7 @@ void Motor_PWM_Freq_Dudy_Set(UINT8 PWM_NUMBER, UINT16 Freq,UINT16 Duty)			//PWM1
 		//TIM_TimeBaseStructure.TIM_Prescaler = 48-1;	    //1000预分频
 		TIM_TimeBaseStructure.TIM_ClockDivision = TIM_CKD_DIV1 ;	//设置时钟分频系数：不分频(这里用不到)
 		TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;  //向上计数模式
+		TIM_TimeBaseStructure.TIM_RepetitionCounter=0;
 		//TIM_TimeBaseInit(TIM3, &TIM_TimeBaseStructure);	
 		
 		i = TIM_TimeBaseStructure.TIM_Period + 1;

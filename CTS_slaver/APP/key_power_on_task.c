@@ -1077,6 +1077,12 @@ void key_power_on_task(void)
 {
 	static uint8_t wakeup_Cnt;
 	//static uint8_t sleep_Cnt;
+	//USB插入的时候不允许开机，也即是不允许响应中断
+	if(usb_detect_state==USB_PUSH_IN||usb_detect_state==USB_INSERTED)
+	{
+		return;
+	}
+			
 	if(key_state==KEY_DOWNING)
 	{
 		if(GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_8)==0)
@@ -1115,7 +1121,10 @@ void key_power_on_task(void)
 			wakeup_Cnt=0;
 			if(!b_Is_PCB_PowerOn)  //b_Is_PCB_PowerOn为FALSE是才进行判断，按键时间过短，不允许启动
 			{
-				NVIC_SystemReset();
+				if(usb_detect_state!=USB_PUSH_IN)
+				{
+					NVIC_SystemReset();
+				}
 				//key_state=KEY_FAIL_WAKEUP;
 			}
 		}

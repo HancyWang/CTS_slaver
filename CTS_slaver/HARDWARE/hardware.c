@@ -31,6 +31,7 @@
 #include "protocol_module.h"
 #include "key_power_on_task.h"
 #include "app.h"
+#include "rtc.h"
 /**********************************
 *宏定义
 ***********************************/
@@ -284,8 +285,8 @@ void Init_Bat_Charge_Stby()
 	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_4|GPIO_Pin_5;
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN;
 	//GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-	//GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
-	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
+	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
+//	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
 	GPIO_Init(GPIOB, &GPIO_InitStructure);
 }
@@ -433,13 +434,9 @@ void init_hardware()
 	Init_ADC1();         //PB0，PA1(要和PA15配合使用)
 //	//初始化ADS115,I2C
 	Init_ADS115();       //PA9,PA10
-
-	//Calibrate_pressure_sensor(&zero_point_of_pressure_sensor);
-//	ADS115_enter_power_down_mode();
-//	//配置中断
-//	CfgWFI();
-	//进入stop模式
-	//EnterStopMode();
+	
+	//初始化flash中的datetime记录页
+	Init_RecordPage();
 }
 
 

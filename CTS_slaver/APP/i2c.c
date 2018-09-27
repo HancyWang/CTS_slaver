@@ -227,4 +227,3 @@ INT16U ADS115_readByte(INT8U slaveaddr)
 	I2C_Stop();
 	return data1*256+data2;
 }
-

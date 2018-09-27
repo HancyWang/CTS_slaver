@@ -39,6 +39,21 @@ typedef enum
 	USB_INSERTED
 }USB_DETECT_STATE;
 
+
+typedef enum
+{
+	CODE_SYSTEM_POWER_ON				=	0x11,
+	CODE_TREATMMENT_FINISH			=	0x12,
+	CODE_MANUAL_POWER_OFF				=	0x13,
+	CODE_NOT_DETECT_HAND_IN_20s	=	0x14,
+	CODE_LOW_POWER							=	0x15,
+	CODE_OVER_PRESSURE					=	0x16,
+	CODE_SELFTEST_SUCCESS				=	0x17,
+	CODE_SELFTEST_FAIL					=	0x18,
+	CODE_OVER_HEAT							= 0x19,
+	CODE_PC_SYN_RTC							= 0x20
+}SYSTEM_CODE;
+
 /***********************************
 * Óê–Õ∂®¡x
 ***********************************/
@@ -51,6 +66,9 @@ void EnterStopMode(void);
 void CfgWFI(void);
 void CfgALLPins4StopMode(void);
 void init_system_afterWakeUp(void);
+void record_dateTime(SYSTEM_CODE code);
+void Init_RecordPage(void);
+void reset_dateTime(void);
 //extern INT8U I2C_RecByte(void);
 
 

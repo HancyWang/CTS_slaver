@@ -15,6 +15,7 @@
 "..\obj\i2c.o"
 "..\obj\hardware.o"
 "..\obj\motor_pwm.o"
+"..\obj\rtc.o"
 "..\obj\os_core.o"
 "..\obj\startup_stm32f0xx.o"
 "..\obj\stm32f0xx_gpio.o"
@@ -29,6 +30,7 @@
 "..\obj\stm32f0xx_exti.o"
 "..\obj\stm32f0xx_syscfg.o"
 "..\obj\stm32f0xx_iwdg.o"
+"..\obj\stm32f0xx_rtc_1.o"
 --ro-base 0x08000000 --entry 0x08000000 --rw-base 0x20000000 --entry Reset_Handler --first __Vectors --strict --summary_stderr --info summarysizes --map --xref --callgraph --symbols
 --info sizes --info totals --info unused --info veneers
 --list ".\STM32F030Demo.map" -o ..\OBJ\STM32F030Demo.axf

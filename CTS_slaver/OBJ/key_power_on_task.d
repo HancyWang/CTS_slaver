@@ -33,3 +33,7 @@
 ..\obj\key_power_on_task.o: ..\SYSTEM\delay.h
 ..\obj\key_power_on_task.o: ..\APP\comm_task.h
 ..\obj\key_power_on_task.o: ..\User\iwtdg.h
+..\obj\key_power_on_task.o: ..\HARDWARE\rtc.h
+..\obj\key_power_on_task.o: ..\STM32F03x_FWLib\inc\stm32f0xx_rtc.h
+..\obj\key_power_on_task.o: ..\STM32F03x_FWLib\inc\stm32f0xx_flash.h
+..\obj\key_power_on_task.o: D:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h

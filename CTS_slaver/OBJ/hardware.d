@@ -27,3 +27,5 @@
 ..\obj\hardware.o: ..\MODULE\protocol_module.h
 ..\obj\hardware.o: ..\APP\key_power_on_task.h
 ..\obj\hardware.o: ..\APP\app.h
+..\obj\hardware.o: ..\HARDWARE\rtc.h
+..\obj\hardware.o: ..\STM32F03x_FWLib\inc\stm32f0xx_rtc.h

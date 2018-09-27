@@ -29,6 +29,8 @@
 
 #include "common.h"
 #include "i2c.h"
+#include "rtc.h"
+#include "delay.h"
 /**********************************
 *宏定义
 ***********************************/
@@ -61,6 +63,10 @@ typedef struct POINT
 }POINT;
 
 extern uint16_t zero_point_of_pressure_sensor;
+
+// uint32_t pageBuff1[512]={0};
+extern uint32_t pageBuff[512];
+// uint16_t packNo=0;  //每一个包都标记一下，例如：第1包，第2包。。。
 /***********************************
 * 局部变量
 ***********************************/
@@ -439,6 +445,26 @@ void send_prameter_fram3_to_PC()
 	fifoWriteData(&send_fifo, buffer1, buffer1[1]+2);
 }
 
+uint16_t FlashWriteUIntBuffer(uint32_t addr, uint32_t *p_data, uint16_t len)
+{
+	uint16_t i = 0;
+	uint32_t address = addr;
+	
+	FLASH_Unlock();
+	FLASH_ClearFlag(FLASH_FLAG_BSY | FLASH_FLAG_EOP | FLASH_FLAG_PGERR | FLASH_FLAG_WRPERR);
+
+	FLASH_ErasePage(addr);
+	
+	for(i=0;i<len;i++)
+	{
+		FLASH_ProgramWord(address,p_data[i]);			
+		address += 4;
+	}
+	
+	FLASH_Lock();
+	return i;
+}
+
 uint16_t FlashWrite(uint32_t addr, uint8_t *p_data, uint16_t len)
 {
 	uint16_t i = 0;
@@ -628,12 +654,178 @@ void calibrate_sensor_by_ID(uint8_t* pdata,uint8_t ID)
 	}
 }
 
+void send_RTC_SYN_finish()
+{
+	uint8_t buffer[7];
+	
+	buffer[0] = PACK_HEAD_BYTE;       //0xFF
+	buffer[1] = 0x05;            
+	buffer[2] = MODULE_CMD_TYPE;      //0x00
+	buffer[3] = RTC_SYN_FINISHED; //0x66
+	
+	buffer[4]=1;
+	
+	CalcCheckSum(buffer);
+	fifoWriteData(&send_fifo, buffer, buffer[1]+2);
+}
+
+uint32_t get_rtc_record_number()
+{
+	uint32_t pageInfo[3];
+	memset(pageInfo,0,3*4);
+	FlashRead(FLASH_RECORD_PAGE_FROM_TO,pageInfo,3);
+	
+	return pageInfo[2];
+}
+
+void send_RTC_record_numbers()
+{
+	uint8_t buffer[10];
+	
+	buffer[0] = 0xFF;       //0xFF
+	buffer[1] = 0x08;            
+	buffer[2] = MODULE_CMD_TYPE;      //0x00
+	buffer[3] = SENT_RTC_BYTES; //0x69
+	
+	uint32_t tmp=get_rtc_record_number();
+	
+	buffer[4]=tmp/256/256/256;
+	buffer[5]=tmp/256/256%256;
+	buffer[6]=tmp%(256*256)/256;
+	buffer[7]=tmp%(256*256)%256;
+	
+	CalcCheckSum(buffer);
+	fifoWriteData(&send_fifo, buffer, buffer[1]+2);
+}
+
+//extern UINT8 send_buf[SEND_BUF_LEN];
+uint16_t send_one_frame_data(uint8_t frame_length,uint8_t* p_data,uint16_t pack_No)
+{
+//	memset(send_buf,0,SEND_BUF_LEN);
+	
+		uint8_t bufferSend[30*8+6+2];
+//	uint8_t bufferSend[frame_length];
+//	memset(bufferSend,0,frame_length);
+//	static uint8_t what;
+//		what=frame_length;
+	
+	uint16_t cnt=0;
+	bufferSend[0] = 0xFF;       //0xFF
+	bufferSend[1] = frame_length-2; 
+//	if(pack_No%9==0)
+//	{
+//		bufferSend[1] = 128+2+4;
+//	}
+//	else
+//	{
+//		bufferSend[1] = frame_length-2; 
+//	}         
+	bufferSend[2] = MODULE_CMD_TYPE;      //0x00
+	bufferSend[3] = SEND_RTC_INFO; //0x71
+	
+	//填充数据
+	bufferSend[4]=pack_No/256;   //每一个包都做一个标记，表示这是第几包
+	bufferSend[5]=pack_No%256;
+	
+	for(int m=6;m<=bufferSend[1]-1;m++) 
+	{
+		bufferSend[m]=*p_data++;
+		cnt++;
+	}
+	
+	CalcCheckSum(bufferSend);
+	fifoWriteData(&send_fifo, bufferSend, bufferSend[1]+2);
+	memset(bufferSend,0,frame_length);
+	return cnt;
+}
+
+//void send_rtc_end()
+//{
+//	uint8_t buff[6];
+//	memset(buff,0,6);
+//		
+//	buff[0] = 0xFF;       //0xFF
+//	buff[1] = 4;            
+//	buff[2] = MODULE_CMD_TYPE;      //0x00
+//	buff[3] = SEND_RTC_END; //0x72
+
+//	CalcCheckSum(buff);
+//	fifoWriteData(&send_fifo, buff, buff[1]+2);
+//}
+
+uint16_t get_page_num(uint16_t frameX)
+{
+	uint16_t tmp=0;
+	tmp=frameX/9;
+	if(frameX%9!=0)
+	{
+		tmp++;
+	}
+	return tmp;
+}
+
+void send_rtc_info(uint16_t frameX)
+{
+	
+	int recordNums=get_rtc_record_number();  //获取记录数据的条数
+	uint16_t pages_numbers=recordNums/256; //一共有多少页
+	uint16_t page_rest=recordNums%256;//还剩下多少条记录
+	uint16_t DATA_RECORD_CNT=30;  //一次发送30条数据
+	
+	uint16_t tmp_cnt,tmp_rest;
+		
+	tmp_cnt=page_rest/DATA_RECORD_CNT;  //满包要发送的次数
+	tmp_rest=page_rest%DATA_RECORD_CNT; //非满包的记录条数
+	
+	
+	//代码有问题，一次只能发一个包，这个是在任务中完成的，不能在这里使用for来一次发完
+	if(frameX<=9*pages_numbers)
+	{
+		uint8_t* p=(uint8_t*)pageBuff;
+		//读取当前页面数据
+		memset(pageBuff,0xFF,512*4);
+		FlashRead(FLASH_RECORD_DATETIME_START+FLASH_PAGE_STEP*(get_page_num(frameX)-1),pageBuff,FLASH_PAGE_STEP/4);    											//读取该页面的数据到pageBuff中
+		
+		if(frameX%9==0)
+		{
+			send_one_frame_data(6+16*8+2,p+8*240,frameX);
+		}
+		else
+		{
+			send_one_frame_data(6+DATA_RECORD_CNT*8+2,p+30*8*(frameX-9*(get_page_num(frameX)-1)-1),frameX);
+		}
+	}
+	else
+	{
+		uint8_t* p=(uint8_t*)pageBuff;
+		//读取当前页面数据
+		memset(pageBuff,0xFF,512*4);
+		FlashRead(FLASH_RECORD_DATETIME_START+FLASH_PAGE_STEP*(get_page_num(frameX)-1),pageBuff,FLASH_PAGE_STEP/4);  
+		
+		if(frameX<=9*pages_numbers+tmp_cnt)
+		{
+			send_one_frame_data(6+DATA_RECORD_CNT*8+2,p+30*8*(frameX-9*(get_page_num(frameX)-1)-1),frameX);  //发送满包的数据
+		}
+		else
+		{
+			send_one_frame_data(6+tmp_rest*8+2,p+240*(frameX-9*(get_page_num(frameX)-1)-1),frameX);  //发送非满包的
+		}
+	}
+}
+
+uint16_t getFrameNo(uint8_t* pdata)
+{
+	if(pdata==NULL)
+		return 0;
+	return pdata[4]*256+pdata[5];
+}
+
 //解析上位机命令
 void protocol_module_process(uint8_t* pdata)
 {
 	uint8_t *pCmdPacketData = (uint8_t *)pdata;
 	uint8_t byFrameID = pCmdPacketData[3];
-
+#if 0
 //	uint8_t bat_per;//电池电量
 	
 //	//如果没有上电，直接返回
@@ -647,9 +839,10 @@ void protocol_module_process(uint8_t* pdata)
 	//byFrameID = *(pdata+3);
 
 	//byFrameID = GET_BAT_PER_ID;
+#endif
 	switch(byFrameID)
 	{
-
+#if 0
 //	case GET_EXP_TRAIN_DATA_ID:
 //			//发送存储数据
 //			send_exp_train_data_status = TRUE;//是能数据发送
@@ -672,6 +865,7 @@ void protocol_module_process(uint8_t* pdata)
 //		//发送给上位机
 //		protocol_module_send_bat_per(bat_per);
 //		break;
+#endif
 	case COMM_PARAMETER_ID:
 		get_comm_para_to_buf(pdata);
 		break;
@@ -724,7 +918,21 @@ void protocol_module_process(uint8_t* pdata)
 	case CAL_SENSOR_MMGH_3:
 		calibrate_sensor_by_ID(pdata,3);  //在3中回传值
 		break;
-	
+	case RTC_SYN_CMD:
+		if(Set_RTC(pdata)==TRUE)
+		{
+			reset_dateTime();
+			Init_RecordPage();
+			record_dateTime(CODE_PC_SYN_RTC);
+			send_RTC_SYN_finish();
+		}
+		break;
+	case GET_RTC_RECORD_NUMBERS:
+		send_RTC_record_numbers();
+		break;
+	case GET_RTC_INFO:
+		send_rtc_info(getFrameNo(pdata));
+		break;
 	default:
 		break;
 	}

@@ -34,6 +34,9 @@
 #include "delay.h"
 #include "comm_task.h"
 #include "iwtdg.h"
+#include "rtc.h"
+#include "stm32f0xx_flash.h"
+#include <string.h>
 /**********************************
 *宏定义
 ***********************************/
@@ -172,6 +175,9 @@ KEY_STATE key_state=KEY_UPING;
 
 extern uint16_t RegularConvData_Tab[2];
 uint8_t wakeup_Cnt=0;
+
+uint32_t pageBuff[512]={0};
+
 /***********************************
 * 局部函数
 ***********************************/
@@ -1072,6 +1078,99 @@ void EnterStopMode()
 	PWR_EnterSTOPMode(PWR_Regulator_LowPower, PWR_STOPEntry_WFI);
 }
 
+//初始化PAGE_from_to,记录从XXX页到xxx页，有多少条数据
+void Init_RecordPage()
+{
+	//如果在FLASH_RECORD_PAGE_FROM_TO中有数据，说明已经初始化过了
+	uint32_t data = *(uint32_t*)FLASH_RECORD_PAGE_FROM_TO;
+	if(data==FLASH_RECORD_DATETIME_START)
+	{
+		return;
+	}
+	
+	FLASH_Unlock();
+	FLASH_ClearFlag(FLASH_FLAG_BSY | FLASH_FLAG_EOP | FLASH_FLAG_PGERR | FLASH_FLAG_WRPERR);
+	
+	uint32_t address=FLASH_RECORD_PAGE_FROM_TO;
+	FLASH_ErasePage(address);
+	
+	FLASH_ProgramWord(address,FLASH_RECORD_DATETIME_START);     //page from FLASH_RECORD_DATETIME_START
+	FLASH_ProgramWord(address+4,FLASH_RECORD_DATETIME_START);  //page to  FLASH_RECORD_DATETIME_START
+	FLASH_ProgramWord(address+8,0);        											//record numbers，记录数据条数
+
+	FLASH_Lock();
+}
+
+//这个api仅仅是用来调试用的
+void reset_dateTime()
+{
+	uint32_t pageInfo[3];
+	memset(pageInfo,0,3*4);
+	FlashRead(FLASH_RECORD_PAGE_FROM_TO,pageInfo,3);
+	
+	uint16_t len=FLASH_PAGE_STEP/4;   
+	memset(pageBuff,0xFF,len*4);
+	
+	for(uint32_t addr=FLASH_RECORD_PAGE_FROM_TO;addr<=pageInfo[1];)
+	{
+		FlashWriteUIntBuffer(addr,pageBuff,len);
+		addr+=2048;
+	}
+//	FlashWriteUIntBuffer(FLASH_RECORD_PAGE_FROM_TO,pageBuff,len);
+//	FlashWriteUIntBuffer(FLASH_RECORD_DATETIME_START,pageBuff,len);
+}
+
+
+//记录开关机时间
+void record_dateTime(SYSTEM_CODE code)
+{
+	//获取page信息，1.从XXX页 2.到XXX页 3.记录条数
+	//pageInfo[0]  从xxx页
+	//pageInfo[1]  到xxx页
+	//pageInfo[2]  记录条数，一条记录8字节
+	uint32_t pageInfo[3];
+	memset(pageInfo,0,3*4);
+	FlashRead(FLASH_RECORD_PAGE_FROM_TO,pageInfo,3);
+	
+	//根据获取的page信息，确定在哪一页进行操作
+	uint32_t address=pageInfo[1];															//定位操作的页面
+	if(address>=FLASH_RECORD_DATETIME_UPLIMIT)  //不允许超过128K
+	{
+		return;
+	}
+	
+	uint16_t len=FLASH_PAGE_STEP/4;   //len=512
+//	static uint32_t pageBuff[512]={0};
+	memset(pageBuff,0xFF,len*4);
+	
+//#ifdef	_DEBUG_FLASH_RECORD_DATETIME
+//	FlashWriteUIntBuffer(FLASH_RECORD_PAGE_FROM_TO,pageBuff,len);
+//	FlashWriteUIntBuffer(FLASH_RECORD_DATETIME_START,pageBuff,len);
+//#else
+	FlashRead(address,pageBuff,len);    											//读取该页面的数据到pageBuff中
+	
+	//根据pageInfo[2](信息条数)来加入新的一条的数据
+	RTC_DateTypeDef date_struct;
+	RTC_TimeTypeDef time_struct;
+	Get_DataTime(&date_struct,&time_struct);
+	
+	pageBuff[(pageInfo[2]%256)*2]=code+(date_struct.RTC_Year<<16)+(date_struct.RTC_Month<<24);
+	pageBuff[(pageInfo[2]%256)*2+1]=(time_struct.RTC_Seconds<<24)+(time_struct.RTC_Minutes<<16)+(time_struct.RTC_Hours<<8)+date_struct.RTC_Date;
+	
+	pageInfo[2]++;          //完成了一条数据的记录
+	if(pageInfo[2]%256==0)  //如果刚好更新满一页了
+	{
+		//更新pageInfo中的数据
+		pageInfo[0]=FLASH_RECORD_DATETIME_START;
+		pageInfo[1]+=2048;
+	}
+	FlashWriteUIntBuffer(FLASH_RECORD_PAGE_FROM_TO,pageInfo,3);
+	
+	//写入数据
+	FlashWriteUIntBuffer(address,pageBuff,len);
+//#endif
+}
+
 
 void key_power_on_task(void)
 {
@@ -1144,6 +1243,9 @@ void key_power_on_task(void)
 	{
 		if(b_bat_detected_ok)
 		{
+			//记录开机时间
+			record_dateTime(CODE_SYSTEM_POWER_ON);
+			
 			//开机
 			set_led(LED_ID_GREEN,TRUE);
 			
@@ -1180,6 +1282,9 @@ void key_power_on_task(void)
 		Motor_PWM_Freq_Dudy_Set(3,100,0);
 //		Motor_PWM_Freq_Dudy_Set(4,100,0);
 //		Motor_PWM_Freq_Dudy_Set(5,100,0);
+		
+		//记录关机时间
+		record_dateTime(CODE_MANUAL_POWER_OFF);
 		
 		release_gas_before_sleep();
 		EnterStopMode();

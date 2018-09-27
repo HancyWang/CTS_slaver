@@ -28,6 +28,7 @@
 //#include "exp_task.h" 
 #include "stm32f0xx_usart.h"
 //#include "store_fifo.h"
+#include "rtc.h"
 /**********************************
 *宏定义
 ***********************************/
@@ -85,6 +86,7 @@ void init_task(void)
 	os_create_task(Detect_battery_and_tmp,OS_TRUE,TASK_DETECT_BATTERY_ID);
 	os_create_task(check_selectedMode_ouputPWM,OS_TRUE,TASK_OUTPUT_PWM);
 	os_create_task(DetectPalm, OS_TRUE, TASK_DETECT_PALM_ID);
+	//os_create_task(test_task, OS_TRUE, TEST_TASK_ID);
 #else
 	os_create_task(key_power_on_task, OS_TRUE, KEY_LED_TASK_ID);
 	os_create_task(get_switch_mode,OS_TRUE,TASK_GET_SWITCH_MODE);
@@ -100,8 +102,51 @@ void init_task(void)
 	os_pend_task(INIT_TASK_ID);
 }
 
-
+extern uint32_t system_loop_time;
+static BOOL b_testFlag=1;
+static BOOL b_flag1=1;
+static int flash_write_cnt=0;
 void test_task(void)
 {
+	static RTC_DateTypeDef data_struct;
+	static RTC_TimeTypeDef time_struct;
+	Get_DataTime(&data_struct,&time_struct);
+	
+	if(b_testFlag)
+	{
+		if(b_flag1)
+		{
+			reset_dateTime(); //全部复位,变成FF
+			Init_RecordPage();
+			b_flag1=0;
+			set_led(LED_ID_MODE1,TRUE); 
+		}
+		
+//		for(int i=0;i<500;i++)   //模拟测试
+//		{
+//			record_dateTime(CODE_SYSTEM_POWER_ON);
+//			record_dateTime(CODE_TREATMMENT_FINISH);
+//		}
+//		
+		//debug
+		if(flash_write_cnt==500)
+		{
+			flash_write_cnt=0;
+			b_testFlag=0;
+			set_led(LED_ID_MODE1,FALSE); 
+		}
+		else
+		{
+			record_dateTime(CODE_SYSTEM_POWER_ON);
+			record_dateTime(CODE_TREATMMENT_FINISH);
+			flash_write_cnt++;
+		}
+			
+		
+//		b_testFlag=0;
+	}
+	
+	
+	
 	os_delay_ms(TEST_TASK_ID, 50);
 }

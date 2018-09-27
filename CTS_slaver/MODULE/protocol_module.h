@@ -59,6 +59,18 @@
 #define CAL_SENSOR_MMGH_3         0x52	//上位机下发的mmgh的值3
 #define CAL_SENSOR_SEND_TO_PC     0x60  //下位机回传值给上位机
 
+//上位机发送时间，同步RTC
+#define RTC_SYN_CMD								0x65  //上位机发送同步命令,并且携带同步数据
+#define RTC_SYN_FINISHED					0x66	//下位机发送同步完成
+
+//上位机发送获取rtc信息
+#define GET_RTC_RECORD_NUMBERS		0x68  //上位机发送获取rtc数据记录条数
+#define SENT_RTC_BYTES						0x69	//下位机发送给上位机总字节数
+#define GET_RTC_INFO							0x70  //上位机发送获取下位机的rtc信息命令
+#define SEND_RTC_INFO							0x71	//下位机发送rtc信息给上位机
+//#define SEND_RTC_END							0x72  //下位机发送给上位机，rtc数据发送完毕了
+
+
 //定义上位机写入flash的起始地址
 #define FLASH_PAGE_SIZE      			((uint16_t)0x400)  //flash一页的大小为1K
 #define FLASH_START_ADDR   				((uint32_t)0x08000000) //flash开始地址
@@ -69,6 +81,13 @@
 #define FLASH_WRITE_END_ADDR      ((uint32_t)0x08004000)  //flash写入的结束地址
 
 #define FLASH_PRESSURE_RATE_ADDR  ((uint32_t)0x08000000+1024*26) //开始写入的开始地址
+
+//记录开关机时间
+#define FLASH_RECORD_PAGE_FROM_TO			((uint32_t)0x08000000+1024*34)   //34K开始记录从那一页到那一页
+#define FLASH_RECORD_DATETIME_START	   ((uint32_t)0x08000000+1024*36)
+#define FLASH_RECORD_DATETIME_UPLIMIT	((uint32_t)0x08000000+1024*128)  //128K属于上限值，不允许记录了
+#define FLASH_PAGE_STEP								1024*2  												//步长为2K，因为070CB的1个page就是2K
+
 
 void FlashRead(uint32_t addr, uint32_t *p_data, uint16_t len);
 uint32_t FlashReadWord(uint32_t addr);
@@ -95,4 +114,5 @@ void get_comm_para_to_buf(uint8_t* pdata);
 void get_parameter_to_buf_by_frameId(uint8_t* pdata,char frameId);
 void send_prameter_fram1_to_PC(void);
 void send_prameter_fram2_to_PC(void);
+uint16_t FlashWriteUIntBuffer(uint32_t addr, uint32_t *p_data, uint16_t len);
 #endif

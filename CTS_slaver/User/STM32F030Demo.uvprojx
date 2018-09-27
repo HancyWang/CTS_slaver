@@ -479,6 +479,11 @@
               <FileType>1</FileType>
               <FilePath>..\HARDWARE\Motor_pwm.c</FilePath>
             </File>
+            <File>
+              <FileName>rtc.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\HARDWARE\rtc.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -563,6 +568,11 @@
               <FileName>stm32f0xx_iwdg.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\STM32F03x_FWLib\src\stm32f0xx_iwdg.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32f0xx_rtc.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\STM32F03x_FWLib\src\stm32f0xx_rtc.c</FilePath>
             </File>
           </Files>
         </Group>

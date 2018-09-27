@@ -1092,6 +1092,9 @@ void PaintPWM(unsigned char num,unsigned char* buffer)
 			state=LOAD_PARA;
 			init_PWMState();
 			
+			//记录过压
+			record_dateTime(CODE_OVER_PRESSURE);
+			
 			LED_Blink_for_alert(5);
 			
 			EnterStopMode();
@@ -2083,11 +2086,15 @@ void self_test()
 				if(diff_of_two_values(selfTest_deflate_record_1,selfTest_deflate_record_2)<100)
 				//if(selfTest_deflate_record_1-selfTest_deflate_record_2<100)  //如果差值小于100,说明都没放气，电磁阀坏了
 				{
+					record_dateTime(CODE_SELFTEST_FAIL); 
+					
 					self_tet_state=SELF_TEST_FAIL;
 					deflate_cnt=0;
 				}
 				else
 				{
+					record_dateTime(CODE_SELFTEST_SUCCESS); 
+					
 					self_tet_state=SELF_TEST_END;
 				}
 			}
@@ -2204,7 +2211,6 @@ void led_blink_beep()
 		if(led_state==LED_INIT)
 		{
 			if(b_no_hand_in_place||b_end_of_treatment)
-			//	if(b_no_hand_in_place||b_end_of_treatment||b_usb_charge_bat)
 			{
 				//延迟一下在输出，效果好一些
 				if(delay_cnt==4)  //延迟4*50=200ms
@@ -2450,6 +2456,8 @@ void Detect_battery_and_tmp()
 				}
 				else
 				{
+					record_dateTime(CODE_LOW_POWER);
+					
 					b_bat_detected_ok=FALSE;
 					
 					Motor_PWM_Freq_Dudy_Set(1,100,0);
@@ -2486,6 +2494,8 @@ void Detect_battery_and_tmp()
 			//板子温度过高，3个mode灯闪+yellow led闪，这里要改
 			if(n_over_tmperature==1)
 			{
+				record_dateTime(CODE_OVER_HEAT);
+				
 				n_over_tmperature=0;
 				
 				LED_Blink_for_alert(5);
@@ -2605,6 +2615,8 @@ void DetectPalm()
 						{
 							b_palm_checked=FALSE;
 
+							record_dateTime(CODE_NOT_DETECT_HAND_IN_20s);
+							
 							b_no_hand_in_place=TRUE;
 							led_beep_ID=1;
 							
@@ -2651,7 +2663,6 @@ void DetectPalm()
 				}
 			}
 		}
-		
 	}
 	
 	
@@ -2825,6 +2836,7 @@ void check_selectedMode_ouputPWM()
 						
 						//开阀门放气4s，之后重新来
 						//ReleaseGas(4);
+						
 						Set_ReleaseGas_flag();
 						state=CHECK_PRESSURE;
 					}
@@ -2844,6 +2856,7 @@ void check_selectedMode_ouputPWM()
 						{
 #ifdef _DEBUG_TEST_CYCLES     //测试cycle的过程不允许结束治疗
 #else
+							record_dateTime(CODE_TREATMMENT_FINISH);
 							b_end_of_treatment=TRUE;
 							led_beep_ID=2;
 #endif

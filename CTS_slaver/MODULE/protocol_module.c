@@ -66,7 +66,8 @@ extern uint16_t zero_point_of_pressure_sensor;
 
 // uint32_t pageBuff1[512]={0};
 extern uint32_t pageBuff[512];
-// uint16_t packNo=0;  //每一个包都标记一下，例如：第1包，第2包。。。
+extern uint32_t noPalm_cnt;
+
 /***********************************
 * 局部变量
 ***********************************/
@@ -767,6 +768,8 @@ uint16_t get_page_num(uint16_t frameX)
 void send_rtc_info(uint16_t frameX)
 {
 	
+	noPalm_cnt=0;  //强行将noPalm_cnt置0,让侦测手掌任务的noPalm_cnt不能累加,和看门狗喂狗一样
+	
 	int recordNums=get_rtc_record_number();  //获取记录数据的条数
 	uint16_t pages_numbers=recordNums/256; //一共有多少页
 	uint16_t page_rest=recordNums%256;//还剩下多少条记录
@@ -921,6 +924,8 @@ void protocol_module_process(uint8_t* pdata)
 	case RTC_SYN_CMD:
 		if(Set_RTC(pdata)==TRUE)
 		{
+			noPalm_cnt=0;    //同步的时候也不允许侦测手掌计时
+			
 			reset_dateTime();
 			Init_RecordPage();
 			record_dateTime(CODE_PC_SYN_RTC);

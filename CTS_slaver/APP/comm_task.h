@@ -22,7 +22,7 @@ typedef unsigned int uint32_t;
 //CTS，470(434+18+18)数据长度+2个校验位=472 
 #define PARAMETER_BUF_LEN 472
 
-#define _DEBUG   //这个方便调试，正式发布代码的时候不需要这个
+//#define _DEBUG   //这个方便调试，正式发布代码的时候不需要这个
 //#define _DEBUG_TEST_CYCLES  //这个是用来loop test的，测试cycle
 //#define _DEBUG_FLASH_RECORD_DATETIME
 

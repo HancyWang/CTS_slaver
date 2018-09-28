@@ -15,3 +15,4 @@
 ..\obj\rtc.o: ..\STM32F03x_FWLib\inc\stm32f0xx_usart.h
 ..\obj\rtc.o: ..\STM32F03x_FWLib\inc\stm32f0xx_misc.h
 ..\obj\rtc.o: ..\STM32F03x_FWLib\inc\stm32f0xx_pwr.h
+..\obj\rtc.o: ..\SYSTEM\delay.h

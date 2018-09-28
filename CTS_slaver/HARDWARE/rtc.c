@@ -1,8 +1,17 @@
 #include "rtc.h"
 #include "stm32f0xx_rcc.h"
 #include "stm32f0xx_pwr.h"
+#include "delay.h"
 
 volatile unsigned int AsynchPrediv = 0, SynchPrediv = 0;
+
+
+
+void Get_DataTime(RTC_DateTypeDef* RTC_DateStructure,RTC_TimeTypeDef* RTC_TimeStructure)
+{ 
+	RTC_GetDate(RTC_Format_BIN,RTC_DateStructure);
+	RTC_GetTime(RTC_Format_BIN,RTC_TimeStructure);
+}
 
 char chage_to_RCT_month(char month)
 {
@@ -105,6 +114,18 @@ _Bool Set_RTC(uint8_t* pdata)
 		RTC_SetTime(RTC_Format_BIN,&RTC_TimeStructure);
 		
 		RTC_WriteBackupRegister(RTC_BKP_DR1,0x1234);
+		
+		while(1)   //同步时间有时候失败，这里将rtc时间读出来，只有全部都对了才ok
+		{
+			Get_DataTime(&RTC_DateStructure,&RTC_TimeStructure);
+
+			if(RTC_DateStructure.RTC_Year==pdata[5]&&RTC_DateStructure.RTC_Month==chage_to_RCT_month(pdata[6])
+				&&RTC_DateStructure.RTC_Date==pdata[7]&&RTC_TimeStructure.RTC_Hours==pdata[8]
+			&&RTC_TimeStructure.RTC_Minutes==pdata[9]&&RTC_TimeStructure.RTC_Seconds==pdata[10])
+			{
+				break;
+			}
+		}
 	}
 //	else
 //	{
@@ -115,9 +136,5 @@ _Bool Set_RTC(uint8_t* pdata)
 
 
 
-void Get_DataTime(RTC_DateTypeDef* RTC_DateStructure,RTC_TimeTypeDef* RTC_TimeStructure)
-{ 
-	RTC_GetDate(RTC_Format_BIN,RTC_DateStructure);
-	RTC_GetTime(RTC_Format_BIN,RTC_TimeStructure);
-}
+
 

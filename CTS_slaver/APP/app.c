@@ -86,7 +86,7 @@ void init_task(void)
 	os_create_task(Detect_battery_and_tmp,OS_TRUE,TASK_DETECT_BATTERY_ID);
 	os_create_task(check_selectedMode_ouputPWM,OS_TRUE,TASK_OUTPUT_PWM);
 	os_create_task(DetectPalm, OS_TRUE, TASK_DETECT_PALM_ID);
-	//os_create_task(test_task, OS_TRUE, TEST_TASK_ID);
+	os_create_task(test_task, OS_TRUE, TEST_TASK_ID);
 #else
 	os_create_task(key_power_on_task, OS_TRUE, KEY_LED_TASK_ID);
 	os_create_task(get_switch_mode,OS_TRUE,TASK_GET_SWITCH_MODE);
@@ -128,8 +128,8 @@ void test_task(void)
 //			record_dateTime(CODE_TREATMMENT_FINISH);
 //		}
 //		
-		//debug
-		if(flash_write_cnt==1)
+		#ifdef _DEBUG
+		if(flash_write_cnt==298)
 		{
 			flash_write_cnt=0;
 			b_testFlag=0;
@@ -141,6 +141,8 @@ void test_task(void)
 			record_dateTime(CODE_TREATMMENT_FINISH);
 			flash_write_cnt++;
 		}
+		#else
+		#endif
 			
 		
 //		b_testFlag=0;

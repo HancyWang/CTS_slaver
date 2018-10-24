@@ -385,16 +385,18 @@ ARM Macro Assembler    Page 6
               00000000 
 Command Line: --debug --xref --diag_suppress=9931 --cpu=Cortex-M0 --apcs=interw
 ork --depend=..\obj\startup_stm32f0xx.d -o..\obj\startup_stm32f0xx.o -I.\RTE\_S
-tm32f030demo -ID:\Keil_v5\ARM\PACK\ARM\CMSIS\5.0.1\CMSIS\Include -ID:\Keil_v5\A
-RM\PACK\Keil\STM32F0xx_DFP\1.5.0\Device\Include --predefine="__UVISION_VERSION 
-SETA 523" --predefine="_RTE_ SETA 1" --predefine="STM32F070xB SETA 1" --list=.\
+tm32f030demo -I"D:\Program Files (x86)\Keil_v5\ARM\PACK\ARM\CMSIS\5.3.0\CMSIS\I
+nclude" -I"D:\Program Files (x86)\Keil_v5\ARM\PACK\Keil\STM32F0xx_DFP\2.0.0\Dri
+vers\CMSIS\Device\ST\STM32F0xx\Include" -I"D:\Program Files (x86)\Keil_v5\ARM\P
 
 
 
 ARM Macro Assembler    Page 7 
 
 
-startup_stm32f0xx.lst ..\CORE\startup_stm32f0xx.s
+ACK\Keil\STM32F0xx_DFP\2.0.0\Device\Include" --predefine="__UVISION_VERSION SET
+A 525" --predefine="_RTE_ SETA 1" --predefine="STM32F070xB SETA 1" --list=.\sta
+rtup_stm32f0xx.lst ..\CORE\startup_stm32f0xx.s
 
 
 

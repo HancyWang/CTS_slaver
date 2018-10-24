@@ -2,7 +2,7 @@
 ..\obj\protocol_module.o: ..\STM32F03x_FWLib\inc\stm32f0xx_usart.h
 ..\obj\protocol_module.o: ..\User\stm32f0xx.h
 ..\obj\protocol_module.o: ..\CORE\core_cm0.h
-..\obj\protocol_module.o: D:\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
+..\obj\protocol_module.o: D:\Program Files (x86)\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
 ..\obj\protocol_module.o: ..\CORE\core_cmInstr.h
 ..\obj\protocol_module.o: ..\CORE\core_cmFunc.h
 ..\obj\protocol_module.o: ..\User\system_stm32f0xx.h
@@ -23,8 +23,8 @@
 ..\obj\protocol_module.o: ..\OS\os_core.h
 ..\obj\protocol_module.o: ..\APP\app.h
 ..\obj\protocol_module.o: ..\OS\os_cfg.h
-..\obj\protocol_module.o: D:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
-..\obj\protocol_module.o: D:\Keil_v5\ARM\ARMCC\Bin\..\include\stdlib.h
+..\obj\protocol_module.o: D:\Program Files (x86)\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
+..\obj\protocol_module.o: D:\Program Files (x86)\Keil_v5\ARM\ARMCC\Bin\..\include\stdlib.h
 ..\obj\protocol_module.o: ..\STM32F03x_FWLib\inc\stm32f0xx_flash.h
 ..\obj\protocol_module.o: ..\APP\key_power_on_task.h
 ..\obj\protocol_module.o: ..\APP\common.h

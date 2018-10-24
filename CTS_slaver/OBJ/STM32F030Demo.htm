@@ -3,7 +3,7 @@
 <title>Static Call Graph - [..\OBJ\STM32F030Demo.axf]</title></head>
 <body><HR>
 <H1>Static Call Graph for image ..\OBJ\STM32F030Demo.axf</H1><HR>
-<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060422: Last Updated: Sun Sep 30 11:40:55 2018
+<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060750: Last Updated: Wed Oct 24 21:23:36 2018
 <BR><P>
 <H3>Maximum Stack Usage =        940 bytes + Unknown(Functions without stacksize, Cycles, Untraceable Function Pointers)</H3><H3>
 Call chain for Maximum Stack Depth:</H3>
@@ -369,7 +369,7 @@ Global Symbols
 <BR><BR>[Called By]<UL><LI><a href="#[92]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Init_gloab_viriable
 </UL>
 
-<P><STRONG><a name="[6f]"></a>Is_timing_Xmillisec</STRONG> (Thumb, 236 bytes, Stack size 16 bytes, comm_task.o(.text))
+<P><STRONG><a name="[6f]"></a>Is_timing_Xmillisec</STRONG> (Thumb, 238 bytes, Stack size 16 bytes, comm_task.o(.text))
 <BR><BR>[Stack]<UL><LI>Max Depth = 24<LI>Call Chain = Is_timing_Xmillisec &rArr; __ARM_common_switch8
 </UL>
 <BR>[Calls]<UL><LI><a href="#[70]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__ARM_common_switch8
@@ -2543,7 +2543,7 @@ Global Symbols
 
 <P><STRONG><a name="[22b]"></a>SYSCFG_ClearFlag</STRONG> (Thumb, 10 bytes, Stack size 0 bytes, stm32f0xx_syscfg.o(.text), UNUSED)
 
-<P><STRONG><a name="[f7]"></a>RTC_WaitForSynchro</STRONG> (Thumb, 74 bytes, Stack size 12 bytes, stm32f0xx_rtc_1.o(.text))
+<P><STRONG><a name="[f7]"></a>RTC_WaitForSynchro</STRONG> (Thumb, 74 bytes, Stack size 12 bytes, stm32f0xx_rtc.o(.text))
 <BR><BR>[Stack]<UL><LI>Max Depth = 12<LI>Call Chain = RTC_WaitForSynchro
 </UL>
 <BR>[Called By]<UL><LI><a href="#[129]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;RTC_SynchroShiftConfig
@@ -2553,7 +2553,7 @@ Global Symbols
 <LI><a href="#[f1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;RTC_Config
 </UL>
 
-<P><STRONG><a name="[121]"></a>RTC_EnterInitMode</STRONG> (Thumb, 56 bytes, Stack size 12 bytes, stm32f0xx_rtc_1.o(.text))
+<P><STRONG><a name="[121]"></a>RTC_EnterInitMode</STRONG> (Thumb, 56 bytes, Stack size 12 bytes, stm32f0xx_rtc.o(.text))
 <BR><BR>[Stack]<UL><LI>Max Depth = 12<LI>Call Chain = RTC_EnterInitMode
 </UL>
 <BR>[Called By]<UL><LI><a href="#[123]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;RTC_RefClockCmd
@@ -2563,19 +2563,19 @@ Global Symbols
 <LI><a href="#[f8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;RTC_Init
 </UL>
 
-<P><STRONG><a name="[120]"></a>RTC_DeInit</STRONG> (Thumb, 74 bytes, Stack size 20 bytes, stm32f0xx_rtc_1.o(.text), UNUSED)
+<P><STRONG><a name="[120]"></a>RTC_DeInit</STRONG> (Thumb, 74 bytes, Stack size 20 bytes, stm32f0xx_rtc.o(.text), UNUSED)
 <BR><BR>[Calls]<UL><LI><a href="#[121]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;RTC_EnterInitMode
 <LI><a href="#[f7]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;RTC_WaitForSynchro
 </UL>
 
-<P><STRONG><a name="[122]"></a>RTC_ExitInitMode</STRONG> (Thumb, 12 bytes, Stack size 0 bytes, stm32f0xx_rtc_1.o(.text))
+<P><STRONG><a name="[122]"></a>RTC_ExitInitMode</STRONG> (Thumb, 12 bytes, Stack size 0 bytes, stm32f0xx_rtc.o(.text))
 <BR><BR>[Called By]<UL><LI><a href="#[123]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;RTC_RefClockCmd
 <LI><a href="#[f9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;RTC_SetTime
 <LI><a href="#[fa]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;RTC_SetDate
 <LI><a href="#[f8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;RTC_Init
 </UL>
 
-<P><STRONG><a name="[f8]"></a>RTC_Init</STRONG> (Thumb, 68 bytes, Stack size 16 bytes, stm32f0xx_rtc_1.o(.text))
+<P><STRONG><a name="[f8]"></a>RTC_Init</STRONG> (Thumb, 68 bytes, Stack size 16 bytes, stm32f0xx_rtc.o(.text))
 <BR><BR>[Stack]<UL><LI>Max Depth = 28<LI>Call Chain = RTC_Init &rArr; RTC_EnterInitMode
 </UL>
 <BR>[Calls]<UL><LI><a href="#[122]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;RTC_ExitInitMode
@@ -2584,18 +2584,18 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[b7]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Set_RTC
 </UL>
 
-<P><STRONG><a name="[22c]"></a>RTC_StructInit</STRONG> (Thumb, 14 bytes, Stack size 0 bytes, stm32f0xx_rtc_1.o(.text), UNUSED)
+<P><STRONG><a name="[22c]"></a>RTC_StructInit</STRONG> (Thumb, 14 bytes, Stack size 0 bytes, stm32f0xx_rtc.o(.text), UNUSED)
 
-<P><STRONG><a name="[22d]"></a>RTC_WriteProtectionCmd</STRONG> (Thumb, 20 bytes, Stack size 0 bytes, stm32f0xx_rtc_1.o(.text), UNUSED)
+<P><STRONG><a name="[22d]"></a>RTC_WriteProtectionCmd</STRONG> (Thumb, 20 bytes, Stack size 0 bytes, stm32f0xx_rtc.o(.text), UNUSED)
 
-<P><STRONG><a name="[123]"></a>RTC_RefClockCmd</STRONG> (Thumb, 54 bytes, Stack size 16 bytes, stm32f0xx_rtc_1.o(.text), UNUSED)
+<P><STRONG><a name="[123]"></a>RTC_RefClockCmd</STRONG> (Thumb, 54 bytes, Stack size 16 bytes, stm32f0xx_rtc.o(.text), UNUSED)
 <BR><BR>[Calls]<UL><LI><a href="#[122]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;RTC_ExitInitMode
 <LI><a href="#[121]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;RTC_EnterInitMode
 </UL>
 
-<P><STRONG><a name="[22e]"></a>RTC_BypassShadowCmd</STRONG> (Thumb, 34 bytes, Stack size 0 bytes, stm32f0xx_rtc_1.o(.text), UNUSED)
+<P><STRONG><a name="[22e]"></a>RTC_BypassShadowCmd</STRONG> (Thumb, 34 bytes, Stack size 0 bytes, stm32f0xx_rtc.o(.text), UNUSED)
 
-<P><STRONG><a name="[f9]"></a>RTC_SetTime</STRONG> (Thumb, 142 bytes, Stack size 24 bytes, stm32f0xx_rtc_1.o(.text))
+<P><STRONG><a name="[f9]"></a>RTC_SetTime</STRONG> (Thumb, 142 bytes, Stack size 24 bytes, stm32f0xx_rtc.o(.text))
 <BR><BR>[Stack]<UL><LI>Max Depth = 36<LI>Call Chain = RTC_SetTime &rArr; RTC_EnterInitMode
 </UL>
 <BR>[Calls]<UL><LI><a href="#[122]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;RTC_ExitInitMode
@@ -2607,9 +2607,9 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[b7]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Set_RTC
 </UL>
 
-<P><STRONG><a name="[22f]"></a>RTC_TimeStructInit</STRONG> (Thumb, 12 bytes, Stack size 0 bytes, stm32f0xx_rtc_1.o(.text), UNUSED)
+<P><STRONG><a name="[22f]"></a>RTC_TimeStructInit</STRONG> (Thumb, 12 bytes, Stack size 0 bytes, stm32f0xx_rtc.o(.text), UNUSED)
 
-<P><STRONG><a name="[ef]"></a>RTC_GetTime</STRONG> (Thumb, 70 bytes, Stack size 16 bytes, stm32f0xx_rtc_1.o(.text))
+<P><STRONG><a name="[ef]"></a>RTC_GetTime</STRONG> (Thumb, 70 bytes, Stack size 16 bytes, stm32f0xx_rtc.o(.text))
 <BR><BR>[Stack]<UL><LI>Max Depth = 16<LI>Call Chain = RTC_GetTime
 </UL>
 <BR>[Calls]<UL><LI><a href="#[124]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;RTC_Bcd2ToByte
@@ -2617,9 +2617,9 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[5b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Get_DataTime
 </UL>
 
-<P><STRONG><a name="[230]"></a>RTC_GetSubSecond</STRONG> (Thumb, 8 bytes, Stack size 0 bytes, stm32f0xx_rtc_1.o(.text), UNUSED)
+<P><STRONG><a name="[230]"></a>RTC_GetSubSecond</STRONG> (Thumb, 8 bytes, Stack size 0 bytes, stm32f0xx_rtc.o(.text), UNUSED)
 
-<P><STRONG><a name="[fa]"></a>RTC_SetDate</STRONG> (Thumb, 140 bytes, Stack size 16 bytes, stm32f0xx_rtc_1.o(.text))
+<P><STRONG><a name="[fa]"></a>RTC_SetDate</STRONG> (Thumb, 140 bytes, Stack size 16 bytes, stm32f0xx_rtc.o(.text))
 <BR><BR>[Stack]<UL><LI>Max Depth = 28<LI>Call Chain = RTC_SetDate &rArr; RTC_EnterInitMode
 </UL>
 <BR>[Calls]<UL><LI><a href="#[122]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;RTC_ExitInitMode
@@ -2631,9 +2631,9 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[b7]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Set_RTC
 </UL>
 
-<P><STRONG><a name="[231]"></a>RTC_DateStructInit</STRONG> (Thumb, 14 bytes, Stack size 0 bytes, stm32f0xx_rtc_1.o(.text), UNUSED)
+<P><STRONG><a name="[231]"></a>RTC_DateStructInit</STRONG> (Thumb, 14 bytes, Stack size 0 bytes, stm32f0xx_rtc.o(.text), UNUSED)
 
-<P><STRONG><a name="[f0]"></a>RTC_GetDate</STRONG> (Thumb, 68 bytes, Stack size 8 bytes, stm32f0xx_rtc_1.o(.text))
+<P><STRONG><a name="[f0]"></a>RTC_GetDate</STRONG> (Thumb, 72 bytes, Stack size 8 bytes, stm32f0xx_rtc.o(.text))
 <BR><BR>[Stack]<UL><LI>Max Depth = 8<LI>Call Chain = RTC_GetDate
 </UL>
 <BR>[Calls]<UL><LI><a href="#[124]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;RTC_Bcd2ToByte
@@ -2641,76 +2641,76 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[5b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Get_DataTime
 </UL>
 
-<P><STRONG><a name="[126]"></a>RTC_SetAlarm</STRONG> (Thumb, 130 bytes, Stack size 16 bytes, stm32f0xx_rtc_1.o(.text), UNUSED)
+<P><STRONG><a name="[126]"></a>RTC_SetAlarm</STRONG> (Thumb, 152 bytes, Stack size 16 bytes, stm32f0xx_rtc.o(.text), UNUSED)
 <BR><BR>[Calls]<UL><LI><a href="#[124]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;RTC_Bcd2ToByte
 <LI><a href="#[125]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;RTC_ByteToBcd2
 </UL>
 
-<P><STRONG><a name="[232]"></a>RTC_AlarmStructInit</STRONG> (Thumb, 42 bytes, Stack size 0 bytes, stm32f0xx_rtc_1.o(.text), UNUSED)
+<P><STRONG><a name="[232]"></a>RTC_AlarmStructInit</STRONG> (Thumb, 20 bytes, Stack size 0 bytes, stm32f0xx_rtc.o(.text), UNUSED)
 
-<P><STRONG><a name="[127]"></a>RTC_GetAlarm</STRONG> (Thumb, 90 bytes, Stack size 16 bytes, stm32f0xx_rtc_1.o(.text), UNUSED)
+<P><STRONG><a name="[127]"></a>RTC_GetAlarm</STRONG> (Thumb, 90 bytes, Stack size 16 bytes, stm32f0xx_rtc.o(.text), UNUSED)
 <BR><BR>[Calls]<UL><LI><a href="#[124]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;RTC_Bcd2ToByte
 </UL>
 
-<P><STRONG><a name="[233]"></a>RTC_AlarmCmd</STRONG> (Thumb, 74 bytes, Stack size 12 bytes, stm32f0xx_rtc_1.o(.text), UNUSED)
+<P><STRONG><a name="[233]"></a>RTC_AlarmCmd</STRONG> (Thumb, 74 bytes, Stack size 12 bytes, stm32f0xx_rtc.o(.text), UNUSED)
 
-<P><STRONG><a name="[234]"></a>RTC_AlarmSubSecondConfig</STRONG> (Thumb, 26 bytes, Stack size 0 bytes, stm32f0xx_rtc_1.o(.text), UNUSED)
+<P><STRONG><a name="[234]"></a>RTC_AlarmSubSecondConfig</STRONG> (Thumb, 26 bytes, Stack size 0 bytes, stm32f0xx_rtc.o(.text), UNUSED)
 
-<P><STRONG><a name="[235]"></a>RTC_GetAlarmSubSecond</STRONG> (Thumb, 12 bytes, Stack size 0 bytes, stm32f0xx_rtc_1.o(.text), UNUSED)
+<P><STRONG><a name="[235]"></a>RTC_GetAlarmSubSecond</STRONG> (Thumb, 12 bytes, Stack size 0 bytes, stm32f0xx_rtc.o(.text), UNUSED)
 
-<P><STRONG><a name="[236]"></a>RTC_DayLightSavingConfig</STRONG> (Thumb, 36 bytes, Stack size 8 bytes, stm32f0xx_rtc_1.o(.text), UNUSED)
+<P><STRONG><a name="[236]"></a>RTC_DayLightSavingConfig</STRONG> (Thumb, 36 bytes, Stack size 8 bytes, stm32f0xx_rtc.o(.text), UNUSED)
 
-<P><STRONG><a name="[237]"></a>RTC_GetStoreOperation</STRONG> (Thumb, 12 bytes, Stack size 0 bytes, stm32f0xx_rtc_1.o(.text), UNUSED)
+<P><STRONG><a name="[237]"></a>RTC_GetStoreOperation</STRONG> (Thumb, 12 bytes, Stack size 0 bytes, stm32f0xx_rtc.o(.text), UNUSED)
 
-<P><STRONG><a name="[238]"></a>RTC_OutputConfig</STRONG> (Thumb, 36 bytes, Stack size 8 bytes, stm32f0xx_rtc_1.o(.text), UNUSED)
+<P><STRONG><a name="[238]"></a>RTC_OutputConfig</STRONG> (Thumb, 36 bytes, Stack size 8 bytes, stm32f0xx_rtc.o(.text), UNUSED)
 
-<P><STRONG><a name="[239]"></a>RTC_CalibOutputCmd</STRONG> (Thumb, 34 bytes, Stack size 0 bytes, stm32f0xx_rtc_1.o(.text), UNUSED)
+<P><STRONG><a name="[239]"></a>RTC_CalibOutputCmd</STRONG> (Thumb, 34 bytes, Stack size 0 bytes, stm32f0xx_rtc.o(.text), UNUSED)
 
-<P><STRONG><a name="[23a]"></a>RTC_CalibOutputConfig</STRONG> (Thumb, 32 bytes, Stack size 0 bytes, stm32f0xx_rtc_1.o(.text), UNUSED)
+<P><STRONG><a name="[23a]"></a>RTC_CalibOutputConfig</STRONG> (Thumb, 32 bytes, Stack size 0 bytes, stm32f0xx_rtc.o(.text), UNUSED)
 
-<P><STRONG><a name="[23b]"></a>RTC_SmoothCalibConfig</STRONG> (Thumb, 60 bytes, Stack size 16 bytes, stm32f0xx_rtc_1.o(.text), UNUSED)
+<P><STRONG><a name="[23b]"></a>RTC_SmoothCalibConfig</STRONG> (Thumb, 60 bytes, Stack size 16 bytes, stm32f0xx_rtc.o(.text), UNUSED)
 
-<P><STRONG><a name="[23c]"></a>RTC_TimeStampCmd</STRONG> (Thumb, 36 bytes, Stack size 8 bytes, stm32f0xx_rtc_1.o(.text), UNUSED)
+<P><STRONG><a name="[23c]"></a>RTC_TimeStampCmd</STRONG> (Thumb, 36 bytes, Stack size 8 bytes, stm32f0xx_rtc.o(.text), UNUSED)
 
-<P><STRONG><a name="[128]"></a>RTC_GetTimeStamp</STRONG> (Thumb, 126 bytes, Stack size 16 bytes, stm32f0xx_rtc_1.o(.text), UNUSED)
+<P><STRONG><a name="[128]"></a>RTC_GetTimeStamp</STRONG> (Thumb, 126 bytes, Stack size 16 bytes, stm32f0xx_rtc.o(.text), UNUSED)
 <BR><BR>[Calls]<UL><LI><a href="#[124]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;RTC_Bcd2ToByte
 </UL>
 
-<P><STRONG><a name="[23d]"></a>RTC_GetTimeStampSubSecond</STRONG> (Thumb, 6 bytes, Stack size 0 bytes, stm32f0xx_rtc_1.o(.text), UNUSED)
+<P><STRONG><a name="[23d]"></a>RTC_GetTimeStampSubSecond</STRONG> (Thumb, 6 bytes, Stack size 0 bytes, stm32f0xx_rtc.o(.text), UNUSED)
 
-<P><STRONG><a name="[23e]"></a>RTC_TamperTriggerConfig</STRONG> (Thumb, 22 bytes, Stack size 0 bytes, stm32f0xx_rtc_1.o(.text), UNUSED)
+<P><STRONG><a name="[23e]"></a>RTC_TamperTriggerConfig</STRONG> (Thumb, 22 bytes, Stack size 0 bytes, stm32f0xx_rtc.o(.text), UNUSED)
 
-<P><STRONG><a name="[23f]"></a>RTC_TamperCmd</STRONG> (Thumb, 20 bytes, Stack size 0 bytes, stm32f0xx_rtc_1.o(.text), UNUSED)
+<P><STRONG><a name="[23f]"></a>RTC_TamperCmd</STRONG> (Thumb, 20 bytes, Stack size 0 bytes, stm32f0xx_rtc.o(.text), UNUSED)
 
-<P><STRONG><a name="[240]"></a>RTC_TamperFilterConfig</STRONG> (Thumb, 22 bytes, Stack size 0 bytes, stm32f0xx_rtc_1.o(.text), UNUSED)
+<P><STRONG><a name="[240]"></a>RTC_TamperFilterConfig</STRONG> (Thumb, 22 bytes, Stack size 0 bytes, stm32f0xx_rtc.o(.text), UNUSED)
 
-<P><STRONG><a name="[241]"></a>RTC_TamperSamplingFreqConfig</STRONG> (Thumb, 22 bytes, Stack size 0 bytes, stm32f0xx_rtc_1.o(.text), UNUSED)
+<P><STRONG><a name="[241]"></a>RTC_TamperSamplingFreqConfig</STRONG> (Thumb, 22 bytes, Stack size 0 bytes, stm32f0xx_rtc.o(.text), UNUSED)
 
-<P><STRONG><a name="[242]"></a>RTC_TamperPinsPrechargeDuration</STRONG> (Thumb, 22 bytes, Stack size 0 bytes, stm32f0xx_rtc_1.o(.text), UNUSED)
+<P><STRONG><a name="[242]"></a>RTC_TamperPinsPrechargeDuration</STRONG> (Thumb, 22 bytes, Stack size 0 bytes, stm32f0xx_rtc.o(.text), UNUSED)
 
-<P><STRONG><a name="[243]"></a>RTC_TimeStampOnTamperDetectionCmd</STRONG> (Thumb, 22 bytes, Stack size 0 bytes, stm32f0xx_rtc_1.o(.text), UNUSED)
+<P><STRONG><a name="[243]"></a>RTC_TimeStampOnTamperDetectionCmd</STRONG> (Thumb, 22 bytes, Stack size 0 bytes, stm32f0xx_rtc.o(.text), UNUSED)
 
-<P><STRONG><a name="[244]"></a>RTC_TamperPullUpCmd</STRONG> (Thumb, 22 bytes, Stack size 0 bytes, stm32f0xx_rtc_1.o(.text), UNUSED)
+<P><STRONG><a name="[244]"></a>RTC_TamperPullUpCmd</STRONG> (Thumb, 22 bytes, Stack size 0 bytes, stm32f0xx_rtc.o(.text), UNUSED)
 
-<P><STRONG><a name="[245]"></a>RTC_WriteBackupRegister</STRONG> (Thumb, 16 bytes, Stack size 8 bytes, stm32f0xx_rtc_1.o(.text), UNUSED)
+<P><STRONG><a name="[245]"></a>RTC_WriteBackupRegister</STRONG> (Thumb, 16 bytes, Stack size 8 bytes, stm32f0xx_rtc.o(.text), UNUSED)
 
-<P><STRONG><a name="[246]"></a>RTC_ReadBackupRegister</STRONG> (Thumb, 16 bytes, Stack size 8 bytes, stm32f0xx_rtc_1.o(.text), UNUSED)
+<P><STRONG><a name="[246]"></a>RTC_ReadBackupRegister</STRONG> (Thumb, 16 bytes, Stack size 8 bytes, stm32f0xx_rtc.o(.text), UNUSED)
 
-<P><STRONG><a name="[247]"></a>RTC_OutputTypeConfig</STRONG> (Thumb, 22 bytes, Stack size 0 bytes, stm32f0xx_rtc_1.o(.text), UNUSED)
+<P><STRONG><a name="[247]"></a>RTC_OutputTypeConfig</STRONG> (Thumb, 22 bytes, Stack size 0 bytes, stm32f0xx_rtc.o(.text), UNUSED)
 
-<P><STRONG><a name="[129]"></a>RTC_SynchroShiftConfig</STRONG> (Thumb, 72 bytes, Stack size 12 bytes, stm32f0xx_rtc_1.o(.text), UNUSED)
+<P><STRONG><a name="[129]"></a>RTC_SynchroShiftConfig</STRONG> (Thumb, 72 bytes, Stack size 12 bytes, stm32f0xx_rtc.o(.text), UNUSED)
 <BR><BR>[Calls]<UL><LI><a href="#[f7]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;RTC_WaitForSynchro
 </UL>
 
-<P><STRONG><a name="[248]"></a>RTC_ITConfig</STRONG> (Thumb, 56 bytes, Stack size 12 bytes, stm32f0xx_rtc_1.o(.text), UNUSED)
+<P><STRONG><a name="[248]"></a>RTC_ITConfig</STRONG> (Thumb, 56 bytes, Stack size 12 bytes, stm32f0xx_rtc.o(.text), UNUSED)
 
-<P><STRONG><a name="[249]"></a>RTC_GetFlagStatus</STRONG> (Thumb, 20 bytes, Stack size 0 bytes, stm32f0xx_rtc_1.o(.text), UNUSED)
+<P><STRONG><a name="[249]"></a>RTC_GetFlagStatus</STRONG> (Thumb, 20 bytes, Stack size 0 bytes, stm32f0xx_rtc.o(.text), UNUSED)
 
-<P><STRONG><a name="[24a]"></a>RTC_ClearFlag</STRONG> (Thumb, 22 bytes, Stack size 0 bytes, stm32f0xx_rtc_1.o(.text), UNUSED)
+<P><STRONG><a name="[24a]"></a>RTC_ClearFlag</STRONG> (Thumb, 22 bytes, Stack size 0 bytes, stm32f0xx_rtc.o(.text), UNUSED)
 
-<P><STRONG><a name="[24b]"></a>RTC_GetITStatus</STRONG> (Thumb, 76 bytes, Stack size 16 bytes, stm32f0xx_rtc_1.o(.text), UNUSED)
+<P><STRONG><a name="[24b]"></a>RTC_GetITStatus</STRONG> (Thumb, 76 bytes, Stack size 16 bytes, stm32f0xx_rtc.o(.text), UNUSED)
 
-<P><STRONG><a name="[24c]"></a>RTC_ClearITPendingBit</STRONG> (Thumb, 22 bytes, Stack size 0 bytes, stm32f0xx_rtc_1.o(.text), UNUSED)
+<P><STRONG><a name="[24c]"></a>RTC_ClearITPendingBit</STRONG> (Thumb, 22 bytes, Stack size 0 bytes, stm32f0xx_rtc.o(.text), UNUSED)
 
 <P><STRONG><a name="[6a]"></a>__aeabi_memcpy</STRONG> (Thumb, 130 bytes, Stack size 24 bytes, rt_memcpy.o(.text))
 <BR><BR>[Stack]<UL><LI>Max Depth = 24<LI>Call Chain = __aeabi_memcpy
@@ -2863,7 +2863,7 @@ Local Symbols
 <BR>[Called By]<UL><LI><a href="#[34]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;SystemInit
 </UL>
 
-<P><STRONG><a name="[67]"></a>ModuleUnPackFrame</STRONG> (Thumb, 196 bytes, Stack size 24 bytes, comm_task.o(.text))
+<P><STRONG><a name="[67]"></a>ModuleUnPackFrame</STRONG> (Thumb, 198 bytes, Stack size 24 bytes, comm_task.o(.text))
 <BR><BR>[Stack]<UL><LI>Max Depth = 932<LI>Call Chain = ModuleUnPackFrame &rArr; protocol_module_process &rArr; send_prameter_fram1_to_PC &rArr; CheckFlashData &rArr; ResetParameter &rArr; FlashWrite &rArr; FLASH_ProgramWord &rArr; FLASH_WaitForLastOperation
 </UL>
 <BR>[Calls]<UL><LI><a href="#[6b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;protocol_module_process
@@ -2915,13 +2915,13 @@ Local Symbols
 <LI><a href="#[103]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TIM_ICInit
 </UL>
 
-<P><STRONG><a name="[125]"></a>RTC_ByteToBcd2</STRONG> (Thumb, 24 bytes, Stack size 0 bytes, stm32f0xx_rtc_1.o(.text))
+<P><STRONG><a name="[125]"></a>RTC_ByteToBcd2</STRONG> (Thumb, 24 bytes, Stack size 0 bytes, stm32f0xx_rtc.o(.text))
 <BR><BR>[Called By]<UL><LI><a href="#[126]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;RTC_SetAlarm
 <LI><a href="#[f9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;RTC_SetTime
 <LI><a href="#[fa]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;RTC_SetDate
 </UL>
 
-<P><STRONG><a name="[124]"></a>RTC_Bcd2ToByte</STRONG> (Thumb, 16 bytes, Stack size 0 bytes, stm32f0xx_rtc_1.o(.text))
+<P><STRONG><a name="[124]"></a>RTC_Bcd2ToByte</STRONG> (Thumb, 16 bytes, Stack size 0 bytes, stm32f0xx_rtc.o(.text))
 <BR><BR>[Called By]<UL><LI><a href="#[128]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;RTC_GetTimeStamp
 <LI><a href="#[127]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;RTC_GetAlarm
 <LI><a href="#[126]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;RTC_SetAlarm

@@ -1101,7 +1101,7 @@ void Init_RecordPage()
 	FLASH_Lock();
 }
 
-//这个api仅仅是用来调试用的
+
 void reset_dateTime()
 {
 	uint32_t pageInfo[3];

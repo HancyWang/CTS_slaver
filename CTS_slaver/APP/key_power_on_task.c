@@ -148,6 +148,8 @@ extern uint8_t selfTest_end_Cnt;
 extern BOOL b_detect_hand_before_system_running;
 extern uint16_t wait_between_total_cnt;
 extern uint8_t value;
+
+extern int16_t zero_point_of_pressure_sensor;
 //extern BOOL b_start_powerOn_check;
 // BOOL b_KeyWkUP_InterrupHappened=FALSE;
 // BOOL b_usb_intterruptHappened=FALSE;

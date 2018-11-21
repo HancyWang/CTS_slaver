@@ -212,7 +212,13 @@ USB_CHARGING_STATE usb_charging_state=USB_CHARGE_NONE;
 BOOL b_stop_current_works=FALSE;
 BOOL b_LED_ON_in_turn=FALSE;
 
+
+#ifdef _DEBUG
+SELF_TEST_STATE self_tet_state=SELF_TEST_DELAY_BEFORE_START;
+#else
 SELF_TEST_STATE self_tet_state=SELF_TEST_NONE;
+#endif
+
 //SELF_TEST_STATE self_tet_state=SELF_TEST_DELAY_BEFORE_START; //debug
 LED_IN_TURN_STATE led_In_Turn_state=LED_IN_TURN_NONE;
 
@@ -1019,13 +1025,10 @@ void PaintPWM(unsigned char num,unsigned char* buffer)
 			if(num==3)  //PWM3
 			{
 				uint16_t ret=ADS115_readByte(0x90);
-				//PRESSURE_SENSOR_VALUE=buffer[1+ELEMENTS_CNT*(*p_PWM_serial_cnt)+THRESHOLD]*pressure_rate+zero_point_of_pressure_sensor;
-				//if(ret>=((pressure_rate*buffer[1+ELEMENTS_CNT*(*p_PWM_serial_cnt)+THRESHOLD])+zero_point_of_pressure_sensor))
+				
 				if(ret>=PRESSURE_SENSOR_VALUE(buffer[1+ELEMENTS_CNT*(*p_PWM_serial_cnt)+THRESHOLD]))
 				{
-//					Motor_PWM_Freq_Dudy_Set(num,buffer[1+ELEMENTS_CNT*(*p_PWM_serial_cnt)+FREQ],0);
-//					*p_pwm_state=PWM_PERIOD;
-					//if(ret<(pressure_rate*PRESSURE_SAFETY_THRESHOLD+zero_point_of_pressure_sensor))
+					//这里有个潜在风险:比如app设置177，实际可能瞬间冲到191，这样必定超过180
 					if(ret<PRESSURE_SENSOR_VALUE(PRESSURE_SAFETY_THRESHOLD))
 					{
 						#if 0
@@ -1854,14 +1857,31 @@ uint16_t diff_of_two_values(uint16_t value1,uint16_t value2)
 	}
 }
 
-
+//容错，如果读到的sensor斜率值在[10,100]之间，为ok，否则读10次之后就给sensor默认值20
+void get_pressure_sensor_rate()
+{
+	uint8_t readCnt=0;
+	do
+	{
+		if(readCnt==10) //如果读10次都不在[10,100]之间，认为有问题
+		{
+			readCnt=0;
+			PRESSURE_RATE=20;
+			return;
+		}
+		PRESSURE_RATE=FlashReadWord(FLASH_PRESSURE_RATE_ADDR);
+		readCnt++;
+	}while(PRESSURE_RATE<10||PRESSURE_RATE>100);
+}
 
 //自检
 void self_test()
 {
 	//关闭波形，灯，并做短暂的延时
+
 	if(self_tet_state==SELF_TEST_DELAY_BEFORE_START)
 	{
+		#if 0
 ////		//如果正在运行(检测到手，就代表开始运行了)，不允许进入自检
 //		if(b_Palm_check_complited)
 //		{
@@ -1869,6 +1889,7 @@ void self_test()
 //			self_tet_state=SELF_TEST_NONE;
 //		}
 //		else
+		#endif
 		{
 			if(!b_no_hand_in_place&&!b_end_of_treatment) //不允许 1.在60s没侦测到手闪灯 和 2.治疗结束闪灯,进入自检
 			{
@@ -1901,13 +1922,11 @@ void self_test()
 				}
 			}
 		}
-
 	}
 	
 	//开始之前要放气
 	if(self_tet_state==SELF_TEST_DEFLATE_BEFORE_START)
 	{
-		
 		b_LED_ON_in_turn=TRUE;
 
 		if(deflate_cnt*20==4000)  //4s的放气时间
@@ -1917,6 +1936,7 @@ void self_test()
 			GPIO_ResetBits(GPIOB,GPIO_Pin_11);
 			
 			self_tet_state=SELF_TEST_START;
+			
 		}
 		else
 		{
@@ -1926,15 +1946,11 @@ void self_test()
 	
 	if(self_tet_state==SELF_TEST_START)
 	{
-		//b_LED_ON_in_turn=TRUE;
-		self_tet_state=SELF_TEST_INFLATE;
-//		led_In_Turn_state=LED_IN_TURN_MODE1;
+		get_pressure_sensor_rate(); //获取sensor斜率
+		Calibrate_pressure_sensor(&zero_point_of_pressure_sensor);  //获取sensor零点值
 		
+		self_tet_state=SELF_TEST_INFLATE;
 		Motor_PWM_Freq_Dudy_Set(3,100,70);  //打开PWM3，开始抽气到ballon中
-				//流水灯
-		//1.开电机(pwm3)，充气5s
-		//2.关闭电磁阀持续5s，取样比较
-		//3.关闭电磁阀
 	}
 	
 	//流水灯
@@ -1989,34 +2005,64 @@ void self_test()
 	//充气
 	if(self_tet_state==SELF_TEST_INFLATE)
 	{
-		if(inflate_cnt*20==8000) //充气8s
+		//(((PRESSURE_RATE)*(x))+zero_point_of_pressure_sensor
+		uint16_t res=ADS115_readByte(0x90);
+//		if(res>=((PRESSURE_RATE)*(183))+zero_point_of_pressure_sensor)
+		if(res>=PRESSURE_SENSOR_VALUE(PRESSURE_SAFETY_THRESHOLD-3))  //如果超过(180-3)mmHg，则取点,记录数据2
 		{
-			Motor_PWM_Freq_Dudy_Set(3,100,0);  //充气完毕，进入hold阶段，检测是否漏气
-			self_tet_state=SELF_TEST_HOLD;
 			inflate_cnt=0;
+			Motor_PWM_Freq_Dudy_Set(3,100,0);
+			
+			//记录数据2
+			selfTest_inflate_record_2=ADS115_readByte(0x90);
+			//数据2-数据1
+			if(diff_of_two_values(selfTest_inflate_record_2,selfTest_inflate_record_1)<PRESSURE_RATE*10)   
+			//if(selfTest_inflate_record_2-selfTest_inflate_record_1<150)  //如果差值小于150，认为有问题
+			{
+				self_tet_state=SELF_TEST_FAIL;
+			}
+			else
+			{
+				//充气完毕，进入hold阶段，检测是否漏气
+				self_tet_state=SELF_TEST_HOLD;
+			}
 		}
 		else
 		{
-			inflate_cnt++;
-			//检查充气是否有问题
-			//如果有问题，可能是电机坏了，也可能是漏气
-			if(inflate_cnt==5)
+			if(inflate_cnt*20==30000) //充气30s,给予足够的时候去充气，如果运行到这句代码说明根本就没充进去气
 			{
-				//记录数据1
-				selfTest_inflate_record_1=ADS115_readByte(0x90);
+				inflate_cnt=0;
+				self_tet_state=SELF_TEST_FAIL;
+
+//				Motor_PWM_Freq_Dudy_Set(3,100,0);  //充气完毕，进入hold阶段，检测是否漏气
+//				self_tet_state=SELF_TEST_HOLD;
+//				inflate_cnt=0;
 			}
-			if(inflate_cnt==399)
+			else
 			{
-				//记录数据2
-				selfTest_inflate_record_2=ADS115_readByte(0x90);
-				//数据2-数据1
-				if(diff_of_two_values(selfTest_inflate_record_2,selfTest_inflate_record_1)<150)
-				//if(selfTest_inflate_record_2-selfTest_inflate_record_1<150)  //如果差值小于150，认为有问题
+				inflate_cnt++;
+				//检查充气是否有问题
+				//如果有问题，可能是电机坏了，也可能是漏气
+				if(inflate_cnt==5)
 				{
-					Motor_PWM_Freq_Dudy_Set(3,100,0);
-					self_tet_state=SELF_TEST_FAIL;
-					inflate_cnt=0;
+					//记录数据1
+					selfTest_inflate_record_1=ADS115_readByte(0x90);
 				}
+				#if 1
+//				if(inflate_cnt==399)
+//				{
+//					//记录数据2
+//					selfTest_inflate_record_2=ADS115_readByte(0x90);
+//					//数据2-数据1
+//					if(diff_of_two_values(selfTest_inflate_record_2,selfTest_inflate_record_1)<150)
+//					//if(selfTest_inflate_record_2-selfTest_inflate_record_1<150)  //如果差值小于150，认为有问题
+//					{
+//						Motor_PWM_Freq_Dudy_Set(3,100,0);
+//						self_tet_state=SELF_TEST_FAIL;
+//						inflate_cnt=0;
+//					}
+//				}
+				#endif
 			}
 		}
 	}
@@ -2036,7 +2082,7 @@ void self_test()
 		{
 			hold_cnt++;
 			//检查是否漏气，时间尽量长
-			if(hold_cnt==1)
+			if(hold_cnt*20==5000)  //5000表示5s
 			{
 				//记录数据1
 				selfTest_hold_record_1=ADS115_readByte(0x90);
@@ -2046,7 +2092,7 @@ void self_test()
 				//记录数据2
 				selfTest_hold_record_2=ADS115_readByte(0x90);
 				//数据2-数据1
-				if(diff_of_two_values(selfTest_hold_record_1,selfTest_hold_record_2)>300)
+				if(diff_of_two_values(selfTest_hold_record_1,selfTest_hold_record_2)>PRESSURE_RATE*6)   //如果压力下降6mmHg,则认为漏气了
 				//if(selfTest_hold_record_1-selfTest_hold_record_2>100)  //hold阶段，如果差值大于60，认为漏气
 				{
 					self_tet_state=SELF_TEST_FAIL;
@@ -2083,7 +2129,7 @@ void self_test()
 				//记录数据2
 				selfTest_deflate_record_2=ADS115_readByte(0x90);
 				//数据2-数据1
-				if(diff_of_two_values(selfTest_deflate_record_1,selfTest_deflate_record_2)<100)
+				if(diff_of_two_values(selfTest_deflate_record_1,selfTest_deflate_record_2)<PRESSURE_RATE*10)  //100=20*5,5mmHg
 				//if(selfTest_deflate_record_1-selfTest_deflate_record_2<100)  //如果差值小于100,说明都没放气，电磁阀坏了
 				{
 					record_dateTime(CODE_SELFTEST_FAIL); 
@@ -2151,7 +2197,6 @@ void self_test()
 				Motor_PWM_Freq_Dudy_Set(5,4000,0);
 			}
 		}
-
 	}
 	
 	if(self_tet_state==SELF_TEST_END)
@@ -2669,23 +2714,6 @@ void DetectPalm()
 	os_delay_ms(TASK_DETECT_PALM_ID, 20);
 }
 
-//容错，如果读到的sensor斜率值在[10,100]之间，为ok，否则读10次之后就给sensor默认值20
-void get_pressure_sensor_rate()
-{
-	uint8_t readCnt=0;
-	do
-	{
-		if(readCnt==10) //如果读10次都不在[10,100]之间，认为有问题
-		{
-			readCnt=0;
-			PRESSURE_RATE=20;
-			return;
-		}
-		PRESSURE_RATE=FlashReadWord(FLASH_PRESSURE_RATE_ADDR);
-		readCnt++;
-	}while(PRESSURE_RATE<10||PRESSURE_RATE>100);
-}
-
 /*******************************************************************************
 ** 函数名称: check_selectedMode_ouputPWM
 ** 功能描述: 检查模式，并对应的输出PWM波形
@@ -2703,7 +2731,6 @@ void check_selectedMode_ouputPWM()
 #else
 	if(b_Palm_check_complited==TRUE&&!b_stop_current_works&&!b_self_test)
 #endif
-	
 	{
 		if(!b_release_gas)
 		{

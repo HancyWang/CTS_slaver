@@ -106,6 +106,13 @@ typedef enum
 	LED_IN_TURN_MODE3,
 }LED_IN_TURN_STATE;
 
+
+typedef enum
+{
+	MAGNETIC_OPEN,
+	MAGNETIC_CLOSE
+}MAGNETIC_OPERATE;
+
 void init_PWMState(void);
 
 void TaskDataSend (void);
@@ -128,4 +135,5 @@ void InitKeyWakeUpTiming(void);
 void self_test(void);
 void process_interrupt(void);
 void Reset_Timing_Parameter(void);
+void Operate_magnetic_valve(MAGNETIC_OPERATE operate);
 #endif

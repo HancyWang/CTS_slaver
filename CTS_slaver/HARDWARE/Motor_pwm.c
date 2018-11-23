@@ -101,7 +101,7 @@ static void Motor_PWM_Config(void)  //分频
 {
 	TIM_TimeBaseInitTypeDef  TIM_TimeBaseStructure;
 	TIM_OCInitTypeDef  TIM_OCInitStructure;
-	TIM_BDTRInitTypeDef TIM_BDTRInitStruct;
+//	TIM_BDTRInitTypeDef TIM_BDTRInitStruct;
 	
 	TIM_Cmd(TIM3, DISABLE);                   //使能定时器3	
 	TIM_Cmd(TIM14, DISABLE);                   //使能定时器14
@@ -124,23 +124,25 @@ static void Motor_PWM_Config(void)  //分频
   TIM_TimeBaseInit(TIM1, &TIM_TimeBaseStructure);  //新增的inflate_PWM2，使用TIM1
 	TIM_TimeBaseInit(TIM15,&TIM_TimeBaseStructure);  //BEEP
 	
-//	TIM_BDTRInitStruct.TIM_OSSRState=TIM_OSSRState_Enable; 
-//	TIM_BDTRInitStruct.TIM_OSSIState=TIM_OSSIState_Enable; 
-	TIM_BDTRInitStruct.TIM_LOCKLevel=TIM_LOCKLevel_1; 
-	TIM_BDTRInitStruct.TIM_DeadTime=0x00; 
-	TIM_BDTRInitStruct.TIM_Break=TIM_Break_Disable; 
-	TIM_BDTRInitStruct.TIM_BreakPolarity=TIM_BreakPolarity_Low; 
-	TIM_BDTRInitStruct.TIM_AutomaticOutput=ENABLE; 
-	
-	TIM_BDTRConfig(TIM17,&TIM_BDTRInitStruct);
-	TIM_BDTRConfig(TIM1,&TIM_BDTRInitStruct);
-	TIM_BDTRConfig(TIM15,&TIM_BDTRInitStruct);
+////	TIM_BDTRInitStruct.TIM_OSSRState=TIM_OSSRState_Enable;   //@修改PWM3
+////	TIM_BDTRInitStruct.TIM_OSSIState=TIM_OSSIState_Enable; 
+//	TIM_BDTRInitStruct.TIM_LOCKLevel=TIM_LOCKLevel_1; 
+//	TIM_BDTRInitStruct.TIM_DeadTime=0x00; 
+//	TIM_BDTRInitStruct.TIM_Break=TIM_Break_Disable; 
+//	TIM_BDTRInitStruct.TIM_BreakPolarity=TIM_BreakPolarity_Low; 
+//	TIM_BDTRInitStruct.TIM_AutomaticOutput=ENABLE; 
+//	
+//	TIM_BDTRConfig(TIM17,&TIM_BDTRInitStruct);
+//	TIM_BDTRConfig(TIM1,&TIM_BDTRInitStruct);
+//	TIM_BDTRConfig(TIM15,&TIM_BDTRInitStruct);
 
   TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM1;	    //配置为PWM模式1
   TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;	//OUT ENABLE
-  TIM_OCInitStructure.TIM_Pulse = 0;//12000;	   //当计数器计数到这个值时，电平发生跳变
+  TIM_OCInitStructure.TIM_OutputNState=TIM_OutputNState_Enable;  //@修改PWM3
+	TIM_OCInitStructure.TIM_Pulse = 0;//12000;	   //当计数器计数到这个值时，电平发生跳变
   TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_High;  //有效为高电平输出
-  TIM_OCInitStructure.TIM_OCNPolarity = TIM_OCNPolarity_High;
+//  TIM_OCInitStructure.TIM_OCNPolarity = TIM_OCNPolarity_High;
+	TIM_OCInitStructure.TIM_OCNPolarity = TIM_OCNPolarity_Low;  //@修改PWM3
   TIM_OCInitStructure.TIM_OCIdleState = TIM_OCIdleState_Set;
   TIM_OCInitStructure.TIM_OCNIdleState = TIM_OCIdleState_Reset;
 	
@@ -174,7 +176,7 @@ static void Motor_PWM_Config(void)  //分频
 	//TIM_CtrlPWMOutputs(TIM15,ENABLE);
 //	TIM17->BDTR  = TIM_BDTR_MOE;
 
-  //TIM_CtrlPWMOutputs(TIM17,ENABLE);
+  TIM_CtrlPWMOutputs(TIM17,ENABLE);      //@修改PWM3
  
 }
 

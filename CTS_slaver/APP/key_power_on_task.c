@@ -548,14 +548,17 @@ void release_gas_before_sleep()
 	set_led(LED_ID_MODE2,FALSE);
 	set_led(LED_ID_MODE3,FALSE);
 	
-	GPIO_SetBits(GPIOB,GPIO_Pin_10);
-	GPIO_SetBits(GPIOB,GPIO_Pin_11);
+//	GPIO_SetBits(GPIOB,GPIO_Pin_10);
+//	GPIO_SetBits(GPIOB,GPIO_Pin_11);
+	Operate_magnetic_valve(MAGNETIC_OPEN);
 	for(uint8_t i=0;i<2;i++)
 	{
 		delay_ms(1000);
 	}
-	GPIO_ResetBits(GPIOB,GPIO_Pin_10);
-	GPIO_ResetBits(GPIOB,GPIO_Pin_11);
+	
+//	GPIO_ResetBits(GPIOB,GPIO_Pin_10);
+//	GPIO_ResetBits(GPIOB,GPIO_Pin_11);
+	Operate_magnetic_valve(MAGNETIC_CLOSE);
 }
 
 void init_system_afterWakeUp()

@@ -283,6 +283,28 @@ static BOOL ModuleProcessPacket(UINT8 *pData);
 static UINT8 CheckCheckSum(UINT8* pData, UINT8 nLen);
 
 
+
+void Operate_magnetic_valve(MAGNETIC_OPERATE operate)
+{
+	switch(operate)
+	{
+		case MAGNETIC_OPEN:
+			GPIO_ResetBits(GPIOB,GPIO_Pin_10);
+			GPIO_ResetBits(GPIOB,GPIO_Pin_11);
+			break;
+		case MAGNETIC_CLOSE:
+			GPIO_SetBits(GPIOB,GPIO_Pin_10);
+			GPIO_SetBits(GPIOB,GPIO_Pin_11);
+			break;
+		default:
+			break;
+	}
+
+
+}
+
+
+
 void Set_ReleaseGas_flag()
 {
 	b_release_gas=TRUE;
@@ -403,8 +425,9 @@ void LED_Blink_for_alert(uint8_t seconds)
 	
 	//Reset_Timing_Parameter();
 	
-	GPIO_SetBits(GPIOB,GPIO_Pin_10);
-	GPIO_SetBits(GPIOB,GPIO_Pin_11);
+//	GPIO_SetBits(GPIOB,GPIO_Pin_10);
+//	GPIO_SetBits(GPIOB,GPIO_Pin_11);
+	Operate_magnetic_valve(MAGNETIC_OPEN);
 	set_led(LED_ID_GREEN,FALSE);   //关掉电源的绿色LED灯
 	set_led(LED_ID_YELLOW,FALSE);
 	//关闭模式指示灯
@@ -480,8 +503,9 @@ void Red_LED_Blink(unsigned char seconds)
 //	Motor_PWM_Freq_Dudy_Set(4,100,0);  
 //	Motor_PWM_Freq_Dudy_Set(5,4000,0);
 	
-	GPIO_SetBits(GPIOB,GPIO_Pin_10);
-	GPIO_SetBits(GPIOB,GPIO_Pin_11);
+//	GPIO_SetBits(GPIOB,GPIO_Pin_10);
+//	GPIO_SetBits(GPIOB,GPIO_Pin_11);
+	Operate_magnetic_valve(MAGNETIC_OPEN);
 	set_led(LED_ID_GREEN,FALSE);   //关掉电源的绿色LED灯
 	
 	//关闭模式指示灯
@@ -1022,32 +1046,16 @@ void PaintPWM(unsigned char num,unsigned char* buffer)
 		
 		if(*p_pwm_state==PWM_PERIOD)   //period
 		{
-			if(num==3)  //PWM3
+			if(num==3)  //PWM3,充气
 			{
 				uint16_t ret=ADS115_readByte(0x90);
 				
 				if(ret>=PRESSURE_SENSOR_VALUE(buffer[1+ELEMENTS_CNT*(*p_PWM_serial_cnt)+THRESHOLD]))
 				{
 					//这里有个潜在风险:比如app设置177，实际可能瞬间冲到191，这样必定超过180
+					//考虑使用算法PID
 					if(ret<PRESSURE_SENSOR_VALUE(PRESSURE_SAFETY_THRESHOLD))
-					{
-						#if 0
-//						Motor_PWM_Freq_Dudy_Set(1,100,0);
-//						Motor_PWM_Freq_Dudy_Set(2,100,0);
-//						Motor_PWM_Freq_Dudy_Set(3,100,0);
-//						//参数初始化，重新来
-//						state=LOAD_PARA;
-////						b_Motor_Ready2Shake=TRUE;
-////						b_Palm_check_complited=FALSE;
-////						b_Motor_shake=FALSE;
-////						nMotorShake_Cnt=0;
-//						init_PWMState();
-//						
-////						GPIO_SetBits(GPIOB,GPIO_Pin_10);  	 //打开电磁阀1
-////						GPIO_SetBits(GPIOB,GPIO_Pin_11);			//打开电磁阀2
-////					//	delay_ms(4000);   //这里不行，要喂狗
-						#endif
-						  
+					{ 
 						*p_pwm_state=PWM_DWELL;
 						//关闭pump，不要打开电磁阀，让气体hold在里面
 						Motor_PWM_Freq_Dudy_Set(num,buffer[1+ELEMENTS_CNT*(*p_PWM_serial_cnt)+FREQ],0);  
@@ -1063,8 +1071,9 @@ void PaintPWM(unsigned char num,unsigned char* buffer)
 						Motor_PWM_Freq_Dudy_Set(2,100,0);
 						Motor_PWM_Freq_Dudy_Set(3,100,0);
 						
-						GPIO_SetBits(GPIOB,GPIO_Pin_10);
-						GPIO_SetBits(GPIOB,GPIO_Pin_11);  //立马放气
+//						GPIO_SetBits(GPIOB,GPIO_Pin_10);
+//						GPIO_SetBits(GPIOB,GPIO_Pin_11);  //立马放气
+						Operate_magnetic_valve(MAGNETIC_OPEN);
 					} 
 				}
 				else
@@ -1078,7 +1087,7 @@ void PaintPWM(unsigned char num,unsigned char* buffer)
 					
 				}
 			}
-			else  //PWM1和PWM2
+			else  //PWM1和PWM2，马达震动
 			{
 				if(Is_timing_Xmillisec(buffer[1+ELEMENTS_CNT*(*p_PWM_serial_cnt)+PERIOD]*1000,num))
 				{
@@ -1115,8 +1124,9 @@ void PaintPWM(unsigned char num,unsigned char* buffer)
 				++(*p_PWM_numOfCycle);
 				*p_pwm_state=PWM_WAIT_BETWEEN;
 				//Motor_PWM_Freq_Dudy_Set(num,buffer[1+ELEMENTS_CNT*(*p_PWM_serial_cnt)+FREQ],0);
-				GPIO_SetBits(GPIOB,GPIO_Pin_10); //打开valve放气
-				GPIO_SetBits(GPIOB,GPIO_Pin_11);
+//				GPIO_SetBits(GPIOB,GPIO_Pin_10); //打开valve放气
+//				GPIO_SetBits(GPIOB,GPIO_Pin_11);
+				Operate_magnetic_valve(MAGNETIC_OPEN);
 			}
 			else 
 			{
@@ -1129,8 +1139,9 @@ void PaintPWM(unsigned char num,unsigned char* buffer)
 					Motor_PWM_Freq_Dudy_Set(2,100,0);
 					Motor_PWM_Freq_Dudy_Set(3,100,0);
 
-					GPIO_SetBits(GPIOB,GPIO_Pin_10);
-					GPIO_SetBits(GPIOB,GPIO_Pin_11);  //立马放气
+//					GPIO_SetBits(GPIOB,GPIO_Pin_10);
+//					GPIO_SetBits(GPIOB,GPIO_Pin_11);  //立马放气
+					Operate_magnetic_valve(MAGNETIC_OPEN);
 				}
 			}
 		}
@@ -1149,7 +1160,11 @@ void PaintPWM(unsigned char num,unsigned char* buffer)
 					value=buffer[1+ELEMENTS_CNT*(*p_PWM_serial_cnt)+NUM_OF_CYCLES];
 				
 					judge_total_PWM3_wait_between_cnt(value);
-					//wait_between_total_cnt++;
+
+					//wait_between_total_cnt用来控制马达停止，表示在第3，6，9，12个wait_between的时候，停止马达
+					//这是一个定制化的程序，PWM3有6个序列
+					//分别为3，3，3，2，1，1
+					//如果更改了其中任意序列的个数，将会导致程序混乱
 					if(wait_between_total_cnt==3||wait_between_total_cnt==6||wait_between_total_cnt==9||wait_between_total_cnt==12)
 					{
 						//停止马达
@@ -1167,7 +1182,6 @@ void PaintPWM(unsigned char num,unsigned char* buffer)
 
 				*p_pwm_state=PWM_WAIT_AFTER;
 				*p_PWM_numOfCycle=0;
-				
 			}
 			else
 			{
@@ -1175,14 +1189,16 @@ void PaintPWM(unsigned char num,unsigned char* buffer)
 				{
 					if(Is_timing_Xmillisec(buffer[1+ELEMENTS_CNT*(*p_PWM_serial_cnt)+WAIT_BETWEEN]*1000,num))
 					{
+						//控制马达开始震动
 						if(wait_between_total_cnt==4||wait_between_total_cnt==7||wait_between_total_cnt==10)
 						{
-						start_motors_base_on_pump(wait_between_total_cnt);
+							start_motors_base_on_pump(wait_between_total_cnt);
 						}
 						
 						b_release_gas=FALSE;
-						GPIO_ResetBits(GPIOB,GPIO_Pin_10);
-						GPIO_ResetBits(GPIOB,GPIO_Pin_11);
+//						GPIO_ResetBits(GPIOB,GPIO_Pin_10);
+//						GPIO_ResetBits(GPIOB,GPIO_Pin_11);
+						Operate_magnetic_valve(MAGNETIC_CLOSE);
 						
 						Motor_PWM_Freq_Dudy_Set(num,buffer[1+ELEMENTS_CNT*(*p_PWM_serial_cnt)+FREQ],buffer[1+ELEMENTS_CNT*(*p_PWM_serial_cnt)+DUTY_CYCLE]); 
 						*p_pwm_state=PWM_PERIOD;
@@ -1190,8 +1206,9 @@ void PaintPWM(unsigned char num,unsigned char* buffer)
 					}
 					else
 					{
-						GPIO_SetBits(GPIOB,GPIO_Pin_10);  	 //打开电磁阀1
-						GPIO_SetBits(GPIOB,GPIO_Pin_11);			//打开电磁阀2
+//						GPIO_SetBits(GPIOB,GPIO_Pin_10);  	 //打开电磁阀1
+//						GPIO_SetBits(GPIOB,GPIO_Pin_11);			//打开电磁阀2
+						Operate_magnetic_valve(MAGNETIC_OPEN);
 					}
 				}
 				else
@@ -1213,8 +1230,9 @@ void PaintPWM(unsigned char num,unsigned char* buffer)
 				if(Is_timing_Xmillisec(buffer[1+ELEMENTS_CNT*(*p_PWM_serial_cnt)+WAIT_AFTER]*1000,num))
 				{
 					b_release_gas=FALSE;
-					GPIO_ResetBits(GPIOB,GPIO_Pin_10);
-					GPIO_ResetBits(GPIOB,GPIO_Pin_11);
+//					GPIO_ResetBits(GPIOB,GPIO_Pin_10);
+//					GPIO_ResetBits(GPIOB,GPIO_Pin_11);
+					Operate_magnetic_valve(MAGNETIC_CLOSE);
 					
 					state=OUTPUT_PWM;
 					*p_PWM_numOfCycle=0;
@@ -1224,8 +1242,8 @@ void PaintPWM(unsigned char num,unsigned char* buffer)
 				}
 				else
 				{
-//					GPIO_SetBits(GPIOB,GPIO_Pin_10);  	 //打开电磁阀1
-//					GPIO_SetBits(GPIOB,GPIO_Pin_11);			//打开电磁阀2
+////					GPIO_SetBits(GPIOB,GPIO_Pin_10);  	 //打开电磁阀1
+////					GPIO_SetBits(GPIOB,GPIO_Pin_11);			//打开电磁阀2
 				}
 			}
 			else
@@ -1693,12 +1711,14 @@ void ReleaseGas()
 //		init_PWMState();
 //		mcu_state=POWER_OFF;
 		
-		GPIO_SetBits(GPIOB,GPIO_Pin_10);  	 //打开电磁阀1
-		GPIO_SetBits(GPIOB,GPIO_Pin_11);			//打开电磁阀2
+//		GPIO_SetBits(GPIOB,GPIO_Pin_10);  	 //打开电磁阀1
+//		GPIO_SetBits(GPIOB,GPIO_Pin_11);			//打开电磁阀2
+		Operate_magnetic_valve(MAGNETIC_OPEN);
 		if(Is_timing_Xmillisec(4000,8))
 		{
-			GPIO_ResetBits(GPIOB,GPIO_Pin_10);
-			GPIO_ResetBits(GPIOB,GPIO_Pin_11);
+//			GPIO_ResetBits(GPIOB,GPIO_Pin_10);
+//			GPIO_ResetBits(GPIOB,GPIO_Pin_11);
+			Operate_magnetic_valve(MAGNETIC_CLOSE);
 			Reset_ReleaseGas_flag();
 			//mcu_state=POWER_ON;
 		}
@@ -1913,8 +1933,9 @@ void self_test()
 					self_tet_state=SELF_TEST_DEFLATE_BEFORE_START;
 					
 					led_In_Turn_state=LED_IN_TURN_MODE1;
-					GPIO_SetBits(GPIOB,GPIO_Pin_10);
-					GPIO_SetBits(GPIOB,GPIO_Pin_11);
+//					GPIO_SetBits(GPIOB,GPIO_Pin_10);
+//					GPIO_SetBits(GPIOB,GPIO_Pin_11);
+					Operate_magnetic_valve(MAGNETIC_OPEN);
 				}
 				else
 				{
@@ -1932,8 +1953,9 @@ void self_test()
 		if(deflate_cnt*20==4000)  //4s的放气时间
 		{
 			deflate_cnt=0;
-			GPIO_ResetBits(GPIOB,GPIO_Pin_10);
-			GPIO_ResetBits(GPIOB,GPIO_Pin_11);
+//			GPIO_ResetBits(GPIOB,GPIO_Pin_10);
+//			GPIO_ResetBits(GPIOB,GPIO_Pin_11);
+			Operate_magnetic_valve(MAGNETIC_CLOSE);
 			
 			self_tet_state=SELF_TEST_START;
 			
@@ -2073,8 +2095,9 @@ void self_test()
 		{
 			hold_cnt=0;
 			//开启PB10,PB11,放气,进入放气阶段
-			GPIO_SetBits(GPIOB,GPIO_Pin_10);
-			GPIO_SetBits(GPIOB,GPIO_Pin_11);
+//			GPIO_SetBits(GPIOB,GPIO_Pin_10);
+//			GPIO_SetBits(GPIOB,GPIO_Pin_11);
+			Operate_magnetic_valve(MAGNETIC_OPEN);
 			
 			self_tet_state=SELF_TEST_DEFLATE;
 		}
@@ -2098,8 +2121,9 @@ void self_test()
 					self_tet_state=SELF_TEST_FAIL;
 					hold_cnt=0;
 					//自测fail了也要把气给放掉
-					GPIO_SetBits(GPIOB,GPIO_Pin_10);
-					GPIO_SetBits(GPIOB,GPIO_Pin_11);
+//					GPIO_SetBits(GPIOB,GPIO_Pin_10);
+//					GPIO_SetBits(GPIOB,GPIO_Pin_11);
+					Operate_magnetic_valve(MAGNETIC_OPEN);
 				}		
 			}
 		}
@@ -2110,8 +2134,9 @@ void self_test()
 		if(deflate_cnt*20==5000) //放气5s
 		{
 			//关闭电磁阀PB10,PB11,进入end阶段
-			GPIO_ResetBits(GPIOB,GPIO_Pin_10);
-			GPIO_ResetBits(GPIOB,GPIO_Pin_11);
+//			GPIO_ResetBits(GPIOB,GPIO_Pin_10);
+//			GPIO_ResetBits(GPIOB,GPIO_Pin_11);
+			Operate_magnetic_valve(MAGNETIC_CLOSE);
 			
 			deflate_cnt=0;
 		}
@@ -2688,8 +2713,9 @@ void DetectPalm()
 						Motor_PWM_Freq_Dudy_Set(2,100,0);
 						Motor_PWM_Freq_Dudy_Set(3,100,0);
 						
-						GPIO_SetBits(GPIOB,GPIO_Pin_10);  	 
-						GPIO_SetBits(GPIOB,GPIO_Pin_11);
+//						GPIO_SetBits(GPIOB,GPIO_Pin_10);  	 
+//						GPIO_SetBits(GPIOB,GPIO_Pin_11);
+						Operate_magnetic_valve(MAGNETIC_OPEN);
 						
 						b_Palm_check_complited=FALSE;
 						state=LOAD_PARA;
@@ -2724,7 +2750,6 @@ void DetectPalm()
 *******************************************************************************/
 void check_selectedMode_ouputPWM()
 {
-//	pressure_result=ADS115_readByte(0x90);
 	//这里添加一个状态基，获取cycle_cnt;
 	static uint8_t cycle_cnt=0;
 #ifdef _DEBUG
@@ -2754,8 +2779,9 @@ void check_selectedMode_ouputPWM()
 #ifdef _DEBUG_TEST_CYCLES
 #else
 				//先打开电磁阀，wait_before_start的时间用来放气，放气完成后校验sensor
-				GPIO_SetBits(GPIOB,GPIO_Pin_10);  	 //打开电磁阀1
-				GPIO_SetBits(GPIOB,GPIO_Pin_11);			//打开电磁阀2
+//				GPIO_SetBits(GPIOB,GPIO_Pin_10);  	 //打开电磁阀1
+//				GPIO_SetBits(GPIOB,GPIO_Pin_11);			//打开电磁阀2
+				Operate_magnetic_valve(MAGNETIC_OPEN);
 #endif
 				b_detect_hand_before_system_running=FALSE;  //系统运行起来之后，需要运行另外一套手掌检测的方法
 				reset_hand_detect_state();
@@ -2775,8 +2801,9 @@ void check_selectedMode_ouputPWM()
 					
 					state=CPY_PARA_TO_BUFFER;
 					
-					GPIO_ResetBits(GPIOB,GPIO_Pin_10); 
-					GPIO_ResetBits(GPIOB,GPIO_Pin_11); 
+//					GPIO_ResetBits(GPIOB,GPIO_Pin_10); 
+//					GPIO_ResetBits(GPIOB,GPIO_Pin_11); 
+					Operate_magnetic_valve(MAGNETIC_CLOSE);
 					Calibrate_pressure_sensor(&zero_point_of_pressure_sensor);
 				} 
 			}
@@ -2876,7 +2903,6 @@ void check_selectedMode_ouputPWM()
 					{
 						state=GET_CYCLE_CNT;  //输出完一轮后就去cycle减一
 						init_PWMState();
-						
 						
 						//如果运行完毕
 						if(cycle_cnt==0)  

@@ -344,12 +344,7 @@ void Calibrate_pressure_sensor(int16_t* p_zeroPoint)
 	uint16_t arr[10]={0};
 	uint16_t sum=0;
 	delay_ms(50);
-//	GPIO_SetBits(GPIOB,GPIO_Pin_10);
-//	GPIO_SetBits(GPIOB,GPIO_Pin_11);
-//	
-//	delay_ms(2000); 
-//	GPIO_SetBits(GPIOB,GPIO_Pin_11);
-//	GPIO_SetBits(GPIOB,GPIO_Pin_12);
+
 	
 	for(uint8_t i=0;i<10;i++)
 	{

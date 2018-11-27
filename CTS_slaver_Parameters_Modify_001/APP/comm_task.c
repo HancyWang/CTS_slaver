@@ -1145,6 +1145,27 @@ void PaintPWM(unsigned char num,unsigned char* buffer)
 //					GPIO_SetBits(GPIOB,GPIO_Pin_11);  //立马放气
 					Operate_magnetic_valve(MAGNETIC_OPEN);
 				}
+				else
+				{
+					uint16_t ret=ADS115_readByte(0x90);
+					if(ret<=PRESSURE_SENSOR_VALUE(buffer[1+ELEMENTS_CNT*(*p_PWM_serial_cnt)+THRESHOLD]))
+//					if(ret<=target_threshold_ADC_value)
+//					if(ret<=2600)
+					{
+						uint16_t pressure_diff=PRESSURE_SENSOR_VALUE(buffer[1+ELEMENTS_CNT*(*p_PWM_serial_cnt)+THRESHOLD])-ret; //计算差值
+//						uint16_t pressure_diff=2600-ret;
+						FLOAT PID_P=0.3;
+						
+						uint16_t dutyCycle=0;
+						dutyCycle=PID_P*pressure_diff>=100?100:PID_P*pressure_diff;
+
+						Motor_PWM_Freq_Dudy_Set(3,100,dutyCycle);  //更改占空比,控制充气速度
+					}
+					else
+					{
+						Motor_PWM_Freq_Dudy_Set(3,100,0);
+					}
+				}
 			}
 		}
 		

@@ -139,11 +139,11 @@ static void Motor_PWM_Config(void)  //分频
 
   TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM1;	    //配置为PWM模式1
   TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;	//OUT ENABLE
-  TIM_OCInitStructure.TIM_OutputNState=TIM_OutputNState_Enable;  //@修改PWM3
+  TIM_OCInitStructure.TIM_OutputNState=TIM_OutputNState_Enable;  //@修改PWM2
 	TIM_OCInitStructure.TIM_Pulse = 0;//12000;	   //当计数器计数到这个值时，电平发生跳变
   TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_High;  //有效为高电平输出
 //  TIM_OCInitStructure.TIM_OCNPolarity = TIM_OCNPolarity_High;
-	TIM_OCInitStructure.TIM_OCNPolarity = TIM_OCNPolarity_Low;  //@修改PWM3
+	TIM_OCInitStructure.TIM_OCNPolarity = TIM_OCNPolarity_Low;  //@修改PWM2
   TIM_OCInitStructure.TIM_OCIdleState = TIM_OCIdleState_Set;
   TIM_OCInitStructure.TIM_OCNIdleState = TIM_OCIdleState_Reset;
 	
@@ -177,8 +177,7 @@ static void Motor_PWM_Config(void)  //分频
 	//TIM_CtrlPWMOutputs(TIM15,ENABLE);
 //	TIM17->BDTR  = TIM_BDTR_MOE;
 
-  TIM_CtrlPWMOutputs(TIM17,ENABLE);      //@修改PWM3
- 
+  TIM_CtrlPWMOutputs(TIM17,ENABLE);      //@修改PWM2
 }
 
 
@@ -223,10 +222,21 @@ void Motor_PWM_Freq_Dudy_Set(UINT8 PWM_NUMBER, UINT16 Freq,UINT16 Duty)			//PWM1
 		i *= Duty;
 		i /= 100;
 		
+		
 		TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM1;	    //配置为PWM模式1
-		TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;	
-		TIM_OCInitStructure.TIM_Pulse = i;//0;	
-		TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_High;  //当定时器计数值小于CCR1_Val时为低电平
+		TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;	//OUT ENABLE
+		TIM_OCInitStructure.TIM_OutputNState=TIM_OutputNState_Enable;  //@修改PWM2
+		TIM_OCInitStructure.TIM_Pulse = i;
+		TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_High;  //有效为高电平输出
+		//  TIM_OCInitStructure.TIM_OCNPolarity = TIM_OCNPolarity_High;
+		TIM_OCInitStructure.TIM_OCNPolarity = TIM_OCNPolarity_Low;  //@修改PWM2
+		TIM_OCInitStructure.TIM_OCIdleState = TIM_OCIdleState_Set;
+		TIM_OCInitStructure.TIM_OCNIdleState = TIM_OCIdleState_Reset;
+		
+//		TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM1;	    //配置为PWM模式1
+//		TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;	
+//		TIM_OCInitStructure.TIM_Pulse = i;//0;	
+//		TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_High;  //当定时器计数值小于CCR1_Val时为低电平
 		
 		if(PWM_NUMBER == 1)
 		{
@@ -236,7 +246,7 @@ void Motor_PWM_Freq_Dudy_Set(UINT8 PWM_NUMBER, UINT16 Freq,UINT16 Duty)			//PWM1
 		}
 		else if(PWM_NUMBER == 2)
 		{
-			TIM_OCInitStructure.TIM_OCNPolarity = TIM_OCNPolarity_High;
+//			TIM_ARRPreloadConfig(TIM17, ENABLE);			 
 			TIM_TimeBaseInit(TIM17, &TIM_TimeBaseStructure);	
 			TIM_OC1Init(TIM17, &TIM_OCInitStructure);	 //使能TIM17CH1
 			TIM_OC1PreloadConfig(TIM17, TIM_OCPreload_Enable);	//		

@@ -141,6 +141,16 @@ _Bool Set_RTC(uint8_t* pdata)
 //	{
 //		RTC_WaitForSynchro();
 //	}
+	
+	//如果设置失败，会显示2000/1/1 00:00:00
+	RTC_DateTypeDef date_struct;
+	RTC_TimeTypeDef time_struct;
+	Get_DataTime(&date_struct,&time_struct);
+
+	if(date_struct.RTC_Year==0&&date_struct.RTC_Month==1&&date_struct.RTC_Date==1&&
+		time_struct.RTC_Hours==0&&time_struct.RTC_Minutes==0&&time_struct.RTC_Seconds==0)
+		return 0;
+		
 	return 1;
 }
 

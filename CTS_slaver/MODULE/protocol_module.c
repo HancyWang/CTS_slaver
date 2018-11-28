@@ -655,7 +655,7 @@ void calibrate_sensor_by_ID(uint8_t* pdata,uint8_t ID)
 	}
 }
 
-void send_RTC_SYN_finish()
+void send_RTC_SYN_finish(BOOL success)
 {
 	uint8_t buffer[7];
 	
@@ -664,7 +664,7 @@ void send_RTC_SYN_finish()
 	buffer[2] = MODULE_CMD_TYPE;      //0x00
 	buffer[3] = RTC_SYN_FINISHED; //0x66
 	
-	buffer[4]=1;
+	buffer[4]=success;
 	
 	CalcCheckSum(buffer);
 	fifoWriteData(&send_fifo, buffer, buffer[1]+2);
@@ -927,7 +927,11 @@ void protocol_module_process(uint8_t* pdata)
 			reset_dateTime();
 			Init_RecordPage();
 			record_dateTime(CODE_PC_SYN_RTC);
-			send_RTC_SYN_finish();
+			send_RTC_SYN_finish(1);
+		}
+		else
+		{
+			send_RTC_SYN_finish(0);
 		}
 		break;
 	case GET_RTC_RECORD_NUMBERS:

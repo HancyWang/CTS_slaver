@@ -17,6 +17,16 @@
 #include "hardware.h"
 #include "iwtdg.h"
 
+
+//定义PID算法的各个系数
+//定义浮点数，发现Code从25K升到27K了，非常费ROM
+#define PID_P 1
+#define PID_I 1
+#define PID_D (-1)
+//#define PID_P 1
+//#define PID_I 1
+//#define PID_D 1
+
 //每个pressure sensor的rate都不一样，后续的话可以定义一个接口，从flash中读取rate
 //#define PRESSURE_RATE get_pressure_rate
 //#define PRESSURE_RATE 20   //测试3PCS,都是20
@@ -1147,23 +1157,50 @@ void PaintPWM(unsigned char num,unsigned char* buffer)
 				}
 				else
 				{
+					static uint32_t integration_sum;  //积分值
+					static uint16_t prev_pressure_adc_value;
 					uint16_t ret=ADS115_readByte(0x90);
 					if(ret<=PRESSURE_SENSOR_VALUE(buffer[1+ELEMENTS_CNT*(*p_PWM_serial_cnt)+THRESHOLD]))
-//					if(ret<=target_threshold_ADC_value)
-//					if(ret<=2600)
 					{
-						uint16_t pressure_diff=PRESSURE_SENSOR_VALUE(buffer[1+ELEMENTS_CNT*(*p_PWM_serial_cnt)+THRESHOLD])-ret; //计算差值
-//						uint16_t pressure_diff=2600-ret;
-						FLOAT PID_P=0.3;
+						uint16_t pressure_adc_value=PRESSURE_SENSOR_VALUE(buffer[1+ELEMENTS_CNT*(*p_PWM_serial_cnt)+THRESHOLD]);
+						uint16_t pressure_diff=pressure_adc_value-ret; //计算差值
+
+						//设置PID中的P值
+						//参见 #define PID_P 1.2
 						
+						//设置PID中的I，积分
+						integration_sum+=pressure_adc_value;
+						
+						//设置PID中的D值，微分
+						uint16_t div=0;
+						//第一次运行的时候，刹车会踩的很猛，因为第一次prev_pressure_adc_value=0,pressure_adc_value-prev_pressure_adc_value差值会很大
+						//没有必要修正第一次，第一次刹车猛，大不了不充气，但是到第二次就正常运行了
+						if(pressure_adc_value>=prev_pressure_adc_value)
+						{
+							 div=(pressure_adc_value-prev_pressure_adc_value)/CHECK_MODE_OUTPUT_PWM;  //CHECK_MODE_OUTPUT_PWM=10,任务的循环时间
+						}
+						
+						//将PID中P,I,D对应相加
 						uint16_t dutyCycle=0;
-						dutyCycle=PID_P*pressure_diff>=100?100:PID_P*pressure_diff;
+//						dutyCycle=(PID_P*pressure_diff>=100?100:PID_P*pressure_diff)+PID_I*integration_sum;
+						dutyCycle=PID_P*pressure_diff+PID_I*integration_sum+PID_D*div;
+						if(dutyCycle<=0)
+						{
+							dutyCycle=0;
+						}
+						else
+						{
+							dutyCycle=dutyCycle>=100?100:dutyCycle;  //dutyCycle的值不能超过100%
+						}
 
 						Motor_PWM_Freq_Dudy_Set(3,100,dutyCycle);  //更改占空比,控制充气速度
+						
+						prev_pressure_adc_value=pressure_adc_value;  //存取这一次的值，作为下一次的"上一次值"
 					}
 					else
 					{
 						Motor_PWM_Freq_Dudy_Set(3,100,0);
+						integration_sum=0;
 					}
 				}
 			}
@@ -2811,6 +2848,8 @@ void check_selectedMode_ouputPWM()
 			//1.从flash中加载参数到内存
 			if(state==LOAD_PARA)      
 			{
+//				uint32_t debug=20;
+//				FlashWrite(FLASH_PRESSURE_RATE_ADDR,(uint8_t*)&debug,1);
 				
 				uint8_t len=PARAMETER_BUF_LEN/4;  
 				uint32_t tmp[PARAMETER_BUF_LEN/4]={0};   		

@@ -71,6 +71,7 @@ void init_task(void)
 	Motor_PWM_Init();
 	
 #ifdef _DEBUG
+	
 	Calibrate_pressure_sensor(&zero_point_of_pressure_sensor);
 #endif
 	

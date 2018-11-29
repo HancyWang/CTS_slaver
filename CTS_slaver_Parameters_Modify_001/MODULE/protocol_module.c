@@ -576,11 +576,34 @@ uint8_t FlashReadByte(uint32_t addr)
 //		return 3; //返回模式3
 //	}
 //}
+
 uint32_t cal_pressure_rate(POINT point_1,POINT point_2,POINT point_3)
+//FLOAT32 cal_pressure_rate(POINT point_1,POINT point_2,POINT point_3)
 {
-	uint16_t rate1=abs(point_2.adc_value-point_1.adc_value)/abs(point_2.mmgh_value-point_1.mmgh_value);
-	uint16_t rate2=abs(point_3.adc_value-point_1.adc_value)/abs(point_3.mmgh_value-point_1.mmgh_value);
+	uint32_t rate1=(uint32_t)abs(point_2.adc_value-point_1.adc_value)/abs(point_2.mmgh_value-point_1.mmgh_value);
+	uint32_t rate2=(uint32_t)abs(point_3.adc_value-point_1.adc_value)/abs(point_3.mmgh_value-point_1.mmgh_value);
 	return (rate1+rate2)/2;
+	
+//	//将斜率由整数改造成带小数点的,不用浮点，浮点费ROM
+//	uint16_t diff_1_adc=abs(point_2.adc_value-point_1.adc_value);
+//	uint16_t diff_1_mmHg=abs(point_2.mmgh_value-point_1.mmgh_value);
+//	
+//	uint16_t diff_2_adc=abs(point_3.adc_value-point_1.adc_value);
+//	uint16_t diff_2_mmHg=abs(point_3.mmgh_value-point_1.mmgh_value);
+//	
+//	uint16_t rate1_integer=diff_1_adc/diff_1_mmHg;  				//rate1,整数部分
+//	uint16_t rate1_decimal=(diff_1_adc*100/diff_1_mmHg)%100;  //rate1 获取小数点后两位
+//	
+//	uint16_t rate2_integer=diff_2_adc/diff_2_mmHg;  				//rate2,整数部分
+//	uint16_t rate2_decimal=(diff_2_adc*100/diff_2_mmHg)%100;  //rate2 获取小数点后两位
+//	
+//	//取平均值
+//	//获取扩大10000倍的数值,比如：19.25+18.92 => 100*(1925+1892)=381700 => /2=190850
+//	uint32_t tmp_0=100*((rate1_integer*100+rate1_decimal)+(rate2_integer*100+rate2_decimal))/2;  
+//	uint32_t tmp_1=tmp_0/100; //  190850/100=1908
+//	uint32_t rate=(tmp_1/100<<16)+tmp_1%100;  
+//	
+//	return rate;
 }
 
 void send_cal_reslut_2_PC()
@@ -629,6 +652,7 @@ void send_cal_reslut_2_PC()
 	//2.将斜率存起来
 	//计算斜率
 	uint32_t rate=cal_pressure_rate(point_1,point_2,point_3);
+//	FLOAT32 rate=cal_pressure_rate(point_1,point_2,point_3);   //@更改rate类型
 	FlashWrite(FLASH_PRESSURE_RATE_ADDR,(uint8_t*)&rate,1);
 }
 

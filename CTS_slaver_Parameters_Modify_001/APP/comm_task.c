@@ -21,8 +21,8 @@
 //定义PID算法的各个系数
 //定义浮点数，发现Code从25K升到27K了，非常费ROM
 #define PID_P 1
-#define PID_I 1
-#define PID_D (-1)
+#define PID_I 0
+#define PID_D (0)
 //#define PID_P 1
 //#define PID_I 1
 //#define PID_D 1
@@ -32,12 +32,16 @@
 //#define PRESSURE_RATE 20   //测试3PCS,都是20
 //#define PRESSURE_RATE (FlashReadWord(FLASH_PRESSURE_RATE_ADDR))
 //uint32_t pressure_rate;
+
 uint32_t PRESSURE_RATE;
+//FLOAT32 PRESSURE_RATE;
 #define PRESSURE_SAFETY_THRESHOLD 180
 #define PRESSURE_EMPTY_AIR 5
 //y=ax+b
-//uint32_t PRESSURE_SENSOR_VALUE;
+
 #define PRESSURE_SENSOR_VALUE(x) (((PRESSURE_RATE)*(x))+zero_point_of_pressure_sensor)
+//#define PRESSURE_SENSOR_VALUE(x) ((((PRESSURE_RATE/256)*100+PRESSURE_RATE%256)*(x))/100+zero_point_of_pressure_sensor)
+
 
 extern int16_t zero_point_of_pressure_sensor;
 
@@ -274,6 +278,11 @@ BEEP_STATE beep_state=BEEP_INIT;
 // BOOL b_stop_motors=FALSE;
 //uint16_t wait_between_total_cnt=0;
  uint8_t value=0;
+ 
+ //这个仅仅是用来测试，正式的代码没有这个
+ #ifdef _DEBUG_SELF_TEST_FOR_5_LEVES_PRESSURE
+ static uint8_t self_test_5_levels_cnt=0;
+ #endif
  
 //*********************debug*******************
 //cycles_record，仅仅是用来测试的，正式的版本不需要这个
@@ -1201,6 +1210,7 @@ void PaintPWM(unsigned char num,unsigned char* buffer)
 					{
 						Motor_PWM_Freq_Dudy_Set(3,100,0);
 						integration_sum=0;
+						prev_pressure_adc_value=0;
 					}
 				}
 			}
@@ -1588,6 +1598,10 @@ void get_switch_mode()
 				{
 					if(Is_timing_Xmillisec(5000,14))  //长按检测
 					{
+						#ifdef _DEBUG_SELF_TEST_FOR_5_LEVES_PRESSURE
+						self_test_5_levels_cnt=0;
+						#endif
+						
 						b_self_test=TRUE;
 						self_tet_state=SELF_TEST_DELAY_BEFORE_START;
 						init_PWMState();
@@ -1980,6 +1994,36 @@ void get_pressure_sensor_rate()
 	}while(PRESSURE_RATE<10||PRESSURE_RATE>100);
 }
 
+#ifdef _DEBUG_SELF_TEST_FOR_5_LEVES_PRESSURE
+uint16_t get_pressure_mmHg_by_num(uint8_t num)
+{
+	uint16_t ret=0;
+	switch(num)
+	{
+		case 0:
+			ret=PRESSURE_SENSOR_VALUE(50);
+			break;
+		case 1:
+			ret=PRESSURE_SENSOR_VALUE(75);
+			break;	
+		case 2:
+			ret=PRESSURE_SENSOR_VALUE(150);
+			break;
+		case 3:
+			ret=PRESSURE_SENSOR_VALUE(200);
+			break;
+		case 4:
+			ret=PRESSURE_SENSOR_VALUE(250);
+			break;
+//		case 5:
+//			ret=PRESSURE_SENSOR_VALUE(300);
+//			break;
+	}
+	return ret;
+}
+#endif
+
+
 //自检
 void self_test()
 {
@@ -2116,7 +2160,12 @@ void self_test()
 		//(((PRESSURE_RATE)*(x))+zero_point_of_pressure_sensor
 		uint16_t res=ADS115_readByte(0x90);
 //		if(res>=((PRESSURE_RATE)*(183))+zero_point_of_pressure_sensor)
-		if(res>=PRESSURE_SENSOR_VALUE(PRESSURE_SAFETY_THRESHOLD-3))  //如果超过(180-3)mmHg，则取点,记录数据2
+		
+		#ifdef _DEBUG_SELF_TEST_FOR_5_LEVES_PRESSURE
+		if(res>=get_pressure_mmHg_by_num(self_test_5_levels_cnt))
+		#else
+		if(res>=PRESSURE_SENSOR_VALUE(200))  //如果超过200mmHg，则取点,记录数据2
+		#endif
 		{
 			inflate_cnt=0;
 			Motor_PWM_Freq_Dudy_Set(3,100,0);
@@ -2312,6 +2361,45 @@ void self_test()
 	
 	if(self_tet_state==SELF_TEST_END)
 	{
+		#ifdef  _DEBUG_SELF_TEST_FOR_5_LEVES_PRESSURE
+		if(self_test_5_levels_cnt==4) //0-4,5个点
+		{
+			
+			b_LED_ON_in_turn=FALSE;  //关闭流水灯
+		
+			//灯常亮5s，表示自检ok,然后进入低功耗
+			
+			if(selfTest_end_Cnt*20==5000)  //常亮5s，表示自检ok
+			{
+				self_test_5_levels_cnt=0;
+				
+				b_self_test=FALSE;
+
+				selfTest_end_Cnt=0;
+				set_led(LED_ID_MODE1,FALSE);
+				set_led(LED_ID_MODE2,FALSE);
+				set_led(LED_ID_MODE3,FALSE);
+				EnterStopMode();
+				init_system_afterWakeUp();
+			}
+			else
+			{
+				selfTest_end_Cnt++;
+				set_led(LED_ID_MODE1,TRUE);
+				set_led(LED_ID_MODE2,TRUE);
+				set_led(LED_ID_MODE3,TRUE);
+			}
+			
+			
+		}
+		else
+		{
+			self_test_5_levels_cnt++;
+			self_tet_state=SELF_TEST_DELAY_BEFORE_START;
+		}
+		#else
+		
+		
 		b_LED_ON_in_turn=FALSE;  //关闭流水灯
 		
 		//灯常亮5s，表示自检ok,然后进入低功耗
@@ -2334,6 +2422,8 @@ void self_test()
 			set_led(LED_ID_MODE2,TRUE);
 			set_led(LED_ID_MODE3,TRUE);
 		}
+		#endif
+		
 	}
 	
 	os_delay_ms(TASK_SELF_TEST, 20);

@@ -1991,7 +1991,7 @@ void get_pressure_sensor_rate()
 		}
 		PRESSURE_RATE=FlashReadWord(FLASH_PRESSURE_RATE_ADDR);
 		readCnt++;
-	}while(PRESSURE_RATE<10||PRESSURE_RATE>100);
+	}while(PRESSURE_RATE<18||PRESSURE_RATE>21);
 }
 
 #ifdef _DEBUG_SELF_TEST_FOR_5_LEVES_PRESSURE

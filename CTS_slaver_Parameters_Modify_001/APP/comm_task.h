@@ -25,7 +25,7 @@ typedef unsigned int uint32_t;
 //#define _DEBUG   //这个方便调试，正式发布代码的时候不需要这个
 //#define _DEBUG_TEST_CYCLES  //这个是用来loop test的，测试cycle
 //#define _DEBUG_FLASH_RECORD_DATETIME
-#define _DEBUG_SELF_TEST_FOR_5_LEVES_PRESSURE
+//#define _DEBUG_SELF_TEST_FOR_5_LEVES_PRESSURE
 
 //局部变量
 typedef enum

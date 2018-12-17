@@ -102,7 +102,7 @@ I (..\MODULE\protocol_module.h)(0x5BD2AF4D)
 I (..\STM32F03x_FWLib\inc\stm32f0xx_rtc.h)(0x5BC6D683)
 I (..\APP\key_power_on_task.h)(0x5BC6D683)
 I (..\HARDWARE\rtc.h)(0x5BC6D683)
-F (..\APP\comm_task.c)(0x5BFCF5B1)(--c99 -c --cpu Cortex-M0 -g -O3 --apcs=interwork -I ..\APP -I ..\OS -I ..\CORE -I ..\HARDWARE -I ..\MODULE -I ..\STM32F03x_FWLib\inc -I ..\STM32F03x_FWLib\src -I ..\User -I ..\SYSTEM -I ..\SYSTEM\cmd -I ..\SYSTEM\fifo-I.\RTE\_Stm32f030demo-I"D:\Program Files (x86)\Keil_v5\ARM\PACK\ARM\CMSIS\5.4.0\CMSIS\Core\Include"-I"D:\Program Files (x86)\Keil_v5\ARM\PACK\Keil\STM32F0xx_DFP\2.0.0\Drivers\CMSIS\Device\ST\STM32F0xx\Include"-I"D:\Program Files (x86)\Keil_v5\ARM\PACK\Keil\STM32F0xx_DFP\2.0.0\Device\Include"-D__UVISION_VERSION="525" -D_RTE_ -DSTM32F070xB -DUSE_STDPERIPH_DRIVER -DSTM32F0XX-o ..\obj\comm_task.o --omf_browse ..\obj\comm_task.crf --depend ..\obj\comm_task.d)
+F (..\APP\comm_task.c)(0x5C1753C5)(--c99 -c --cpu Cortex-M0 -g -O3 --apcs=interwork -I ..\APP -I ..\OS -I ..\CORE -I ..\HARDWARE -I ..\MODULE -I ..\STM32F03x_FWLib\inc -I ..\STM32F03x_FWLib\src -I ..\User -I ..\SYSTEM -I ..\SYSTEM\cmd -I ..\SYSTEM\fifo-I.\RTE\_Stm32f030demo-I"D:\Program Files (x86)\Keil_v5\ARM\PACK\ARM\CMSIS\5.4.0\CMSIS\Core\Include"-I"D:\Program Files (x86)\Keil_v5\ARM\PACK\Keil\STM32F0xx_DFP\2.0.0\Drivers\CMSIS\Device\ST\STM32F0xx\Include"-I"D:\Program Files (x86)\Keil_v5\ARM\PACK\Keil\STM32F0xx_DFP\2.0.0\Device\Include"-D__UVISION_VERSION="525" -D_RTE_ -DSTM32F070xB -DUSE_STDPERIPH_DRIVER -DSTM32F0XX-o ..\obj\comm_task.o --omf_browse ..\obj\comm_task.crf --depend ..\obj\comm_task.d)
 I (..\APP\comm_task.h)(0x5BF61CC0)
 I (..\SYSTEM\fifo\datatype.h)(0x5BC6D683)
 I (..\SYSTEM\fifo\fifo.h)(0x5BC6D683)

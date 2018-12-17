@@ -1415,7 +1415,7 @@ void CheckFlashData(unsigned char* buffer)
 			ResetParameter(buffer);
 			return;
 		}
-		if(buffer[2+j]<5||buffer[2+j]>100) //4.duty cycle
+		if(buffer[2+j]<0||buffer[2+j]>100) //4.duty cycle
 		{
 			ResetParameter(buffer);
 			return;
@@ -2938,7 +2938,7 @@ void check_selectedMode_ouputPWM()
 			//1.从flash中加载参数到内存
 			if(state==LOAD_PARA)      
 			{
-//				uint32_t debug=20;
+//				uint32_t debug=19;
 //				FlashWrite(FLASH_PRESSURE_RATE_ADDR,(uint8_t*)&debug,1);
 				
 				uint8_t len=PARAMETER_BUF_LEN/4;  

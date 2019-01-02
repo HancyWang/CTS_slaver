@@ -2438,9 +2438,11 @@ void led_blink_beep()
 	static uint16_t nohand_beep_tm=500;
 	
 //	//治疗结束
-	static uint16_t endTreatment_ledCnt=5;
+	static uint16_t endTreatment_ledCnt=3;
+	static uint16_t endTreatment_led_tm=500;          //定时500ms
+	static uint16_t endTreatment_led_wait_tm=1000;    //定时1s，实现振0.5s，停1s，如此循环3次
+	
 	static uint16_t endTreatment_beepCnt=5;
-	static uint16_t endTreatment_led_tm=500;  //定时500ms
 	static uint16_t endTreatment_beep_tm=500; 
 	
 	//充电,     只有灯闪，没有beep
@@ -2530,23 +2532,58 @@ void led_blink_beep()
 				default:
 					break;
 			}
-			if(Is_timing_Xmillisec((uint32_t)(*p_led_tm),10))  //ON
-			//if(Is_timing_Xmillisec(tm,10))
+			if(led_beep_ID==1)
 			{
-				if(led_beep_ID==2)
-				{
-					set_led(LED_ID_GREEN,FALSE);
-				}
-				else
+				if(Is_timing_Xmillisec((uint32_t)(*p_led_tm),10))  //ON
 				{
 					set_led(LED_ID_MODE1,FALSE); 
 					set_led(LED_ID_MODE2,FALSE);
 					set_led(LED_ID_MODE3,FALSE);
+					
+					led_state=LED_OFF;
+					led_bink_cnt++;
 				}
-		
-				led_state=LED_OFF;
-				led_bink_cnt++;
 			}
+			else if(led_beep_ID==2)
+			{
+				if(Is_timing_Xmillisec((uint32_t)(*p_led_tm),10))  //ON
+				{
+					set_led(LED_ID_GREEN,FALSE);
+					Motor_PWM_Freq_Dudy_Set(1,100,0);
+					Motor_PWM_Freq_Dudy_Set(2,100,0);
+					
+					led_state=LED_OFF;
+					led_bink_cnt++;
+				}
+				else
+				{
+					Motor_PWM_Freq_Dudy_Set(1,100,50);
+					Motor_PWM_Freq_Dudy_Set(2,100,50);
+				}
+			}
+			else
+			{
+				//do nothing
+			}			
+#if 0			
+//			if(Is_timing_Xmillisec((uint32_t)(*p_led_tm),10))  //ON
+//			//if(Is_timing_Xmillisec(tm,10))
+//			{
+//				if(led_beep_ID==2)
+//				{
+//					set_led(LED_ID_GREEN,FALSE);
+//				}
+//				else
+//				{
+//					set_led(LED_ID_MODE1,FALSE); 
+//					set_led(LED_ID_MODE2,FALSE);
+//					set_led(LED_ID_MODE3,FALSE);
+//				}
+//		
+//				led_state=LED_OFF;
+//				led_bink_cnt++;
+//			}
+#endif
 		}
 
 		if(led_state==LED_OFF)
@@ -2559,24 +2596,50 @@ void led_blink_beep()
 			}
 			else
 			{
-				if(Is_timing_Xmillisec((uint32_t)(*p_led_tm),10))  //500ms,OFF
-				//if(Is_timing_Xmillisec((tm),10)) 
+				switch(led_beep_ID)
 				{
-//					set_led(LED_ID_MODE1,TRUE); 
-//					set_led(LED_ID_MODE2,TRUE);
-//					set_led(LED_ID_MODE3,TRUE);
-					if(led_beep_ID==2)
-					{
-						set_led(LED_ID_GREEN,TRUE);
-					}
-					else
+					case 1:   //没侦测到手
+						//tm=300;
+						p_led_tm=&nohand_led_tm;
+						p_ledCnt=&nohand_ledCnt;
+						break;
+					case 2:   //治疗结束
+			///			tm=500;
+						p_led_tm=&endTreatment_led_wait_tm;
+						p_ledCnt=&endTreatment_ledCnt;
+		//				case 3:   //usb充电
+		//					p_led_tm=&charge_led_tm;
+		//					p_ledCnt=&charge_ledCnt;
+						break;
+					default:
+						break;
+				}
+				if(led_beep_ID==1)
+				{
+					if(Is_timing_Xmillisec((uint32_t)(*p_led_tm),10))
 					{
 						set_led(LED_ID_MODE1,TRUE); 
 						set_led(LED_ID_MODE2,TRUE);
 						set_led(LED_ID_MODE3,TRUE);
+						
+						led_state=LED_ON;
 					}
-					
-					led_state=LED_ON;
+				}
+				else if(led_beep_ID==2)
+				{
+					if(Is_timing_Xmillisec((uint32_t)(*p_led_tm),10))
+					{
+						set_led(LED_ID_GREEN,TRUE);
+						
+						led_state=LED_ON;
+						
+						Motor_PWM_Freq_Dudy_Set(1,100,50);
+						Motor_PWM_Freq_Dudy_Set(2,100,50);
+					}
+				}
+				else
+				{
+					//do nothing
 				}
 			}
 		}

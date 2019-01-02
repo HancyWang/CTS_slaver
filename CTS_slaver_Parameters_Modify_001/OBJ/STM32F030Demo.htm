@@ -3,7 +3,7 @@
 <title>Static Call Graph - [..\OBJ\STM32F030Demo.axf]</title></head>
 <body><HR>
 <H1>Static Call Graph for image ..\OBJ\STM32F030Demo.axf</H1><HR>
-<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060750: Last Updated: Mon Dec 17 15:40:17 2018
+<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060750: Last Updated: Wed Jan 02 10:20:53 2019
 <BR><P>
 <H3>Maximum Stack Usage =        940 bytes + Unknown(Functions without stacksize, Cycles, Untraceable Function Pointers)</H3><H3>
 Call chain for Maximum Stack Depth:</H3>
@@ -499,7 +499,7 @@ Global Symbols
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> app.o(.text)
 </UL>
-<P><STRONG><a name="[31]"></a>led_blink_beep</STRONG> (Thumb, 542 bytes, Stack size 24 bytes, comm_task.o(.text))
+<P><STRONG><a name="[31]"></a>led_blink_beep</STRONG> (Thumb, 650 bytes, Stack size 24 bytes, comm_task.o(.text))
 <BR><BR>[Stack]<UL><LI>Max Depth = 216<LI>Call Chain = led_blink_beep &rArr; init_system_afterWakeUp &rArr; init_task &rArr; UARTInit &rArr; USART_Init &rArr; RCC_GetClocksFreq
 </UL>
 <BR>[Calls]<UL><LI><a href="#[66]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_PWM_Freq_Dudy_Set
@@ -511,7 +511,7 @@ Global Symbols
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> app.o(.text)
 </UL>
-<P><STRONG><a name="[30]"></a>Detect_battery_and_tmp</STRONG> (Thumb, 298 bytes, Stack size 24 bytes, comm_task.o(.text))
+<P><STRONG><a name="[30]"></a>Detect_battery_and_tmp</STRONG> (Thumb, 290 bytes, Stack size 24 bytes, comm_task.o(.text))
 <BR><BR>[Stack]<UL><LI>Max Depth = 216<LI>Call Chain = Detect_battery_and_tmp &rArr; init_system_afterWakeUp &rArr; init_task &rArr; UARTInit &rArr; USART_Init &rArr; RCC_GetClocksFreq
 </UL>
 <BR>[Calls]<UL><LI><a href="#[76]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;record_dateTime
@@ -525,11 +525,11 @@ Global Symbols
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> app.o(.text)
 </UL>
-<P><STRONG><a name="[81]"></a>reset_hand_detect_state</STRONG> (Thumb, 18 bytes, Stack size 0 bytes, comm_task.o(.text))
+<P><STRONG><a name="[81]"></a>reset_hand_detect_state</STRONG> (Thumb, 20 bytes, Stack size 0 bytes, comm_task.o(.text))
 <BR><BR>[Called By]<UL><LI><a href="#[2d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;check_selectedMode_ouputPWM
 </UL>
 
-<P><STRONG><a name="[2f]"></a>DetectPalm</STRONG> (Thumb, 318 bytes, Stack size 24 bytes, comm_task.o(.text))
+<P><STRONG><a name="[2f]"></a>DetectPalm</STRONG> (Thumb, 320 bytes, Stack size 24 bytes, comm_task.o(.text))
 <BR><BR>[Stack]<UL><LI>Max Depth = 116<LI>Call Chain = DetectPalm &rArr; record_dateTime &rArr; FlashWriteUIntBuffer &rArr; FLASH_ProgramWord &rArr; FLASH_WaitForLastOperation
 </UL>
 <BR>[Calls]<UL><LI><a href="#[76]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;record_dateTime
@@ -541,7 +541,7 @@ Global Symbols
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> app.o(.text)
 </UL>
-<P><STRONG><a name="[2d]"></a>check_selectedMode_ouputPWM</STRONG> (Thumb, 446 bytes, Stack size 496 bytes, comm_task.o(.text))
+<P><STRONG><a name="[2d]"></a>check_selectedMode_ouputPWM</STRONG> (Thumb, 448 bytes, Stack size 496 bytes, comm_task.o(.text))
 <BR><BR>[Stack]<UL><LI>Max Depth = 776<LI>Call Chain = check_selectedMode_ouputPWM &rArr; PaintPWM &rArr; init_system_afterWakeUp &rArr; init_task &rArr; UARTInit &rArr; USART_Init &rArr; RCC_GetClocksFreq
 </UL>
 <BR>[Calls]<UL><LI><a href="#[76]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;record_dateTime
@@ -1377,8 +1377,7 @@ Global Symbols
 <P><STRONG><a name="[54]"></a>init_hardware</STRONG> (Thumb, 62 bytes, Stack size 8 bytes, hardware.o(.text))
 <BR><BR>[Stack]<UL><LI>Max Depth = 124<LI>Call Chain = init_hardware &rArr; Init_ADC1 &rArr; GPIO_Init
 </UL>
-<BR>[Calls]<UL><LI><a href="#[d1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Init_PWRSAVE
-<LI><a href="#[d0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Init_LED
+<BR>[Calls]<UL><LI><a href="#[d0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Init_LED
 <LI><a href="#[ca]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Init_ADS115
 <LI><a href="#[86]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;RCC_AHBPeriphClockCmd
 <LI><a href="#[5d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Init_RecordPage
@@ -1390,6 +1389,7 @@ Global Symbols
 <LI><a href="#[d4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Init_Bat_Charge_Stby
 <LI><a href="#[d3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Init_Switch_Mode
 <LI><a href="#[d2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Init_Valve
+<LI><a href="#[d1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Init_PWRSAVE
 </UL>
 <BR>[Called By]<UL><LI><a href="#[28]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;init_task
 </UL>
@@ -1632,8 +1632,7 @@ Global Symbols
 <P><STRONG><a name="[89]"></a>GPIO_Init</STRONG> (Thumb, 112 bytes, Stack size 20 bytes, stm32f0xx_gpio.o(.text))
 <BR><BR>[Stack]<UL><LI>Max Depth = 20<LI>Call Chain = GPIO_Init
 </UL>
-<BR>[Called By]<UL><LI><a href="#[d1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Init_PWRSAVE
-<LI><a href="#[d0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Init_LED
+<BR>[Called By]<UL><LI><a href="#[d0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Init_LED
 <LI><a href="#[c2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;I2C_SDA_IN
 <LI><a href="#[c1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;I2C_SDA_OUT
 <LI><a href="#[c0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;I2C_uConfiguration
@@ -1650,6 +1649,7 @@ Global Symbols
 <LI><a href="#[d4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Init_Bat_Charge_Stby
 <LI><a href="#[d3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Init_Switch_Mode
 <LI><a href="#[d2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Init_Valve
+<LI><a href="#[d1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Init_PWRSAVE
 </UL>
 
 <P><STRONG><a name="[164]"></a>GPIO_StructInit</STRONG> (Thumb, 18 bytes, Stack size 0 bytes, stm32f0xx_gpio.o(.text), UNUSED)
@@ -1681,11 +1681,11 @@ Global Symbols
 </UL>
 
 <P><STRONG><a name="[62]"></a>GPIO_ResetBits</STRONG> (Thumb, 4 bytes, Stack size 0 bytes, stm32f0xx_gpio.o(.text))
-<BR><BR>[Called By]<UL><LI><a href="#[d1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Init_PWRSAVE
-<LI><a href="#[93]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;CfgALLPins4StopMode
+<BR><BR>[Called By]<UL><LI><a href="#[93]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;CfgALLPins4StopMode
 <LI><a href="#[60]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Operate_magnetic_valve
 <LI><a href="#[5e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;set_led
 <LI><a href="#[d2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Init_Valve
+<LI><a href="#[d1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Init_PWRSAVE
 </UL>
 
 <P><STRONG><a name="[169]"></a>GPIO_WriteBit</STRONG> (Thumb, 12 bytes, Stack size 0 bytes, stm32f0xx_gpio.o(.text), UNUSED)

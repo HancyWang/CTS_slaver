@@ -107,7 +107,7 @@
 int main(void)
 {
 	//self_tet_state=SELF_TEST_INFLATE;
-	//Init_iWtdg(4,1250);  //4*2^4=64分频，1250(大概是1250*1.6ms=2s)
+	Init_iWtdg(4,1250);  //4*2^4=64分频，1250(大概是1250*1.6ms=2s)
   delay_init();
 	
 	os_init();

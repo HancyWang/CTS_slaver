@@ -481,7 +481,7 @@ void LED_Blink_for_alert(uint8_t seconds)
 		set_led(LED_ID_MODE2,FALSE);
 		set_led(LED_ID_MODE3,FALSE);
 		Delay_ms(500);
-//		IWDG_Feed();   //喂狗
+		IWDG_Feed();   //喂狗
 	}
 }
 
@@ -554,7 +554,7 @@ void Red_LED_Blink(unsigned char seconds)
 		Delay_ms(500);
 		set_led(LED_ID_YELLOW,FALSE);
 		Delay_ms(500);
-//		IWDG_Feed();   //喂狗
+		IWDG_Feed();   //喂狗
 	}
 }
 
@@ -1264,6 +1264,9 @@ void PaintPWM(unsigned char num,unsigned char* buffer)
 					//这里是使用PWM3控制PWM1和PWM2的运行时间，这里PWM1和PWM2还在运行，强行停止，让他们直接去下一个serial
 					Motor_PWM_Freq_Dudy_Set(1,100,0);  //强行停止
 					Motor_PWM_Freq_Dudy_Set(2,100,0);
+					//注意：这里时在最后一个wait_between中就将PWM1,PWM2拨到下一个序列了
+					//在逻辑上更倾向于在wait_after中将PWM1,PWM2拨到下一个序列，但是在实际使用体验中
+					//更倾向于气囊按摩完毕之后，马上就将马达变成轻柔的按摩，不然的话气囊完全泄气了，但是马达还会强烈的震动wait_after这么多秒
 					//PWM1和PWM2去下一个序列,当前序列不用管了，将参数设置成下一个序列
 					pwm1_state=PWM_START;   
 					pwm2_state=PWM_START;
@@ -1415,7 +1418,8 @@ void CheckFlashData(unsigned char* buffer)
 			ResetParameter(buffer);
 			return;
 		}
-		if(buffer[2+j]<0||buffer[2+j]>100) //4.duty cycle
+//		if(buffer[2+j]<0||buffer[2+j]>100) //4.duty cycle
+		if(buffer[2+j]>100) //4.duty cycle
 		{
 			ResetParameter(buffer);
 			return;
@@ -1881,8 +1885,17 @@ void usb_charge_battery()
 		
 	if(usb_detect_state==USB_PULL_UP)
 	{
-		EnterStopMode();
-		init_system_afterWakeUp();
+		//2019.1.4,延迟15ms在检测，如果还是低电平，认为是USB没有连接(包括拔掉USB和接触不良导致没连接)
+		delay_ms(15);
+		
+		if(GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_0)==0)
+		{
+			EnterStopMode();
+			init_system_afterWakeUp();
+		}
+		
+//		EnterStopMode();
+//		init_system_afterWakeUp();
 	}
 	
 	if(usb_charging_state==USB_CHECK_CHARG)
@@ -3180,7 +3193,7 @@ void check_selectedMode_ouputPWM()
 ////		init_system_afterWakeUp();
 ////		Motor_PWM_Init();
 //	}
-//	IWDG_Feed();   //喂狗
+	IWDG_Feed();   //喂狗
 	os_delay_ms(TASK_OUTPUT_PWM, CHECK_MODE_OUTPUT_PWM);
 }
 /*******************************************************************************

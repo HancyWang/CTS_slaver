@@ -1319,7 +1319,8 @@ void CheckFlashData(unsigned char* buffer)
 			ResetParameter(buffer);
 			return;
 		}
-		if(buffer[2+j]<0||buffer[2+j]>100) //4.duty cycle
+//		if(buffer[2+j]<0||buffer[2+j]>100) //4.duty cycle
+		if(buffer[2+j]>100) //4.duty cycle
 		{
 			ResetParameter(buffer);
 			return;
@@ -1781,8 +1782,17 @@ void usb_charge_battery()
 		
 	if(usb_detect_state==USB_PULL_UP)
 	{
-		EnterStopMode();
-		init_system_afterWakeUp();
+//		EnterStopMode();
+//		init_system_afterWakeUp();
+		
+		//2019.1.4,延迟15ms在检测，如果还是低电平，认为是USB没有连接(包括拔掉USB和接触不良导致没连接)
+		delay_ms(15);
+		
+		if(GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_0)==0)
+		{
+			EnterStopMode();
+			init_system_afterWakeUp();
+		}
 	}
 	
 	if(usb_charging_state==USB_CHECK_CHARG)

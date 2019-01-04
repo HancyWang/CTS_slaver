@@ -1228,6 +1228,8 @@ void key_power_on_task(void)
 				if(usb_detect_state!=USB_PUSH_IN)
 				{
 					NVIC_SystemReset();
+//					EnterStopMode();
+//					init_system_afterWakeUp();
 				}
 				//key_state=KEY_FAIL_WAKEUP;
 			}

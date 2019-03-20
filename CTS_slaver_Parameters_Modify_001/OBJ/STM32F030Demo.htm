@@ -3,7 +3,7 @@
 <title>Static Call Graph - [..\OBJ\STM32F030Demo.axf]</title></head>
 <body><HR>
 <H1>Static Call Graph for image ..\OBJ\STM32F030Demo.axf</H1><HR>
-<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060750: Last Updated: Fri Jan 04 12:00:20 2019
+<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060422: Last Updated: Tue Mar 12 12:26:39 2019
 <BR><P>
 <H3>Maximum Stack Usage =        940 bytes + Unknown(Functions without stacksize, Cycles, Untraceable Function Pointers)</H3><H3>
 Call chain for Maximum Stack Depth:</H3>
@@ -406,7 +406,7 @@ Global Symbols
 <BR><BR>[Called By]<UL><LI><a href="#[97]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Init_gloab_viriable
 </UL>
 
-<P><STRONG><a name="[78]"></a>Is_timing_Xmillisec</STRONG> (Thumb, 234 bytes, Stack size 16 bytes, comm_task.o(.text))
+<P><STRONG><a name="[78]"></a>Is_timing_Xmillisec</STRONG> (Thumb, 232 bytes, Stack size 16 bytes, comm_task.o(.text))
 <BR><BR>[Stack]<UL><LI>Max Depth = 24<LI>Call Chain = Is_timing_Xmillisec &rArr; __ARM_common_switch8
 </UL>
 <BR>[Calls]<UL><LI><a href="#[79]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__ARM_common_switch8
@@ -2677,7 +2677,7 @@ Global Symbols
 
 <P><STRONG><a name="[239]"></a>RTC_DateStructInit</STRONG> (Thumb, 14 bytes, Stack size 0 bytes, stm32f0xx_rtc.o(.text), UNUSED)
 
-<P><STRONG><a name="[f4]"></a>RTC_GetDate</STRONG> (Thumb, 72 bytes, Stack size 8 bytes, stm32f0xx_rtc.o(.text))
+<P><STRONG><a name="[f4]"></a>RTC_GetDate</STRONG> (Thumb, 68 bytes, Stack size 8 bytes, stm32f0xx_rtc.o(.text))
 <BR><BR>[Stack]<UL><LI>Max Depth = 8<LI>Call Chain = RTC_GetDate
 </UL>
 <BR>[Calls]<UL><LI><a href="#[128]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;RTC_Bcd2ToByte
@@ -2685,12 +2685,12 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[62]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Get_DataTime
 </UL>
 
-<P><STRONG><a name="[12a]"></a>RTC_SetAlarm</STRONG> (Thumb, 152 bytes, Stack size 16 bytes, stm32f0xx_rtc.o(.text), UNUSED)
+<P><STRONG><a name="[12a]"></a>RTC_SetAlarm</STRONG> (Thumb, 130 bytes, Stack size 16 bytes, stm32f0xx_rtc.o(.text), UNUSED)
 <BR><BR>[Calls]<UL><LI><a href="#[128]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;RTC_Bcd2ToByte
 <LI><a href="#[129]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;RTC_ByteToBcd2
 </UL>
 
-<P><STRONG><a name="[23a]"></a>RTC_AlarmStructInit</STRONG> (Thumb, 20 bytes, Stack size 0 bytes, stm32f0xx_rtc.o(.text), UNUSED)
+<P><STRONG><a name="[23a]"></a>RTC_AlarmStructInit</STRONG> (Thumb, 42 bytes, Stack size 0 bytes, stm32f0xx_rtc.o(.text), UNUSED)
 
 <P><STRONG><a name="[12b]"></a>RTC_GetAlarm</STRONG> (Thumb, 90 bytes, Stack size 16 bytes, stm32f0xx_rtc.o(.text), UNUSED)
 <BR><BR>[Calls]<UL><LI><a href="#[128]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;RTC_Bcd2ToByte
@@ -2904,7 +2904,7 @@ Local Symbols
 <BR>[Called By]<UL><LI><a href="#[34]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;SystemInit
 </UL>
 
-<P><STRONG><a name="[70]"></a>ModuleUnPackFrame</STRONG> (Thumb, 198 bytes, Stack size 24 bytes, comm_task.o(.text))
+<P><STRONG><a name="[70]"></a>ModuleUnPackFrame</STRONG> (Thumb, 196 bytes, Stack size 24 bytes, comm_task.o(.text))
 <BR><BR>[Stack]<UL><LI>Max Depth = 932<LI>Call Chain = ModuleUnPackFrame &rArr; protocol_module_process &rArr; send_prameter_fram1_to_PC &rArr; CheckFlashData &rArr; ResetParameter &rArr; FlashWrite &rArr; FLASH_ProgramWord &rArr; FLASH_WaitForLastOperation
 </UL>
 <BR>[Calls]<UL><LI><a href="#[74]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;protocol_module_process

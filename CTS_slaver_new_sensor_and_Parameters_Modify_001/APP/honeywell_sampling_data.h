@@ -1,0 +1,21 @@
+#ifndef _HONEYWELL_SAMPLING_DATA
+#define _HONEYWELL_SAMPLING_DATA
+
+#include "datatype.h"
+
+#define HONEYWELL_SAMPLING_DATA_PERIOD 10
+
+typedef enum 
+{
+	HONEYWELL_START,
+	HONEYWELL_NONE,
+//	HONEYWELL_WAIT_5ms,
+	HONEYWELL_READ_DATA,
+	HONEYWELL_SAMPLE_DATA_FINISH
+}HONEYWELL_STATE;
+
+void honeywell_sampling_data(void);
+UINT32 trans_xmmHg_2_adc_value(UINT8 xmmHg);
+#endif //_HONEYWELL_SAMPLING_DATA
+
+

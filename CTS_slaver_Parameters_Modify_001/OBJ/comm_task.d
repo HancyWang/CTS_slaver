@@ -7,7 +7,7 @@
 ..\obj\comm_task.o: ..\OS\os_core.h
 ..\obj\comm_task.o: ..\User\stm32f0xx.h
 ..\obj\comm_task.o: ..\CORE\core_cm0.h
-..\obj\comm_task.o: D:\Program Files (x86)\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
+..\obj\comm_task.o: D:\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
 ..\obj\comm_task.o: ..\CORE\core_cmInstr.h
 ..\obj\comm_task.o: ..\CORE\core_cmFunc.h
 ..\obj\comm_task.o: ..\User\system_stm32f0xx.h
@@ -18,9 +18,9 @@
 ..\obj\comm_task.o: ..\STM32F03x_FWLib\inc\stm32f0xx_rcc.h
 ..\obj\comm_task.o: ..\STM32F03x_FWLib\inc\stm32f0xx_usart.h
 ..\obj\comm_task.o: ..\STM32F03x_FWLib\inc\stm32f0xx_misc.h
-..\obj\comm_task.o: D:\Program Files (x86)\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h
+..\obj\comm_task.o: D:\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h
 ..\obj\comm_task.o: ..\SYSTEM\delay.h
-..\obj\comm_task.o: D:\Program Files (x86)\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
+..\obj\comm_task.o: D:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
 ..\obj\comm_task.o: ..\APP\app.h
 ..\obj\comm_task.o: ..\SYSTEM\serial_port.h
 ..\obj\comm_task.o: ..\User\device_type.h

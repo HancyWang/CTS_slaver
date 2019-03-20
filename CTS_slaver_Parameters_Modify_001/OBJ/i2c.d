@@ -1,7 +1,7 @@
 ..\obj\i2c.o: ..\APP\i2c.c
 ..\obj\i2c.o: ..\User\stm32f0xx.h
 ..\obj\i2c.o: ..\CORE\core_cm0.h
-..\obj\i2c.o: D:\Program Files (x86)\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
+..\obj\i2c.o: D:\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
 ..\obj\i2c.o: ..\CORE\core_cmInstr.h
 ..\obj\i2c.o: ..\CORE\core_cmFunc.h
 ..\obj\i2c.o: ..\User\system_stm32f0xx.h

@@ -780,8 +780,6 @@ void send_rtc_info(uint16_t frameX)
 	tmp_cnt=page_rest/DATA_RECORD_CNT;  //满包要发送的次数
 	tmp_rest=page_rest%DATA_RECORD_CNT; //非满包的记录条数
 	
-	
-	//代码有问题，一次只能发一个包，这个是在任务中完成的，不能在这里使用for来一次发完
 	if(frameX<=9*pages_numbers)
 	{
 		uint8_t* p=(uint8_t*)pageBuff;

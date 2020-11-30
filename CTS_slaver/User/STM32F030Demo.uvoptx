@@ -160,50 +160,50 @@
         <Bp>
           <Number>0</Number>
           <Type>0</Type>
-          <LineNumber>727</LineNumber>
+          <LineNumber>561</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>134228960</Address>
+          <Address>134240758</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
           <SizeOfObject>0</SizeOfObject>
           <BreakByAccess>0</BreakByAccess>
           <BreakIfRCount>1</BreakIfRCount>
-          <Filename>..\MODULE\protocol_module.c</Filename>
+          <Filename>..\STM32F03x_FWLib\src\stm32f0xx_rtc.c</Filename>
           <ExecCommand></ExecCommand>
-          <Expression>\\STM32F030Demo\../MODULE/protocol_module.c\727</Expression>
+          <Expression>\\STM32F030Demo\../STM32F03x_FWLib/src/stm32f0xx_rtc.c\561</Expression>
         </Bp>
         <Bp>
           <Number>1</Number>
           <Type>0</Type>
-          <LineNumber>736</LineNumber>
+          <LineNumber>565</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>134228992</Address>
+          <Address>134240762</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
           <SizeOfObject>0</SizeOfObject>
           <BreakByAccess>0</BreakByAccess>
           <BreakIfRCount>1</BreakIfRCount>
-          <Filename>..\MODULE\protocol_module.c</Filename>
+          <Filename>..\STM32F03x_FWLib\src\stm32f0xx_rtc.c</Filename>
           <ExecCommand></ExecCommand>
-          <Expression>\\STM32F030Demo\../MODULE/protocol_module.c\736</Expression>
+          <Expression>\\STM32F030Demo\../STM32F03x_FWLib/src/stm32f0xx_rtc.c\565</Expression>
         </Bp>
         <Bp>
           <Number>2</Number>
           <Type>0</Type>
-          <LineNumber>730</LineNumber>
+          <LineNumber>569</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>134228966</Address>
+          <Address>134240764</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
           <SizeOfObject>0</SizeOfObject>
           <BreakByAccess>0</BreakByAccess>
           <BreakIfRCount>1</BreakIfRCount>
-          <Filename>..\MODULE\protocol_module.c</Filename>
+          <Filename>..\STM32F03x_FWLib\src\stm32f0xx_rtc.c</Filename>
           <ExecCommand></ExecCommand>
-          <Expression>\\STM32F030Demo\../MODULE/protocol_module.c\730</Expression>
+          <Expression>\\STM32F030Demo\../STM32F03x_FWLib/src/stm32f0xx_rtc.c\569</Expression>
         </Bp>
       </Breakpoint>
       <WatchWindow1>
@@ -249,6 +249,11 @@
           <WinNumber>2</WinNumber>
           <ItemText>bufferSend</ItemText>
         </Ww>
+        <Ww>
+          <count>3</count>
+          <WinNumber>2</WinNumber>
+          <ItemText>res</ItemText>
+        </Ww>
       </WatchWindow2>
       <MemoryWindow1>
         <Mm>
@@ -262,7 +267,7 @@
         <Mm>
           <WinNumber>4</WinNumber>
           <SubType>0</SubType>
-          <ItemText>0x08000000+1024*43</ItemText>
+          <ItemText>0x08000000+1024*34</ItemText>
           <AccSizeX>0</AccSizeX>
         </Mm>
       </MemoryWindow4>

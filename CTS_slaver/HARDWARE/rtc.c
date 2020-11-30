@@ -2,6 +2,7 @@
 #include "stm32f0xx_rcc.h"
 #include "stm32f0xx_pwr.h"
 #include "delay.h"
+//#include "hardware.h"
 
 volatile unsigned int AsynchPrediv = 0, SynchPrediv = 0;
 
@@ -9,8 +10,9 @@ volatile unsigned int AsynchPrediv = 0, SynchPrediv = 0;
 
 void Get_DataTime(RTC_DateTypeDef* RTC_DateStructure,RTC_TimeTypeDef* RTC_TimeStructure)
 { 
-	RTC_GetDate(RTC_Format_BIN,RTC_DateStructure);
+	//先读time,在读date，如果反过来会导致跨零点是，time ok而date还跟以前一样
 	RTC_GetTime(RTC_Format_BIN,RTC_TimeStructure);
+	RTC_GetDate(RTC_Format_BIN,RTC_DateStructure);
 }
 
 char chage_to_RCT_month(char month)
@@ -97,7 +99,8 @@ _Bool Set_RTC(uint8_t* pdata)
 //		RTC_TimeStructure.RTC_Seconds=25;
 		
 		RTC_DateStructure.RTC_Year=pdata[5];
-		RTC_DateStructure.RTC_Month=chage_to_RCT_month(pdata[6]);
+//		RTC_DateStructure.RTC_Month=chage_to_RCT_month(pdata[6]);
+		RTC_DateStructure.RTC_Month=pdata[6];
 		RTC_DateStructure.RTC_Date=pdata[7];
 	//	RTC_DateStructure.RTC_WeekDay=RTC_Weekday_Tuesday;
 		RTC_TimeStructure.RTC_Hours=pdata[8];
@@ -112,20 +115,28 @@ _Bool Set_RTC(uint8_t* pdata)
 		
 		RTC_SetDate(RTC_Format_BIN,&RTC_DateStructure);
 		RTC_SetTime(RTC_Format_BIN,&RTC_TimeStructure);
-		
-		RTC_WriteBackupRegister(RTC_BKP_DR1,0x1234);
-		
-		while(1)   //同步时间有时候失败，这里将rtc时间读出来，只有全部都对了才ok
-		{
-			Get_DataTime(&RTC_DateStructure,&RTC_TimeStructure);
+	
+//		RTC_WriteBackupRegister(RTC_BKP_DR1,0x1234);  //这个不需要
+#if 0
+		//这里发现两个问题:
+		//1.读取时间不能马上就读取，要延时几秒才能读取
+		//2. if语句是个bug：如果碰到 跨年，月，日，时分秒等，这个语句就不成立
+//		while(1)   
+//		{
+//			delay_ms(2000);
+//			delay_ms(2000);
+//			delay_ms(2000);
+//			Get_DataTime(&RTC_DateStructure,&RTC_TimeStructure);
+//			
+////			if(RTC_DateStructure.RTC_Year==pdata[5]&&RTC_DateStructure.RTC_Month==chage_to_RCT_month(pdata[6])
+////				&&RTC_DateStructure.RTC_Date==pdata[7]&&RTC_TimeStructure.RTC_Hours==pdata[8]
+////			&&RTC_TimeStructure.RTC_Minutes==pdata[9]&&RTC_TimeStructure.RTC_Seconds==pdata[10])
+////			{
+////				break;
+////			}
+//		}
+#endif
 
-			if(RTC_DateStructure.RTC_Year==pdata[5]&&RTC_DateStructure.RTC_Month==chage_to_RCT_month(pdata[6])
-				&&RTC_DateStructure.RTC_Date==pdata[7]&&RTC_TimeStructure.RTC_Hours==pdata[8]
-			&&RTC_TimeStructure.RTC_Minutes==pdata[9]&&RTC_TimeStructure.RTC_Seconds==pdata[10])
-			{
-				break;
-			}
-		}
 	}
 //	else
 //	{

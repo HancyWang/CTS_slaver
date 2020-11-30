@@ -508,25 +508,25 @@ BOOL get_key_status(void)
 **************************************************************/
 //RTC RCC
 #if 0
-void init_rtc_rcc(void)
-{
-	//配置时钟
-	RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOA | RCC_AHBPeriph_GPIOB, ENABLE);
-	RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR, ENABLE);
-}
+//void init_rtc_rcc(void)
+//{
+//	//配置时钟
+//	RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOA | RCC_AHBPeriph_GPIOB, ENABLE);
+//	RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR, ENABLE);
+//}
 
-//rTC配置
-void config_rtc(void)
-{
-	RCC_LSICmd(ENABLE);//
-	
-	while(RCC_GetFlagStatus(RCC_FLAG_LSIRDY) == RESET);//等待就绪
-	
-	RCC_RTCCLKConfig(RCC_RTCCLKSource_LSI);
-	
-	RCC_RTCCLKCmd(ENABLE);
-	RTC_WaitForSynchro();
-}
+////rTC配置
+//void config_rtc(void)
+//{
+//	RCC_LSICmd(ENABLE);//
+//	
+//	while(RCC_GetFlagStatus(RCC_FLAG_LSIRDY) == RESET);//等待就绪
+//	
+//	RCC_RTCCLKConfig(RCC_RTCCLKSource_LSI);
+//	
+//	RCC_RTCCLKCmd(ENABLE);
+//	RTC_WaitForSynchro();
+//}
 #endif
 #if 0
 ////RTC初始化

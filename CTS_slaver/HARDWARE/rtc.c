@@ -67,15 +67,14 @@ void RTC_Config(void)
 _Bool Set_RTC(uint8_t* pdata)
 //void Init_RTC()
 {
-	
-	if(pdata[0]!=0xFF)
-	{
-		return 0;
-	}
-	if(pdata[1]!=11)
-	{
-		return 0;
-	}
+//	if(pdata[0]!=0xFF)
+//	{
+//		return 0;
+//	}
+//	if(pdata[1]!=12)
+//	{
+//		return 0;
+//	}
 	
 	RTC_InitTypeDef RTC_InitStructure;
 	RTC_DateTypeDef RTC_DateStructure;
@@ -102,19 +101,19 @@ _Bool Set_RTC(uint8_t* pdata)
 //		RTC_DateStructure.RTC_Month=chage_to_RCT_month(pdata[6]);
 		RTC_DateStructure.RTC_Month=pdata[6];
 		RTC_DateStructure.RTC_Date=pdata[7];
-	//	RTC_DateStructure.RTC_WeekDay=RTC_Weekday_Tuesday;
-		RTC_TimeStructure.RTC_Hours=pdata[8];
-		RTC_TimeStructure.RTC_Minutes=pdata[9];
-		RTC_TimeStructure.RTC_Seconds=pdata[10];
+//		RTC_DateStructure.RTC_WeekDay=pdata[8]==0?7:pdata[8];  //这个可以不需要
 		
+		RTC_TimeStructure.RTC_Hours=pdata[9];
+		RTC_TimeStructure.RTC_Minutes=pdata[10];
+		RTC_TimeStructure.RTC_Seconds=pdata[11];
 		
 		if(RTC_Init(&RTC_InitStructure)== ERROR)
 		{
 			while(1);   //初始化失败
 		}
-		
-		RTC_SetDate(RTC_Format_BIN,&RTC_DateStructure);
 		RTC_SetTime(RTC_Format_BIN,&RTC_TimeStructure);
+		RTC_SetDate(RTC_Format_BIN,&RTC_DateStructure);
+//		RTC_SetTime(RTC_Format_BIN,&RTC_TimeStructure);
 	
 //		RTC_WriteBackupRegister(RTC_BKP_DR1,0x1234);  //这个不需要
 #if 0

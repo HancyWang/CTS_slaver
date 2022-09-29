@@ -3,7 +3,7 @@
 <title>Static Call Graph - [..\OBJ\STM32F030Demo.axf]</title></head>
 <body><HR>
 <H1>Static Call Graph for image ..\OBJ\STM32F030Demo.axf</H1><HR>
-<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060422: Last Updated: Wed Jan 01 00:02:49 2020
+<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060422: Last Updated: Thu Sep 29 20:57:33 2022
 <BR><P>
 <H3>Maximum Stack Usage =        940 bytes + Unknown(Functions without stacksize, Cycles, Untraceable Function Pointers)</H3><H3>
 Call chain for Maximum Stack Depth:</H3>
@@ -282,7 +282,7 @@ Global Symbols
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> main.o(.text)
 </UL>
-<P><STRONG><a name="[5a]"></a>test_task</STRONG> (Thumb, 98 bytes, Stack size 16 bytes, app.o(.text), UNUSED)
+<P><STRONG><a name="[5a]"></a>test_task</STRONG> (Thumb, 94 bytes, Stack size 16 bytes, app.o(.text), UNUSED)
 <BR><BR>[Calls]<UL><LI><a href="#[5e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;set_led
 <LI><a href="#[5c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;reset_dateTime
 <LI><a href="#[5f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;record_dateTime
@@ -1470,11 +1470,11 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[b7]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Set_RTC
 </UL>
 
-<P><STRONG><a name="[b7]"></a>Set_RTC</STRONG> (Thumb, 104 bytes, Stack size 32 bytes, rtc.o(.text))
+<P><STRONG><a name="[b7]"></a>Set_RTC</STRONG> (Thumb, 88 bytes, Stack size 32 bytes, rtc.o(.text))
 <BR><BR>[Stack]<UL><LI>Max Depth = 68<LI>Call Chain = Set_RTC &rArr; RTC_SetTime &rArr; RTC_EnterInitMode
 </UL>
-<BR>[Calls]<UL><LI><a href="#[fa]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;RTC_SetTime
-<LI><a href="#[f9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;RTC_SetDate
+<BR>[Calls]<UL><LI><a href="#[f9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;RTC_SetTime
+<LI><a href="#[fa]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;RTC_SetDate
 <LI><a href="#[f8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;RTC_Init
 <LI><a href="#[f2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PWR_BackupAccessCmd
 <LI><a href="#[f1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;RTC_Config
@@ -2550,8 +2550,8 @@ Global Symbols
 </UL>
 <BR>[Called By]<UL><LI><a href="#[129]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;RTC_SynchroShiftConfig
 <LI><a href="#[120]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;RTC_DeInit
-<LI><a href="#[fa]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;RTC_SetTime
-<LI><a href="#[f9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;RTC_SetDate
+<LI><a href="#[f9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;RTC_SetTime
+<LI><a href="#[fa]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;RTC_SetDate
 <LI><a href="#[f1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;RTC_Config
 </UL>
 
@@ -2560,8 +2560,8 @@ Global Symbols
 </UL>
 <BR>[Called By]<UL><LI><a href="#[123]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;RTC_RefClockCmd
 <LI><a href="#[120]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;RTC_DeInit
-<LI><a href="#[fa]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;RTC_SetTime
-<LI><a href="#[f9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;RTC_SetDate
+<LI><a href="#[f9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;RTC_SetTime
+<LI><a href="#[fa]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;RTC_SetDate
 <LI><a href="#[f8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;RTC_Init
 </UL>
 
@@ -2572,8 +2572,8 @@ Global Symbols
 
 <P><STRONG><a name="[122]"></a>RTC_ExitInitMode</STRONG> (Thumb, 12 bytes, Stack size 0 bytes, stm32f0xx_rtc_1.o(.text))
 <BR><BR>[Called By]<UL><LI><a href="#[123]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;RTC_RefClockCmd
-<LI><a href="#[fa]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;RTC_SetTime
-<LI><a href="#[f9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;RTC_SetDate
+<LI><a href="#[f9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;RTC_SetTime
+<LI><a href="#[fa]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;RTC_SetDate
 <LI><a href="#[f8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;RTC_Init
 </UL>
 
@@ -2597,7 +2597,7 @@ Global Symbols
 
 <P><STRONG><a name="[22e]"></a>RTC_BypassShadowCmd</STRONG> (Thumb, 34 bytes, Stack size 0 bytes, stm32f0xx_rtc_1.o(.text), UNUSED)
 
-<P><STRONG><a name="[fa]"></a>RTC_SetTime</STRONG> (Thumb, 142 bytes, Stack size 24 bytes, stm32f0xx_rtc_1.o(.text))
+<P><STRONG><a name="[f9]"></a>RTC_SetTime</STRONG> (Thumb, 142 bytes, Stack size 24 bytes, stm32f0xx_rtc_1.o(.text))
 <BR><BR>[Stack]<UL><LI>Max Depth = 36<LI>Call Chain = RTC_SetTime &rArr; RTC_EnterInitMode
 </UL>
 <BR>[Calls]<UL><LI><a href="#[122]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;RTC_ExitInitMode
@@ -2621,7 +2621,7 @@ Global Symbols
 
 <P><STRONG><a name="[230]"></a>RTC_GetSubSecond</STRONG> (Thumb, 8 bytes, Stack size 0 bytes, stm32f0xx_rtc_1.o(.text), UNUSED)
 
-<P><STRONG><a name="[f9]"></a>RTC_SetDate</STRONG> (Thumb, 140 bytes, Stack size 16 bytes, stm32f0xx_rtc_1.o(.text))
+<P><STRONG><a name="[fa]"></a>RTC_SetDate</STRONG> (Thumb, 140 bytes, Stack size 16 bytes, stm32f0xx_rtc_1.o(.text))
 <BR><BR>[Stack]<UL><LI>Max Depth = 28<LI>Call Chain = RTC_SetDate &rArr; RTC_EnterInitMode
 </UL>
 <BR>[Calls]<UL><LI><a href="#[122]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;RTC_ExitInitMode
@@ -2919,16 +2919,16 @@ Local Symbols
 
 <P><STRONG><a name="[125]"></a>RTC_ByteToBcd2</STRONG> (Thumb, 24 bytes, Stack size 0 bytes, stm32f0xx_rtc_1.o(.text))
 <BR><BR>[Called By]<UL><LI><a href="#[126]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;RTC_SetAlarm
-<LI><a href="#[fa]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;RTC_SetTime
-<LI><a href="#[f9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;RTC_SetDate
+<LI><a href="#[f9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;RTC_SetTime
+<LI><a href="#[fa]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;RTC_SetDate
 </UL>
 
 <P><STRONG><a name="[124]"></a>RTC_Bcd2ToByte</STRONG> (Thumb, 16 bytes, Stack size 0 bytes, stm32f0xx_rtc_1.o(.text))
 <BR><BR>[Called By]<UL><LI><a href="#[128]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;RTC_GetTimeStamp
 <LI><a href="#[127]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;RTC_GetAlarm
 <LI><a href="#[126]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;RTC_SetAlarm
-<LI><a href="#[fa]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;RTC_SetTime
-<LI><a href="#[f9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;RTC_SetDate
+<LI><a href="#[f9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;RTC_SetTime
+<LI><a href="#[fa]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;RTC_SetDate
 <LI><a href="#[ef]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;RTC_GetTime
 <LI><a href="#[f0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;RTC_GetDate
 </UL>

@@ -129,7 +129,7 @@ void test_task(void)
 //		}
 //		
 		//debug
-		if(flash_write_cnt==500)
+		if(flash_write_cnt==1)
 		{
 			flash_write_cnt=0;
 			b_testFlag=0;
